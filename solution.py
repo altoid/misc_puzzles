@@ -43,7 +43,9 @@ def expand_keys(key, doc):
     components = key.split('.')
     current_path = []
     result = {}
-    expand_helper(current_path, components, doc, result)
+
+    if key:
+        expand_helper(current_path, components, doc, result)
     return result
 
 
@@ -103,6 +105,11 @@ class Tests(unittest.TestCase):
     def test5(self):
         test = {'a': {'b': {'c': 'hello'}, 'd': {'c': 'sup', 'e': {'f': 'blah blah blah'}}}}
         result = expand_keys('*', self.doc)
+        self.assertEqual(test, result)
+
+    def test6(self):
+        test = {}
+        result = expand_keys('', self.doc)
         self.assertEqual(test, result)
 
 
