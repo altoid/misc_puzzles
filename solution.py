@@ -10,7 +10,7 @@ def expand_helper(current_path, components, doc, result):
 
     component = components[0]
     if len(components) == 1:
-        if component in doc:
+        if component != '*' and component in doc:
             current_path.append(component)
             key = '.'.join(current_path)
             result[key] = doc[component]
@@ -27,6 +27,9 @@ def expand_helper(current_path, components, doc, result):
         if component not in doc:
             return
 
+        if not type(doc[component]) is dict:
+            return
+
         current_path.append(component)
         expand_helper(current_path, components[1:], doc[component], result)
         current_path.pop()
@@ -34,6 +37,9 @@ def expand_helper(current_path, components, doc, result):
 
 # return a collection of keys matching the key expression.
 def expand_keys(key, doc):
+    if key == '*':
+        return doc
+
     components = key.split('.')
     current_path = []
     result = {}
@@ -82,6 +88,21 @@ class Tests(unittest.TestCase):
     def test2(self):
         test = {'a.b.c': 'hello', 'a.d.c': 'sup'}
         result = expand_keys('a.*.c', self.doc)
+        self.assertEqual(test, result)
+
+    def test3(self):
+        test = {'a.d.e': {'f': 'blah blah blah'}}
+        result = expand_keys('a.*.e', self.doc)
+        self.assertEqual(test, result)
+
+    def test4(self):
+        test = {}
+        result = expand_keys('a.b.c.e.*', self.doc)
+        self.assertEqual(test, result)
+
+    def test5(self):
+        test = {'a': {'b': {'c': 'hello'}, 'd': {'c': 'sup', 'e': {'f': 'blah blah blah'}}}}
+        result = expand_keys('*', self.doc)
         self.assertEqual(test, result)
 
 
