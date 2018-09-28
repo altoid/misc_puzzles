@@ -40,7 +40,8 @@ def serialize_helper(node, acc):
 
 def serialize(root):
     accumulator = []
-    serialize_helper(root, accumulator)
+    if root:
+        serialize_helper(root, accumulator)
     return accumulator
 
 
@@ -49,14 +50,14 @@ def deserialize(ser):
         return None
 
     if not ser[0]:
-        # bad dog!
-        raise Exception("degenerate root node of serialized tree")
+        return None
 
     stack = [Node(ser[0])]
 
     for n in ser[1:]:
         top = stack[-1]
-    
+
+        # unwind stack to find the most recently-seen node with fewer than 2 children
         while len(top.children) > 1:
             stack.pop()
             top = stack[-1]
@@ -95,3 +96,12 @@ class Tests(unittest.TestCase):
         ser2 = serialize(deser)
 
         self.assertEqual(ser1, ser2)
+
+    def test_empty_tree(self):
+        r = None
+        ser1 = serialize(r)
+        deser = deserialize(ser1)
+        ser2 = serialize(deser)
+
+        self.assertEqual(ser1, ser2)
+        self.assertEqual([], ser1)
