@@ -7,6 +7,13 @@ class Node(object):
         self.label = label
         self.children = []
 
+    def __str__(self):
+        return str(self.label)
+
+    def __expr__(self):
+        return str(self.label)
+
+
 def serialize_helper(node, acc):
     if not node:
         acc.append(None)
@@ -30,6 +37,12 @@ def serialize_helper(node, acc):
     serialize_helper(left, acc)
     serialize_helper(right, acc)
 
+
+def serialize(root):
+    accumulator = []
+    serialize_helper(root, accumulator)
+    return accumulator
+    
 def deserialize_helper(n, stack):
     top = stack[-1]
 
@@ -59,17 +72,28 @@ def deserialize(ser):
     stack = [Node(ser[0])]
 
     for n in ser[1:]:
-        deserialize_helper(n, stack)
-
+        top = stack[-1]
     
-def serialize(root):
-    accumulator = []
-    serialize_helper(root, accumulator)
-    return accumulator
+        while len(top.children) > 1:
+            stack.pop()
+            top = stack[-1]
+    
+        node = Node(n) if n else None
+        top.children.append(node)
+
+        if node:
+            stack.append(node)
+
+    return stack[0]
 
     
 class Tests(unittest.TestCase):
     def test1(self):
+        """
+        test everything.  create a tree, serialize it, deserialize it, serialize THAT, and make sure
+        both serializations are the same.
+        """
+
         r = Node(1)
         n2 = Node(2)
         n3 = Node(3)
@@ -81,5 +105,10 @@ class Tests(unittest.TestCase):
         n2.children += [None, n9]
         n3.children += [n4, n5]
 
-        ser = serialize(r)
-        self.assertEqual([1, 2, None, 9, None, None, 3, 4, None, None, 5, None, None], ser)
+        ser1 = serialize(r)
+        self.assertEqual([1, 2, None, 9, None, None, 3, 4, None, None, 5, None, None], ser1)
+
+        deser = deserialize(ser1)
+        ser2 = serialize(deser)
+
+        self.assertEqual(ser1, ser2)
