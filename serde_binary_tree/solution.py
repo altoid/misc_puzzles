@@ -105,3 +105,36 @@ class Tests(unittest.TestCase):
 
         self.assertEqual(ser1, ser2)
         self.assertEqual([], ser1)
+
+    def test_singleton_tree(self):
+        r = Node(1)
+        ser1 = serialize(r)
+        deser = deserialize(ser1)
+        ser2 = serialize(deser)
+
+        self.assertEqual(ser1, ser2)
+        self.assertEqual([1, None, None], ser1)
+
+    def test_left_child_only(self):
+        r = Node(1)
+        n2 = Node(2)
+
+        r.children += [n2, None]
+        ser1 = serialize(r)
+        deser = deserialize(ser1)
+        ser2 = serialize(deser)
+
+        self.assertEqual(ser1, ser2)
+        self.assertEqual([1, 2, None, None, None], ser1)
+
+    def test_right_child_only(self):
+        r = Node(1)
+        n3 = Node(3)
+
+        r.children += [None, n3]
+        ser1 = serialize(r)
+        deser = deserialize(ser1)
+        ser2 = serialize(deser)
+
+        self.assertEqual(ser1, ser2)
+        self.assertEqual([1, None, 3, None, None], ser1)
