@@ -42,23 +42,6 @@ def serialize(root):
     accumulator = []
     serialize_helper(root, accumulator)
     return accumulator
-    
-def deserialize_helper(n, stack):
-    top = stack[-1]
-
-    while len(top.children) > 1:
-        top = stack.pop()
-        if not stack:
-            # root node is at bottom of stack
-            return top
-
-        top = stack[-1]
-
-    node = Node(n) if n else None
-    top.children.append(node)
-
-    if node:
-        stack.append(node)
 
 
 def deserialize(ser):
