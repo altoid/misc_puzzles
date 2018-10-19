@@ -31,7 +31,7 @@ object Misc {
      of x that is larger than x (y)
    - sort the list [x+1:]
    */
-  def successor[A](l: List[A]): List[A] = {
+  def successor[A](l: List[A])(ordering: Ordering[A]): List[A] = {
     def index_of_swap_candidate(i: Int): Int = {
       // scan right-to-left to first item x that is smaller than
       // the one to its right.  return -1 if this condition cannot be met.
@@ -41,7 +41,7 @@ object Misc {
 
       if (i < 0) -1
       else {
-        if (l(i) < l(i + 1)) i
+        if (ordering.lt(l(i), l(i + 1))) i
         else index_of_swap_candidate(i - 1)
       }
     }
@@ -54,7 +54,7 @@ object Misc {
         var answer = j
         var m = l(j) // we know this is bigger than l(i)
         while (j < l.length) {
-          if (l(i) < l(j) && l(j) < m) {
+          if (ordering.lt(l(i), l(j)) && ordering.lt(l(j), m)) {
             m = l(j)
             answer = j
           }
@@ -76,7 +76,7 @@ object Misc {
         val (c, d) = b.splitAt(x - k)
 
         val rest = (d.head :: c.tail) ::: (c.head :: d.tail)
-        return a ::: (rest.head :: rest.tail.sorted)
+        return a ::: (rest.head :: rest.tail.sorted(ordering))
       }
     }
 
@@ -163,7 +163,7 @@ object Misc {
     var l = List(1,2,3,4)
     while (l != Nil) {
       println(l)
-      l = successor(l)
+      l = successor(l)(Ordering[Int]) // Ordering[Int] has a companion object, which we pass here.
     }
 
     println(romanToDecimal("mdccclxxv")) // 1875
