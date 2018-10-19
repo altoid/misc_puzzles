@@ -115,43 +115,47 @@ object Misc {
   400 = cd
    */
 
-  type RomanNumeral = String
+  class RomanNumeral(val roman: String) extends Ordering[RomanNumeral] {
 
-  def romanToDecimal(r: RomanNumeral): Int = {
-    // works for roman numbers that are correct, but doesn't check for invalid ones - permits iiimmm
-    // would have to add succession rules:
-    // i - x, v, i
-    // v - anything smaller
-    // x - x, v, i, l, c
-    // l - anything smaller
-    // c - anything
-    // d - anything smaller
-    // m - anything
-    //
-    // these rules still permit cmmm
-    // for now, fuck it
+    def toInt(): Int = {
+      // works for roman numbers that are correct, but doesn't check for invalid ones - permits iiimmm
+      // would have to add succession rules:
+      // i - x, v, i
+      // v - anything smaller
+      // x - x, v, i, l, c
+      // l - anything smaller
+      // c - anything
+      // d - anything smaller
+      // m - anything
+      //
+      // these rules still permit cmmm
+      // for now, fuck it
 
-    @tailrec
-    def helper(acc: Int, arr: List[Char]): Int = {
-      arr match {
-        case 'i' :: 'v' :: rest => helper(4 + acc, rest)
-        case 'i' :: 'x' :: rest => helper(9 + acc, rest)
-        case 'i' :: rest => helper(1 + acc, rest)
-        case 'v' :: rest => helper(5 + acc, rest)
-        case 'x' :: 'l' :: rest => helper(40 + acc, rest)
-        case 'x' :: 'c' :: rest => helper(90 + acc, rest)
-        case 'x' :: rest => helper(10 + acc, rest)
-        case 'l' :: rest => helper(50 + acc, rest)
-        case 'c' :: 'd' :: rest => helper(400 + acc, rest)
-        case 'c' :: 'm' :: rest => helper(900 + acc, rest)
-        case 'c' :: rest => helper(100 + acc, rest)
-        case 'd' :: rest => helper(500 + acc, rest)
-        case 'm' :: rest => helper(1000 + acc, rest)
-        case Nil => acc
+      @tailrec
+      def helper(acc: Int, arr: List[Char]): Int = {
+        arr match {
+          case 'i' :: 'v' :: rest => helper(4 + acc, rest)
+          case 'i' :: 'x' :: rest => helper(9 + acc, rest)
+          case 'i' :: rest => helper(1 + acc, rest)
+          case 'v' :: rest => helper(5 + acc, rest)
+          case 'x' :: 'l' :: rest => helper(40 + acc, rest)
+          case 'x' :: 'c' :: rest => helper(90 + acc, rest)
+          case 'x' :: rest => helper(10 + acc, rest)
+          case 'l' :: rest => helper(50 + acc, rest)
+          case 'c' :: 'd' :: rest => helper(400 + acc, rest)
+          case 'c' :: 'm' :: rest => helper(900 + acc, rest)
+          case 'c' :: rest => helper(100 + acc, rest)
+          case 'd' :: rest => helper(500 + acc, rest)
+          case 'm' :: rest => helper(1000 + acc, rest)
+          case Nil => acc
+        }
       }
+
+      helper(0, roman.toList)
     }
 
-    helper(0, r.toList)
+    override def compare(x: RomanNumeral, y: RomanNumeral): Int = x.toInt() compare y.toInt()
+    override def toString: String = roman
   }
 
   def main(args: Array[String]): Unit = {
@@ -160,21 +164,28 @@ object Misc {
 //
 //    successor(List(4, 3, 2, 1)) foreach println
 //
-    var l = List(1,2,3,4)
-    while (l != Nil) {
-      println(l)
-      l = successor(l)(Ordering[Int]) // Ordering[Int] has a companion object, which we pass here.
-    }
+//    var l = List(1,2,3,4)
+//    while (l != Nil) {
+//      println(l)
+//      l = successor(l)(Ordering[Int]) // Ordering[Int] has a companion object, which we pass here.
+//    }
 
-    println(romanToDecimal("mdccclxxv")) // 1875
-    println(romanToDecimal("mm"))
-    println(romanToDecimal("mcm"))
-    println(romanToDecimal("mc"))
-    println(romanToDecimal("cm"))
-    println(romanToDecimal("mmiii"))
-    println(romanToDecimal("i"))
-    println(romanToDecimal("v"))
-    println(romanToDecimal("xii"))
+    println(new RomanNumeral("mdccclxxv").toInt()) // 1875
+//    println(romanToDecimal("mm"))
+//    println(romanToDecimal("mcm"))
+//    println(romanToDecimal("mc"))
+//    println(romanToDecimal("cm"))
+//    println(romanToDecimal("mmiii"))
+//    println(romanToDecimal("i"))
+//    println(romanToDecimal("v"))
+//    println(romanToDecimal("xii"))
+
+    val cm = new RomanNumeral("cm")
+    val d = new RomanNumeral("d")
+    val x = new RomanNumeral("x")
+
+    val rnums = List(cm, d, x)
+    println(rnums.sorted(Ordering[RomanNumeral]))
   }
 
 }
