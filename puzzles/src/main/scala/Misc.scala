@@ -115,7 +115,7 @@ object Misc {
   400 = cd
    */
 
-  class RomanNumeral(val roman: String) extends Ordering[RomanNumeral] {
+  class RomanNumeral(val roman: String) {
 
     def toInt(): Int = {
       // works for roman numbers that are correct, but doesn't check for invalid ones - permits iiimmm
@@ -154,8 +154,12 @@ object Misc {
       helper(0, roman.toList)
     }
 
-    override def compare(x: RomanNumeral, y: RomanNumeral): Int = x.toInt() compare y.toInt()
+//    override def compare(x: RomanNumeral, y: RomanNumeral): Int = x.toInt() compare y.toInt()
     override def toString: String = roman
+  }
+
+  object RomanNumeral {
+    implicit def orderByValue: Ordering[RomanNumeral] = Ordering.by(r => r.toInt())
   }
 
   def main(args: Array[String]): Unit = {
@@ -185,7 +189,7 @@ object Misc {
     val x = new RomanNumeral("x")
 
     val rnums = List(cm, d, x)
-    println(rnums.sorted(Ordering[RomanNumeral]))
+    println(rnums.sorted)
   }
 
 }
