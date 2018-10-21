@@ -188,8 +188,12 @@ object Misc {
     val d = new RomanNumeral("d")
     val x = new RomanNumeral("x")
 
-    val rnums = List(cm, d, x)
-    println(rnums.sorted)
+    var rnums = List(cm, d, x).sorted
+
+    while (rnums != Nil) {
+      println(rnums)
+      rnums = successor(rnums)(RomanNumeral.orderByValue)
+    }
   }
 
 }
