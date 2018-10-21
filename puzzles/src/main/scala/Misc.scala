@@ -31,7 +31,8 @@ object Misc {
      of x that is larger than x (y)
    - sort the list [x+1:]
    */
-  def successor[A](l: List[A])(ordering: Ordering[A]): List[A] = {
+  def successor[A : Ordering](l: List[A]): List[A] = {
+    val ordering = implicitly[Ordering[A]]
     def index_of_swap_candidate(i: Int): Int = {
       // scan right-to-left to first item x that is smaller than
       // the one to its right.  return -1 if this condition cannot be met.
@@ -187,12 +188,13 @@ object Misc {
     val cm = new RomanNumeral("cm")
     val d = new RomanNumeral("d")
     val x = new RomanNumeral("x")
+    val m = new RomanNumeral("m")
 
-    var rnums = List(cm, d, x).sorted
+    var rnums = List(cm, m, d, x).sorted
 
     while (rnums != Nil) {
       println(rnums)
-      rnums = successor(rnums)(RomanNumeral.orderByValue)
+      rnums = successor(rnums)
     }
   }
 
