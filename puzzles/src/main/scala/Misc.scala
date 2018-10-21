@@ -77,7 +77,7 @@ object Misc {
         val (c, d) = b.splitAt(x - k)
 
         val rest = (d.head :: c.tail) ::: (c.head :: d.tail)
-        return a ::: (rest.head :: rest.tail.sorted(ordering))
+        return a ::: (rest.head :: rest.tail.sorted)
       }
     }
 
@@ -155,7 +155,6 @@ object Misc {
       helper(0, roman.toList)
     }
 
-//    override def compare(x: RomanNumeral, y: RomanNumeral): Int = x.toInt() compare y.toInt()
     override def toString: String = roman
   }
 
