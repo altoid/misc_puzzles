@@ -1,4 +1,26 @@
+
 object Puzzles99 extends App {
+
+  // companion object to convert int to Puzzles99Int not needed because the class is implicit.
+  // the conversion is automatically generated.
+  //
+  // restrictions on implicit classes:
+  // *  constructor must have exactly one parameter
+  // *  cannot be a case class
+  // *  must be inside an object/class/package object.
+  //
+  implicit class Puzzles99Int(val n: Int) {
+    def isPrime: Boolean = {
+      var f = 2
+      while (f < math.sqrt(n)) {
+        if (n % f == 0) {
+          return false
+        }
+        f += 1
+      }
+      true
+    }
+  }
 
   // puzzle # 2
   def penultimate[A](l: List[A]): A = {
@@ -198,7 +220,13 @@ object Puzzles99 extends App {
 
   print(combinations(3, List('a, 'b, 'c, 'd, 'e, 'f)))
 
-//  println("%%%%%%%%%%%%%%%%%%%%%%%%%%%% problem 24")
+  println("%%%%%%%%%%%%%%%%%%%%%%%%%%%% problem 31 - primality test")
+  println(7.isPrime)
+  println(1234.isPrime)
+
+  //  println("%%%%%%%%%%%%%%%%%%%%%%%%%%%% problem 35 - prime factors of a positive integer")
+
+
 //  println("%%%%%%%%%%%%%%%%%%%%%%%%%%%% problem 25")
 //  println("%%%%%%%%%%%%%%%%%%%%%%%%%%%% problem 26")
 //  println("%%%%%%%%%%%%%%%%%%%%%%%%%%%% problem 27")
