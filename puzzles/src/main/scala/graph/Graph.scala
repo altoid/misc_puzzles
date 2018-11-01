@@ -22,18 +22,21 @@ class Graph extends mutable.HashMap[Node, scala.collection.mutable.Set[Node]] {
   }
 
   def addNodes(n: Node*): Unit = {
-    for (elem <- n) { this.addNode(elem) }
+    for (elem <- n) {
+      this.addNode(elem)
+    }
   }
 
   def addEdge(a: Node, b: Node): Unit = {
     if (!this.contains(a)) throw new IllegalStateException(s"node $a not in graph")
     if (!this.contains(b)) throw new IllegalStateException(s"node $b not in graph")
 
-    this(a).add(b)
+    this (a).add(b)
   }
 
   def dfs(startHere: Node): Array[String] = {
-    if (!this.contains(startHere)) throw new NoSuchElementException(s"node $startHere is not in the graph")
+    // non-recursive implementation
+    require(this.contains(startHere))
 
     var visited = mutable.HashSet[Node]()
     var stack = mutable.Stack[Node]()
@@ -44,7 +47,7 @@ class Graph extends mutable.HashMap[Node, scala.collection.mutable.Set[Node]] {
     result_buffer += startHere
 
     def next_unvisited_neighbor(n: Node): Option[Node] = {
-      var adj_list = this(n).toList.sortWith(_.label < _.label)
+      var adj_list = this (n).toList.sortWith(_.label < _.label)
       adj_list.filterNot(x => visited.contains(x)).headOption
     }
 
@@ -62,6 +65,31 @@ class Graph extends mutable.HashMap[Node, scala.collection.mutable.Set[Node]] {
       }
     }
 
+    result_buffer.map(x => x.label).toArray
+  }
+
+  def bfs(startHere: Node): Array[String] = {
+    require(this.contains(startHere))
+
+    // use a Vector as a deque
+    var deque = Vector[Node]()
+    var visited = mutable.HashSet[Node]()
+
+    deque = deque :+ startHere
+    visited.add(startHere)
+    var result_buffer = ArrayBuffer[Node]()
+
+    while (!deque.isEmpty) {
+      val front: Node = deque.take(1)(0)
+      deque = deque.drop(1)
+      result_buffer += front
+
+      // enqueue all unvisited adj_list
+      val adj_list = this(front).toList.sortWith(_.label < _.label)
+      val unvisited = adj_list.filterNot(visited.contains(_))
+      deque = deque ++ unvisited
+      visited ++= unvisited
+    }
     result_buffer.map(x => x.label).toArray
   }
 }

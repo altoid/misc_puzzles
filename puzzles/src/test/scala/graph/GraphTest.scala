@@ -80,11 +80,49 @@ class GraphTest extends FunSuite {
 
     val outsider: Node = "mr_lonely"
 
-    assertThrows[NoSuchElementException] {
+    assertThrows[IllegalArgumentException] {
       gr.dfs(outsider)
     }
 
     var result = gr.dfs(a).mkString
     assert(result == "abegfchd")
+  }
+
+  test("bfs") {
+    val gr = UGraph()
+
+    val a: Node = "a"
+    val b: Node = "b"
+    val c: Node = "c"
+    val d: Node = "d"
+    val e: Node = "e"
+    val f: Node = "f"
+    val g: Node = "g"
+    val h: Node = "h"
+
+    gr.addNodes(a, b, c, d, e, f, g, h)
+
+    gr.addEdge(a, b)
+    gr.addEdge(a, g)
+    gr.addEdge(a, d)
+
+    gr.addEdge(b, e)
+    gr.addEdge(b, f)
+
+    gr.addEdge(c, f)
+    gr.addEdge(c, h)
+
+    gr.addEdge(d, f)
+
+    gr.addEdge(e, g)
+
+    val outsider: Node = "mr_lonely"
+
+    assertThrows[IllegalArgumentException] {
+      gr.dfs(outsider)
+    }
+
+    var result = gr.bfs(a).mkString
+    assert(result == "abdgefch")
   }
 }
