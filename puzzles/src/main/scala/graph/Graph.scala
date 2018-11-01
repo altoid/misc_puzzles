@@ -3,11 +3,12 @@ package graph
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
-case class Node(label: String)
+case class Node(label: String) extends Ordered[Node] {
+  def compare(that: Node) = this.label compare that.label
+}
 
 object Node {
   implicit def toNode(label: String) = Node(label)
-  implicit def orderByLabel: Ordering[Node] = Ordering.by(_.label)
 }
 
 // graph is a map of nodes to lists of nodes
@@ -47,7 +48,7 @@ class Graph extends mutable.HashMap[Node, scala.collection.mutable.Set[Node]] {
     result_buffer += startHere
 
     def next_unvisited_neighbor(n: Node): Option[Node] = {
-      var adj_list = this (n).toList.sortWith(_.label < _.label)
+      var adj_list = this (n).toList.sorted
       adj_list.filterNot(x => visited.contains(x)).headOption
     }
 
@@ -85,9 +86,9 @@ class Graph extends mutable.HashMap[Node, scala.collection.mutable.Set[Node]] {
       result_buffer += front
 
       // enqueue all unvisited adj_list
-      val adj_list = this(front).toList.sortWith(_.label < _.label)
+      val adj_list = this(front).toList.sorted
       val unvisited = adj_list.filterNot(visited.contains(_))
-      deque = deque ++ unvisited
+      deque ++= unvisited
       visited ++= unvisited
     }
     result_buffer.map(x => x.label).toArray

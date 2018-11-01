@@ -10,10 +10,7 @@ class GraphTest extends FunSuite {
     val e: Node = "four"
 
     assert(d == e)
-
-    val ordering = implicitly[Ordering[Node]]
-
-    assert(ordering.lt(d, c))
+    assert(d < c)
   }
 
   test("graph - addNode") {
