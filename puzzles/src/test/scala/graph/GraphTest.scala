@@ -4,7 +4,7 @@ import graph.{Graph, Node}
 import org.scalatest.FunSuite
 
 class GraphTest extends FunSuite {
-  ignore("node cmp") {
+  test("node cmp") {
     val c: Node = "three"
     val d: Node = "four"
     val e: Node = "four"
@@ -84,7 +84,7 @@ class GraphTest extends FunSuite {
       gr.dfs(outsider)
     }
 
-    var result = gr.dfs(a).mkString(" ")
-    println(result)  // abegfchd
+    var result = gr.dfs(a).mkString
+    assert(result == "abegfchd")
   }
 }

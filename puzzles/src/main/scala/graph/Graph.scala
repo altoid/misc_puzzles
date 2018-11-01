@@ -35,12 +35,12 @@ class Graph extends mutable.HashMap[Node, scala.collection.mutable.Set[Node]] {
   def dfs(startHere: Node): Array[String] = {
     if (!this.contains(startHere)) throw new NoSuchElementException(s"node $startHere is not in the graph")
 
-
     var visited = mutable.HashSet[Node]()
     var stack = mutable.Stack[Node]()
-
     var result_buffer = ArrayBuffer[Node]()
+
     stack.push(startHere)
+    visited.add(startHere)
     result_buffer += startHere
 
     def next_unvisited_neighbor(n: Node): Option[Node] = {
