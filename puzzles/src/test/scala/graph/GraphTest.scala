@@ -4,73 +4,63 @@ import graph.{Graph, Node}
 import org.scalatest.FunSuite
 
 class GraphTest extends FunSuite {
-  test("node") {
-    val n = Node(4)
-    val m: Node[Int] = 4
-    assert(n.data == m.data)
-  }
+  ignore("node cmp") {
+    val c: Node = "three"
+    val d: Node = "four"
+    val e: Node = "four"
 
-  test("node cmp") {
-    val o_int = implicitly[Ordering[Node[Int]]]
-    val o_str = implicitly[Ordering[Node[String]]]
+    assert(d == e)
 
-    val a: Node[Int] = 3
-    val b: Node[Int] = 4
-    assert(o_int.lt(a, b))
+    val ordering = implicitly[Ordering[Node]]
 
-    val c: Node[String] = "three"
-    val d: Node[String] = "four"
-    val e: Node[String] = "four"
-    assert(o_str.lt(d, c))
-
-    assert(o_str.compare(d, e) == 0)
+    assert(ordering.lt(d, c))
   }
 
   test("graph - addNode") {
-    val g = Graph[Int]()
-    val n = Node(3)
+    val g = Graph()
+    val n = Node("3")
     g.addNode(n)
     assertThrows[IllegalStateException] {
       g.addNode(n)
     }
-    g.addNode(4)
+    g.addNode("4")
   }
 
   test("graph - addNodes") {
-    val g = Graph[Int]()
-    g.addNodes(1, 2, 3)
-    assert(g.contains(3))
+    val g = Graph()
+    g.addNodes("1", "2", "3")
+    assert(g.contains("3"))
   }
 
   test("graph - addEdge") {
-    val g = Graph[Int]()
+    val g = Graph()
 
     assertThrows[IllegalStateException] {
-      g.addEdge(2, 3)
+      g.addEdge("2", "3")
     }
-    g.addNode(2)
+    g.addNode("2")
     assertThrows[IllegalStateException] {
-      g.addEdge(2, 3)
+      g.addEdge("2", "3")
     }
-    g.addNode(3)
-    g.addEdge(2, 3)
+    g.addNode("3")
+    g.addEdge("2", "3")
 
-    assert(g(2).contains(3))
+    assert(g("2").contains("3"))
   }
 
   test("dfs") {
     // cf. https://www.youtube.com/watch?v=zLZhSSXAwxI
 
-    val gr = UGraph[String]()
+    val gr = UGraph()
 
-    val a: Node[String] = "a"
-    val b: Node[String] = "b"
-    val c: Node[String] = "c"
-    val d: Node[String] = "d"
-    val e: Node[String] = "e"
-    val f: Node[String] = "f"
-    val g: Node[String] = "g"
-    val h: Node[String] = "h"
+    val a: Node = "a"
+    val b: Node = "b"
+    val c: Node = "c"
+    val d: Node = "d"
+    val e: Node = "e"
+    val f: Node = "f"
+    val g: Node = "g"
+    val h: Node = "h"
 
     gr.addNodes(a, b, c, d, e, f, g, h)
 
@@ -88,13 +78,13 @@ class GraphTest extends FunSuite {
 
     gr.addEdge(e, g)
 
-    val outsider: Node[String] = "mr_lonely"
+    val outsider: Node = "mr_lonely"
 
     assertThrows[NoSuchElementException] {
       gr.dfs(outsider)
     }
 
-    var result = gr.dfs(a)
-    result foreach println
+    var result = gr.dfs(a).mkString(" ")
+    println(result)  // abegfchd
   }
 }
