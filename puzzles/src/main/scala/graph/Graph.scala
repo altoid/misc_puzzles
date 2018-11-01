@@ -2,6 +2,7 @@ package graph
 
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
+import scala.math.Ordered._
 
 case class Node(label: String) extends Ordered[Node] {
   def compare(that: Node) = this.label compare that.label
@@ -9,6 +10,10 @@ case class Node(label: String) extends Ordered[Node] {
 
 object Node {
   implicit def toNode(label: String) = Node(label)
+}
+
+case class GNode[A:Ordering](label: A) extends Ordered[GNode[A]] {
+  override def compare(that: GNode[A]): Int = this.label compare that.label
 }
 
 // graph is a map of nodes to lists of nodes

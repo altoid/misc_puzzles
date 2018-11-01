@@ -3,6 +3,18 @@ package graph
 import graph.{Graph, Node}
 import org.scalatest.FunSuite
 
+class GNodeTest extends FunSuite {
+  test("cmp") {
+    val c = GNode("three")
+    val d = GNode("four")
+    val e = GNode("four")
+    val f = GNode("five")
+
+    assert(d == e)
+    assert(d < c)
+  }
+}
+
 class GraphTest extends FunSuite {
   test("node cmp") {
     val c: Node = "three"
