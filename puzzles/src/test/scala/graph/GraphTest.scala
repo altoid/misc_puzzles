@@ -5,13 +5,16 @@ import org.scalatest.FunSuite
 
 class GNodeTest extends FunSuite {
   test("cmp") {
-    val c = GNode("three")
-    val d = GNode("four")
-    val e = GNode("four")
-    val f = GNode("five")
+    val c: GNode[String] = "three"
+    val d: GNode[String] = "four"
+    val e: GNode[String] = "six"
+    val f: GNode[String] = "five"
 
-    assert(d == e)
+    assert(d != e)
     assert(d < c)
+
+    var l = List(c,d,e,f).sorted
+    assert(l === List(f, d, e, c))
   }
 }
 

@@ -16,6 +16,10 @@ case class GNode[A:Ordering](label: A) extends Ordered[GNode[A]] {
   override def compare(that: GNode[A]): Int = this.label compare that.label
 }
 
+object GNode {
+  implicit def toNode[A:Ordering](label: A) = GNode[A](label)
+}
+
 // graph is a map of nodes to lists of nodes
 class Graph extends mutable.HashMap[Node, scala.collection.mutable.Set[Node]] {
   def addNode(n: Node): Unit = {
