@@ -1,63 +1,65 @@
 package graph
 
+/*
+Error:(91, 41) diverging implicit expansion for type scala.math.Ordering[graph.Node[A]]
+starting with method toNode in object Node
+      val adj_list = this(front).toList.sorted
+
+Error:(91, 41) not enough arguments for method sorted: (implicit ord: scala.math.Ordering[graph.Node[A]])List[graph.Node[A]].
+Unspecified value parameter ord.
+      val adj_list = this(front).toList.sorted
+ */
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 import scala.math.Ordered._
 
-case class Node(label: String) extends Ordered[Node] {
-  def compare(that: Node) = this.label compare that.label
+case class Node[A:Ordering](label: A) extends Ordered[Node[A]] {
+  override def compare(that: Node[A]): Int = this.label compare that.label
 }
 
 object Node {
-  implicit def toNode(label: String) = Node(label)
+//  implicit def toNode[A:Ordering](label: A) = Node[A](label)
+  def apply[A:Ordering](label: A): Node[A] = new Node[A](label)
 }
 
-case class GNode[A:Ordering](label: A) extends Ordered[GNode[A]] {
-  override def compare(that: GNode[A]): Int = this.label compare that.label
-}
-
-object GNode {
-  implicit def toNode[A:Ordering](label: A) = GNode[A](label)
-}
-
-// graph is a map of nodes to lists of nodes
-class Graph extends mutable.HashMap[Node, scala.collection.mutable.Set[Node]] {
-  def addNode(n: Node): Unit = {
+// graph is a map of nodes to sets of nodes
+class Graph[A:Ordering] extends mutable.HashMap[Node[A], scala.collection.mutable.Set[Node[A]]] {
+  def addNode(n: Node[A]): Unit = {
     if (this.contains(n)) {
       throw new IllegalStateException("node already in graph")
     }
     else {
-      this += (n -> mutable.Set[Node]())
+      this += (n -> mutable.Set[Node[A]]())
     }
   }
 
-  def addNodes(n: Node*): Unit = {
+  def addNodes(n: Node[A]*): Unit = {
     for (elem <- n) {
       this.addNode(elem)
     }
   }
 
-  def addEdge(a: Node, b: Node): Unit = {
+  def addEdge(a: Node[A], b: Node[A]): Unit = {
     if (!this.contains(a)) throw new IllegalStateException(s"node $a not in graph")
     if (!this.contains(b)) throw new IllegalStateException(s"node $b not in graph")
 
     this (a).add(b)
   }
 
-  def dfs(startHere: Node): Array[String] = {
+  def dfs(startHere: Node[A]): Array[String] = {
     // non-recursive implementation
     require(this.contains(startHere))
 
-    var visited = mutable.HashSet[Node]()
-    var stack = mutable.Stack[Node]()
-    var result_buffer = ArrayBuffer[Node]()
+    var visited = mutable.HashSet[Node[A]]()
+    var stack = mutable.Stack[Node[A]]()
+    var result_buffer = ArrayBuffer[Node[A]]()
 
     stack.push(startHere)
     visited.add(startHere)
     result_buffer += startHere
 
-    def next_unvisited_neighbor(n: Node): Option[Node] = {
-      var adj_list = this (n).toList.sorted
+    def next_unvisited_neighbor(n: Node[A]): Option[Node[A]] = {
+      val adj_list = this(n).toList.sorted
       adj_list.filterNot(x => visited.contains(x)).headOption
     }
 
@@ -75,22 +77,22 @@ class Graph extends mutable.HashMap[Node, scala.collection.mutable.Set[Node]] {
       }
     }
 
-    result_buffer.map(x => x.label).toArray
+    result_buffer.map(x => x.label.toString).toArray
   }
 
-  def bfs(startHere: Node): Array[String] = {
+  def bfs(startHere: Node[A]): Array[String] = {
     require(this.contains(startHere))
 
     // use a Vector as a deque
-    var deque = Vector[Node]()
-    var visited = mutable.HashSet[Node]()
+    var deque = Vector[Node[A]]()
+    var visited = mutable.HashSet[Node[A]]()
 
     deque = deque :+ startHere
     visited.add(startHere)
-    var result_buffer = ArrayBuffer[Node]()
+    var result_buffer = ArrayBuffer[Node[A]]()
 
     while (!deque.isEmpty) {
-      val front: Node = deque.take(1)(0)
+      val front: Node[A] = deque.take(1)(0)
       deque = deque.drop(1)
       result_buffer += front
 
@@ -100,22 +102,22 @@ class Graph extends mutable.HashMap[Node, scala.collection.mutable.Set[Node]] {
       deque ++= unvisited
       visited ++= unvisited
     }
-    result_buffer.map(x => x.label).toArray
+    result_buffer.map(x => x.label.toString).toArray
   }
 }
 
-class UGraph extends Graph {
+class UGraph[A:Ordering] extends Graph[A] {
   // undirected graph
-  override def addEdge(a: Node, b: Node): Unit = {
+  override def addEdge(a: Node[A], b: Node[A]): Unit = {
     super.addEdge(a, b)
     super.addEdge(b, a)
   }
 }
 
 object Graph {
-  def apply(): Graph = new Graph()
+  def apply[A:Ordering](): Graph[A] = new Graph[A]()
 }
 
 object UGraph {
-  def apply(): UGraph = new UGraph()
+  def apply[A:Ordering](): UGraph[A] = new UGraph[A]()
 }

@@ -2,13 +2,14 @@ package graph
 
 import graph.{Graph, Node}
 import org.scalatest.FunSuite
+// import scala.math.Ordered._
 
 class GNodeTest extends FunSuite {
   test("cmp") {
-    val c: GNode[String] = "three"
-    val d: GNode[String] = "four"
-    val e: GNode[String] = "six"
-    val f: GNode[String] = "five"
+    val c: Node[String] = Node("three")
+    val d: Node[String] = Node("four")
+    val e: Node[String] = Node("six")
+    val f: Node[String] = Node("five")
 
     assert(d != e)
     assert(d < c)
@@ -19,60 +20,56 @@ class GNodeTest extends FunSuite {
 }
 
 class GraphTest extends FunSuite {
-  test("node cmp") {
-    val c: Node = "three"
-    val d: Node = "four"
-    val e: Node = "four"
-
-    assert(d == e)
-    assert(d < c)
-  }
-
   test("graph - addNode") {
-    val g = Graph()
-    val n = Node("3")
+    val g = Graph[String]()
+    val n = Node[String]("3")
     g.addNode(n)
     assertThrows[IllegalStateException] {
       g.addNode(n)
     }
-    g.addNode("4")
+    g.addNode(Node("4"))
   }
 
   test("graph - addNodes") {
-    val g = Graph()
-    g.addNodes("1", "2", "3")
-    assert(g.contains("3"))
+    val g = Graph[String]()
+    val n1 = Node("1")
+    val n2 = Node("2")
+    val n3 = Node("3")
+    g.addNodes(n1, n2, n3)
+    assert(g.contains(Node("3")))
   }
 
   test("graph - addEdge") {
-    val g = Graph()
+    val g = Graph[String]()
+
+    val n1 = Node("1")
+    val n2 = Node("2")
+    val n3 = Node("3")
 
     assertThrows[IllegalStateException] {
-      g.addEdge("2", "3")
+      g.addEdge(n2, n3)
     }
-    g.addNode("2")
+    g.addNode(n2)
     assertThrows[IllegalStateException] {
-      g.addEdge("2", "3")
+      g.addEdge(n2, n3)
     }
-    g.addNode("3")
-    g.addEdge("2", "3")
+    g.addNode(n3)
+    g.addEdge(n2, n3)
 
-    assert(g("2").contains("3"))
+    assert(g(n2).contains(n3))
   }
 
   test("dfs") {
-    // cf. https://www.youtube.com/watch?v=zLZhSSXAwxI
+    val gr = UGraph[String]()
 
-    val gr = UGraph()
-
-    val a: Node = "a"
-    val b: Node = "b"
-    val c: Node = "c"
-    val d: Node = "d"
-    val e: Node = "e"
-    val f: Node = "f"
-    val g: Node = "g"
-    val h: Node = "h"
+    val a: Node[String] = Node("a")
+    val b: Node[String] = Node("b")
+    val c: Node[String] = Node("c")
+    val d: Node[String] = Node("d")
+    val e: Node[String] = Node("e")
+    val f: Node[String] = Node("f")
+    val g: Node[String] = Node("g")
+    val h: Node[String] = Node("h")
 
     gr.addNodes(a, b, c, d, e, f, g, h)
 
@@ -90,7 +87,7 @@ class GraphTest extends FunSuite {
 
     gr.addEdge(e, g)
 
-    val outsider: Node = "mr_lonely"
+    val outsider: Node[String] = Node("mr_lonely")
 
     assertThrows[IllegalArgumentException] {
       gr.dfs(outsider)
@@ -101,16 +98,16 @@ class GraphTest extends FunSuite {
   }
 
   test("bfs") {
-    val gr = UGraph()
+    val gr = UGraph[String]()
 
-    val a: Node = "a"
-    val b: Node = "b"
-    val c: Node = "c"
-    val d: Node = "d"
-    val e: Node = "e"
-    val f: Node = "f"
-    val g: Node = "g"
-    val h: Node = "h"
+    val a: Node[String] = Node("a")
+    val b: Node[String] = Node("b")
+    val c: Node[String] = Node("c")
+    val d: Node[String] = Node("d")
+    val e: Node[String] = Node("e")
+    val f: Node[String] = Node("f")
+    val g: Node[String] = Node("g")
+    val h: Node[String] = Node("h")
 
     gr.addNodes(a, b, c, d, e, f, g, h)
 
@@ -128,7 +125,7 @@ class GraphTest extends FunSuite {
 
     gr.addEdge(e, g)
 
-    val outsider: Node = "mr_lonely"
+    val outsider: Node[String] = Node("mr_lonely")
 
     assertThrows[IllegalArgumentException] {
       gr.dfs(outsider)
