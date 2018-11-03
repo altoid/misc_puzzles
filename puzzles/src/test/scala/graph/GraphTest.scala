@@ -1,8 +1,6 @@
 package graph
 
-import graph.{Graph, Node}
 import org.scalatest.FunSuite
-// import scala.math.Ordered._
 
 class GNodeTest extends FunSuite {
   test("cmp") {

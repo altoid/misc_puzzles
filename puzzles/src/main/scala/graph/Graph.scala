@@ -1,14 +1,5 @@
 package graph
 
-/*
-Error:(91, 41) diverging implicit expansion for type scala.math.Ordering[graph.Node[A]]
-starting with method toNode in object Node
-      val adj_list = this(front).toList.sorted
-
-Error:(91, 41) not enough arguments for method sorted: (implicit ord: scala.math.Ordering[graph.Node[A]])List[graph.Node[A]].
-Unspecified value parameter ord.
-      val adj_list = this(front).toList.sorted
- */
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 import scala.math.Ordered._
@@ -16,6 +7,10 @@ import scala.math.Ordered._
 case class Node[A:Ordering](label: A) extends Ordered[Node[A]] {
   override def compare(that: Node[A]): Int = this.label compare that.label
 }
+
+// making Node extend Ordered is necessary for comparisons
+// adding the Ordering object is necessary for sorting.
+// doesn't make sense; don't we get converters to change one into the other?
 
 object Node {
   implicit def toNode[A:Ordering](label: A) = Node[A](label)
@@ -107,16 +102,16 @@ class Graph[A:Ordering] extends mutable.HashMap[Node[A], scala.collection.mutabl
   }
 }
 
+object Graph {
+  def apply[A:Ordering](): Graph[A] = new Graph[A]()
+}
+
 class UGraph[A:Ordering] extends Graph[A] {
   // undirected graph
   override def addEdge(a: Node[A], b: Node[A]): Unit = {
     super.addEdge(a, b)
     super.addEdge(b, a)
   }
-}
-
-object Graph {
-  def apply[A:Ordering](): Graph[A] = new Graph[A]()
 }
 
 object UGraph {
