@@ -18,7 +18,8 @@ case class Node[A:Ordering](label: A) extends Ordered[Node[A]] {
 }
 
 object Node {
-//  implicit def toNode[A:Ordering](label: A) = Node[A](label)
+  implicit def toNode[A:Ordering](label: A) = Node[A](label)
+  implicit def ord[A:Ordering]: Ordering[Node[A]] = Ordering.by(_.label)
   def apply[A:Ordering](label: A): Node[A] = new Node[A](label)
 }
 
