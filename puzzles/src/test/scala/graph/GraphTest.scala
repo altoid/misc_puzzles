@@ -1,6 +1,7 @@
 package graph
 
 import org.scalatest.FunSuite
+import roman.RomanNumeral
 
 class GNodeTest extends FunSuite {
   test("cmp") {
@@ -86,6 +87,38 @@ class GraphTest extends FunSuite {
 
     var result = gr.dfs(a).mkString
     assert(result == "abegfchd")
+  }
+
+  test("dfs - roman numerals") {
+    val gr = UGraph[RomanNumeral]()
+
+    val a: Node[RomanNumeral] = RomanNumeral("i")
+    val b: Node[RomanNumeral] = RomanNumeral("iii")
+    val c: Node[RomanNumeral] = RomanNumeral("v")
+    val d: Node[RomanNumeral] = RomanNumeral("vii")
+    val e: Node[RomanNumeral] = RomanNumeral("ix")
+    val f: Node[RomanNumeral] = RomanNumeral("xi")
+    val g: Node[RomanNumeral] = RomanNumeral("xiii")
+    val h: Node[RomanNumeral] = RomanNumeral("xv")
+
+    gr.addNodes(a, b, c, d, e, f, g, h)
+
+    gr.addEdge(a, b)
+    gr.addEdge(a, g)
+    gr.addEdge(a, d)
+
+    gr.addEdge(b, e)
+    gr.addEdge(b, f)
+
+    gr.addEdge(c, f)
+    gr.addEdge(c, h)
+
+    gr.addEdge(d, f)
+
+    gr.addEdge(e, g)
+
+    var result = gr.dfs(a).mkString(" ")
+    assert(result == "i iii ix xiii xi v xv vii")
   }
 
   test("bfs") {
