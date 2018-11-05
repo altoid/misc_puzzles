@@ -3,14 +3,15 @@ package tree
 import scala.annotation.tailrec
 import scala.math.Ordered._
 
-class Tree[A] {
-  class Node[A](val value: A, val nchildren: Int = 2) {
+class Tree[A:Ordering] {
+  class Node[A:Ordering](val value: A, val nchildren: Int = 2) extends Ordered[Node[A]] {
     val children = Array.fill(nchildren)(None:Option[Node[A]])
+    override def compare(that: Node[A]): Int = this.value compare that.value
   }
 
   object Node {
-    implicit def toNode[A](label: A) = Node[A](label)
-    def apply[A](label: A): Node[A] = new Node[A](label)
+    implicit def toNode[A:Ordering](label: A) = Node[A](label)
+    def apply[A:Ordering](label: A): Node[A] = new Node[A](label)
   }
 
   private var root: Option[Node[A]] = None
@@ -21,7 +22,7 @@ class Tree[A] {
     @tailrec
     def addValue_helper(node: Node[A], v: A): Unit = {
       if (v == node.value) return
-      if (v.hashCode() < node.value.hashCode()) {
+      if (v < node.value) {
         node.children(0) match {
           case None => node.children(0) = Some(v)
           case Some(n) => addValue_helper(n, v)
@@ -41,6 +42,12 @@ class Tree[A] {
     }
   }
 
+  def addValues(vals: A*): Unit = {
+    for (v <- vals) {
+      addValue(v)
+    }
+  }
+
   def deleteValue(v: A): Unit = {
     ???
   }
@@ -51,7 +58,7 @@ class Tree[A] {
       node match {
         case Some(n) => {
           if (n.value == v) true
-          else if (v.hashCode() < n.value.hashCode()) {
+          else if (v < n.value) {
             contains_helper(n.children(0), v)
           }
           else contains_helper(n.children(1), v)
@@ -83,5 +90,35 @@ class Tree[A] {
     }
 
     size_helper(root)
+  }
+
+  def min(): A = {
+    require(size() > 0)
+
+    def min_helper(node: Node[A]): A = {
+      node.children(0) match {
+        case None => node.value
+        case Some(n) => min_helper(n)
+      }
+    }
+
+    root match {
+      case Some(n) => min_helper(n)
+    }
+  }
+
+  def max(): A = {
+    require(size() > 0)
+
+    def max_helper(node: Node[A]): A = {
+      node.children(1) match {
+        case None => node.value
+        case Some(n) => max_helper(n)
+      }
+    }
+
+    root match {
+      case Some(n) => max_helper(n)
+    }
   }
 }
