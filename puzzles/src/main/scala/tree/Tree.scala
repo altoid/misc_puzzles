@@ -108,21 +108,34 @@ class Tree[A:Ordering] {
     size_helper(root)
   }
 
-  def successor(v: A): Option[Node[A]] = {
-    // get the min in the right subtree
-
-    @tailrec
-    def helper(node: Node[A]): Option[Node[A]] = {
-      node.children(0) match {
-        case None => Some(node)
-        case Some(n) => helper(n)
-      }
+  @tailrec
+  private def subtree_min(node: Node[A]): Option[Node[A]] = {
+    // give me the node holding the mininum value rooted at this subtree.
+    node.children(0) match {
+      case None => Some(node)
+      case Some(n) => subtree_min(n)
     }
+  }
+
+  def successor(v: A): Option[A] = {
+    successor_node(v) match {
+      case None => None
+      case Some(n) => Some(n.value)
+    }
+  }
+
+  def successor_node(v: A): Option[Node[A]] = {
+    // get the min in the right subtree
 
     val loc = locus(v)
     loc match {
       case None => None
-      case Some(n) => helper(n)
+      case Some(n) => {
+        n.children(1) match {
+          case None => None
+          case Some(c) => subtree_min(c)
+        }
+      }
     }
   }
 

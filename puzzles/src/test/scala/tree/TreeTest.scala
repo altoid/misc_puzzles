@@ -1,6 +1,7 @@
 package tree
 
 import org.scalatest.FunSuite
+import org.scalatest.OptionValues
 import roman.RomanNumeral
 
 class TreeTest extends FunSuite {
@@ -20,7 +21,7 @@ class TreeTest extends FunSuite {
     assert(1 === t.height())
   }
 
-  test("nontrivial") {
+  test("many inserts") {
     val t = new Tree[Int]()
 
     t.addValues(8, 3, 9, 1, 5, 12, 4, 11)
@@ -35,5 +36,16 @@ class TreeTest extends FunSuite {
 
     assert(1 === t.min())
     assert(12 === t.max())
+  }
+
+  test("successor") {
+    val t = new Tree[Int]()
+
+    t.addValues(8, 3, 9, 1, 5, 12, 4, 11)
+
+    assert(t.successor(9) == Some(11))
+    assert(t.successor(1) == None)
+    assert(t.successor(12) == None)
+    assert(t.successor(8) == Some(9))
   }
 }
