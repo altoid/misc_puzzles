@@ -6,6 +6,7 @@ import scala.math.Ordered._
 class Tree[A:Ordering] {
   class Node[A:Ordering](val value: A, val nchildren: Int = 2) extends Ordered[Node[A]] {
     val children = Array.fill(nchildren)(None:Option[Node[A]])
+    var parent: Option[Node[A]] = None
     override def compare(that: Node[A]): Int = this.value compare that.value
   }
 
@@ -24,13 +25,21 @@ class Tree[A:Ordering] {
       if (v == node.value) return
       if (v < node.value) {
         node.children(0) match {
-          case None => node.children(0) = Some(v)
+          case None => {
+            val child: Node[A] = v
+            child.parent = Some(node)
+            node.children(0) = Some(child)
+          }
           case Some(n) => addValue_helper(n, v)
         }
       }
       else {
         node.children(1) match {
-          case None => node.children(1) = Some(v)
+          case None => {
+            val child: Node[A] = v
+            child.parent = Some(node)
+            node.children(1) = Some(child)
+          }
           case Some(n) => addValue_helper(n, v)
         }
       }
