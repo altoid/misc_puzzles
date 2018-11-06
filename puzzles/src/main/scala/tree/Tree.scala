@@ -52,22 +52,29 @@ class Tree[A:Ordering] {
     ???
   }
 
-  def contains(v: A): Boolean = {
+  def locus(v: A): Option[Node[A]] = {
+    // return the node containing v, or None
     @tailrec
-    def contains_helper(node: Option[Node[A]], v: A): Boolean = {
+    def helper(node: Option[Node[A]], v: A): Option[Node[A]] = {
       node match {
+        case None => None
         case Some(n) => {
-          if (n.value == v) true
-          else if (v < n.value) {
-            contains_helper(n.children(0), v)
-          }
-          else contains_helper(n.children(1), v)
+          if (n.value == v) Some(n)
+          else if (v < n.value) helper(n.children(0), v)
+          else helper(n.children(1), v)
         }
-        case None => false
       }
     }
 
-    contains_helper(root, v)
+    helper(root, v)
+  }
+
+  def contains(v: A): Boolean = {
+    val loc = locus(v)
+    loc match {
+      case None => false
+      case Some(n) => true
+    }
   }
 
   def height(): Int = {
@@ -90,6 +97,24 @@ class Tree[A:Ordering] {
     }
 
     size_helper(root)
+  }
+
+  def successor(v: A): Option[Node[A]] = {
+    // get the min in the right subtree
+
+    @tailrec
+    def helper(node: Node[A]): Option[Node[A]] = {
+      node.children(0) match {
+        case None => Some(node)
+        case Some(n) => helper(n)
+      }
+    }
+
+    val loc = locus(v)
+    loc match {
+      case None => None
+      case Some(n) => helper(n)
+    }
   }
 
   def min(): A = {
