@@ -57,8 +57,107 @@ class Tree[A:Ordering] {
     }
   }
 
+  private def replace(node: Node[A], new_value: A): Unit = {
+    // we can't change the value of a node, so we have to replace the node.
+    val new_node: Node[A] = new_value
+
+    new_node.parent = node.parent
+    new_node.children(0) = node.children(0)
+    new_node.children(1) = node.children(1)
+
+    node.parent match {
+      case Some(p) => {
+        if (p.children(0) == node) {
+          p.children(0) = Some(new_node)
+        }
+        else {
+          p.children(1) = Some(new_node)
+        }
+      }
+    }
+
+    node.children(0) match {
+      case Some(c) => c.parent = Some(new_node)
+    }
+
+    node.children(1) match {
+      case Some(c) => c.parent = Some(new_node)
+    }
+
+    node.parent = None
+    node.children(0) = None
+    node.children(1) = None
+  }
+
+  private def replace_in_parent(node: Node[A], replacement: Option[Node[A]]): Unit = {
+    val parent = node.parent
+
+    parent match {
+      case None => {
+        root = replacement
+      }
+      case Some(p) => {
+        if (p.children(0) == Some(node)) {
+          p.children(0) = replacement
+        }
+        else {
+          p.children(1) = replacement
+        }
+      }
+    }
+
+    replacement match {
+      case Some(r) => r.parent = parent
+      case None => ()
+    }
+
+    node.parent = None
+    node.children(0) = None
+    node.children(1) = None
+  }
+
   def deleteValue(v: A): Unit = {
-    ???
+    def helper(subtree: Node[A], v: A): Unit = {
+      if (v < subtree.value) {
+        subtree.children(0) match {
+          case Some(c) => helper(c, v)
+          case None => return
+        }
+      }
+      else if (v > subtree.value) {
+        subtree.children(1) match {
+          case Some(c) => helper(c, v)
+          case None => return
+        }
+      }
+      else {
+        if (subtree.children(0) == None && subtree.children(1) == None) {
+          replace_in_parent(subtree, None)
+        }
+        else if (subtree.children(0) != None && subtree.children(1) != None) {
+          val succ = successor_node(subtree.value)
+
+          succ match {
+            // case None won't happen because subtree has a right child
+            case Some(s) => {
+              deleteValue(s.value)
+              replace(subtree, s.value)
+            }
+          }
+        }
+        else if (subtree.children(0) != None) {
+          replace_in_parent(subtree, subtree.children(0))
+        }
+        else {
+          replace_in_parent(subtree, subtree.children(1))
+        }
+      }
+    }
+
+    root match {
+      case Some(n) => helper(n, v)
+      case None => ()
+    }
   }
 
   def locus(v: A): Option[Node[A]] = {
@@ -167,5 +266,21 @@ class Tree[A:Ordering] {
     root match {
       case Some(n) => max_helper(n)
     }
+  }
+
+  def preorder(): List[A] = {
+    def helper(acc: List[A], node: Option[Node[A]]): List[A] = {
+      node match {
+        case None => acc
+        case Some(n) => {
+          val l1 = n.value :: acc
+          val l2 = helper(l1, n.children(0))
+          val l3 = helper(l2, n.children(1))
+          l3
+        }
+      }
+    }
+
+    helper(List[A](), root).reverse
   }
 }
