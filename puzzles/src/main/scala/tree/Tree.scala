@@ -289,4 +289,25 @@ class Tree[A:Ordering] {
 
     helper(List[A](), root).reverse
   }
+
+  def serialize(): List[Any] = {
+    var result: List[Any] = List()
+
+    def helper(acc: List[Any], node: Option[Node[A]]): List[Any] = {
+      node match {
+        case None => None :: acc
+        case Some(n) => {
+          var l = n.value :: acc
+          l = helper(l, n.children(0))
+          l = helper(l, n.children(1))
+          l
+        }
+      }
+    }
+
+    root match {
+      case None => result
+      case Some(r) => helper(result, root).reverse
+    }
+  }
 }

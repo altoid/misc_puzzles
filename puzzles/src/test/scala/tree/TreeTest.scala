@@ -211,5 +211,40 @@ class TreeTest extends FunSuite {
     assert(8 === t.size())
     assert(List(10, 3, 1, 5, 4, 7, 13, 11) === t.preorder())
   }
+
+  test("serialize empty tree") {
+    val t = new Tree[Int]()
+
+    var s = t.serialize()
+    assert(List() === s)
+  }
+
+  test("serialize single-node tree") {
+    val t = new Tree[Int]()
+
+    t.addValues(3)
+    var s = t.serialize()
+    assert(List(3, None, None) === s)
+  }
+
+  //             8
+  //        /          \
+  //      3              9
+  //    /    \              \
+  //  1       5                12
+  //           \              /   \
+  //            7           11     13
+  //                        /
+  //                      10
+
+  test("serialize big tree") {
+    val t = new Tree[Int]()
+
+    t.addValues(8, 3, 9, 1, 5, 12, 7, 11, 13, 10)
+
+    var s = t.serialize()
+    assert(List(8, 3, 1, None, None, 5, None, 7, None, None, 9, None, 12, 11, 10, None, None, None, 13, None, None)
+      === s)
+  }
 }
 
