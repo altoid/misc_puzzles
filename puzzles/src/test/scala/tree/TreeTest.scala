@@ -224,7 +224,7 @@ class TreeTest extends FunSuite {
 
     t.addValues(3)
     var s = t.serialize()
-    assert(List(3, None, None) === s)
+    assert(List(3) === s)
   }
 
   //             8
@@ -237,25 +237,18 @@ class TreeTest extends FunSuite {
   //                        /
   //                      10
 
-  test("serialize big tree") {
-    val t = new Tree[Int]()
-
-    t.addValues(8, 3, 9, 1, 5, 12, 7, 11, 13, 10)
-
-    var s = t.serialize()
-    assert(List(8, 3, 1, None, None, 5, None, 7, None, None, 9, None, 12, 11, 10, None, None, None, 13, None, None)
-      === s)
-  }
-
   test("serialize breadth first") {
     val t = new Tree[Int]()
 
     t.addValues(8, 3, 9, 1, 5, 12, 7, 11, 13, 10)
 
-    var s = t.serializeBF()
+    val s = t.serialize()
     println(s)
 
     val new_t = Tree[Int](s)
+    val s_new = new_t.serialize()
+
+    assert(s === s_new)
   }
 }
 

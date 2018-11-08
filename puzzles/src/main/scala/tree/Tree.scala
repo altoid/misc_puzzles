@@ -4,9 +4,9 @@ import scala.annotation.tailrec
 import scala.math.Ordered._
 
 object Tree {
-  def apply[A:Ordering](ser: List[Option[A]]): Tree[A] = {
-    println("applying!")
+  def apply[A:Ordering](ser: List[A]): Tree[A] = {
     val t = new Tree[A]()
+    ser.foreach(t.addValue(_))
     t
   }
 }
@@ -298,35 +298,16 @@ class Tree[A:Ordering] {
     helper(List[A](), root).reverse
   }
 
-  def serialize(): List[Any] = {
-    var result: List[Any] = List()
-
-    def helper(acc: List[Any], node: Option[Node[A]]): List[Any] = {
-      node match {
-        case None => None :: acc
-        case Some(n) => {
-          var l = n.value :: acc
-          l = helper(l, n.children(0))
-          l = helper(l, n.children(1))
-          l
-        }
-      }
-    }
-
-    root match {
-      case None => result
-      case Some(r) => helper(result, root).reverse
-    }
-  }
-
-  def serializeBF(): List[Option[A]] = {
-    var result: List[Option[A]] = List()
+  // BSTs have an interesting property:  given a tree T, if you construct a new tree X by traversing T in breadth-first
+  // order, X and T will have identical structures.
+  def serialize(): List[A] = {
+    var result: List[A] = List()
 
     root match {
       case None => result
       case Some(r) => {
         var deque = Vector[Option[Node[A]]]()
-        var result = List[Option[A]]()
+        var result = List[A]()
 
         deque = deque :+ root
 
@@ -334,9 +315,9 @@ class Tree[A:Ordering] {
           val front: Option[Node[A]] = deque.take(1)(0)
           deque = deque.drop(1)
           front match {
-            case None => result = None :: result
+            case None => {}
             case Some(f) => {
-              result = Some(f.value) :: result
+              result = f.value :: result
               deque = deque ++ f.children
             }
           }
