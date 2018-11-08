@@ -71,7 +71,7 @@ class TreeTest extends FunSuite {
     assert(List(8, 3, 1, 5, 4, 7, 9, 12, 11, 10, 13) == t.preorder())
   }
 
-  ignore("delete from empty tree") {
+  test("delete from empty tree") {
     val t = new Tree[Int]()
 
     t.deleteValue(9)
@@ -82,7 +82,7 @@ class TreeTest extends FunSuite {
   }
 
 
-  ignore("delete from single-node tree") {
+  test("delete from single-node tree") {
     val t = new Tree[Int]()
 
     t.addValue(12)
@@ -202,6 +202,11 @@ class TreeTest extends FunSuite {
     assert(List(8, 3, 1, 5, 4, 7, 13, 11, 10) === t.preorder())
 
     t.deleteValue(8)
+
+    assert(8 === t.size())
+    assert(List(10, 3, 1, 5, 4, 7, 13, 11) === t.preorder())
+
+    t.deleteValue(666)
 
     assert(8 === t.size())
     assert(List(10, 3, 1, 5, 4, 7, 13, 11) === t.preorder())
