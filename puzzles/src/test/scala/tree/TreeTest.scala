@@ -67,8 +67,8 @@ class TreeTest extends FunSuite {
     t.addValue(8)
     assert(List(8) == t.preorder())
 
-    t.addValues(3,9,1,5,12,4,7,11,13,10)
-    assert(List(8,3,1,5,4,7,9,12,11,10,13) == t.preorder())
+    t.addValues(3, 9, 1, 5, 12, 4, 7, 11, 13, 10)
+    assert(List(8, 3, 1, 5, 4, 7, 9, 12, 11, 10, 13) == t.preorder())
   }
 
   ignore("delete from empty tree") {
@@ -99,14 +99,14 @@ class TreeTest extends FunSuite {
   //       12      delete 11      12
   //      /        -------->
   //     11
-  // 
+  //
 
-  test ("case 3") {
+  test("case 3") {
     val t = new Tree[Int]()
 
     t.addValues(12, 11)
 
-//    t.deleteValue(100)
+    //    t.deleteValue(100)
 
     t.deleteValue(11)
 
@@ -121,7 +121,7 @@ class TreeTest extends FunSuite {
     assert(List(12) === t.preorder())
   }
 
-  // 
+  //
   //       12      delete 12      11
   //      /        -------->
   //     11
@@ -146,7 +146,7 @@ class TreeTest extends FunSuite {
     assert(List(11) === t.preorder())
   }
 
-  // 
+  //
   //       12      delete 12      13
   //      /  \     -------->     /
   //     11  13                 11
@@ -169,4 +169,42 @@ class TreeTest extends FunSuite {
 
     assert(List(13, 11) === t.preorder())
   }
+
+
+  //             8                                                     8
+  //        /          \                                          .../   \....
+  //      3              9              delete 9                3             12
+  //    /    \              \           ------->              /   \          /  \
+  //  1       5                12                            1     5        11   13
+  //         / \              /   \                               / \      /
+  //        4   7           11     13                            4   7    10
+  //                        /
+  //                      10
+
+
+  test("case big") {
+    val t = new Tree[Int]()
+
+    t.addValues(8, 3, 9, 1, 5, 12, 4, 7, 11, 13, 10)
+
+    t.deleteValue(100)
+
+    t.deleteValue(9)
+
+    assert(10 === t.size())
+    assert(4 === t.height())
+
+    assert(List(8, 3, 1, 5, 4, 7, 12, 11, 10, 13) === t.preorder())
+
+    t.deleteValue(12)
+
+    assert(9 === t.size())
+    assert(List(8, 3, 1, 5, 4, 7, 13, 11, 10) === t.preorder())
+
+    t.deleteValue(8)
+
+    assert(8 === t.size())
+    assert(List(10, 3, 1, 5, 4, 7, 13, 11) === t.preorder())
+  }
 }
+
