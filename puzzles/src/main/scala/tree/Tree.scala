@@ -66,8 +66,12 @@ class Tree[A:Ordering] {
     new_node.children(1) = node.children(1)
 
     node.parent match {
+      case None => {
+        // we're replacing the root
+        root = Some(new_node)
+      }
       case Some(p) => {
-        if (p.children(0) == node) {
+        if (p.children(0) == Some(node)) {
           p.children(0) = Some(new_node)
         }
         else {
@@ -78,10 +82,12 @@ class Tree[A:Ordering] {
 
     node.children(0) match {
       case Some(c) => c.parent = Some(new_node)
+      case None => ()
     }
 
     node.children(1) match {
       case Some(c) => c.parent = Some(new_node)
+      case None => ()
     }
 
     node.parent = None

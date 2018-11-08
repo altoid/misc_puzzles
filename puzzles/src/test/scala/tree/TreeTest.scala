@@ -125,9 +125,48 @@ class TreeTest extends FunSuite {
   //       12      delete 12      11
   //      /        -------->
   //     11
-  // 
+  //
+
+  test("case 4") {
+    val t = new Tree[Int]()
+
+    t.addValues(12, 11)
+
+    t.deleteValue(100)
+
+    t.deleteValue(12)
+
+    assert(1 === t.size())
+    assert(1 === t.height())
+
+    val n = t.locus(12)
+
+    assert(None === n)
+
+    assert(List(11) === t.preorder())
+  }
+
   // 
   //       12      delete 12      13
   //      /  \     -------->     /
   //     11  13                 11
+
+  test("case 5") {
+    val t = new Tree[Int]()
+
+    t.addValues(12, 11, 13)
+
+    t.deleteValue(100)
+
+    t.deleteValue(12)
+
+    assert(2 === t.size())
+    assert(2 === t.height())
+
+    val n = t.locus(12)
+
+    assert(None === n)
+
+    assert(List(13, 11) === t.preorder())
+  }
 }
