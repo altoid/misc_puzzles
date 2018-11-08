@@ -3,6 +3,14 @@ package tree
 import scala.annotation.tailrec
 import scala.math.Ordered._
 
+object Tree {
+  def apply[A:Ordering](ser: List[Option[A]]): Tree[A] = {
+    println("applying!")
+    val t = new Tree[A]()
+    t
+  }
+}
+
 class Tree[A:Ordering] {
   class Node[A:Ordering](val value: A, val nchildren: Int = 2) extends Ordered[Node[A]] {
     val children = Array.fill(nchildren)(None:Option[Node[A]])
@@ -308,6 +316,33 @@ class Tree[A:Ordering] {
     root match {
       case None => result
       case Some(r) => helper(result, root).reverse
+    }
+  }
+
+  def serializeBF(): List[Option[A]] = {
+    var result: List[Option[A]] = List()
+
+    root match {
+      case None => result
+      case Some(r) => {
+        var deque = Vector[Option[Node[A]]]()
+        var result = List[Option[A]]()
+
+        deque = deque :+ root
+
+        while (deque.length > 0) {
+          val front: Option[Node[A]] = deque.take(1)(0)
+          deque = deque.drop(1)
+          front match {
+            case None => result = None :: result
+            case Some(f) => {
+              result = Some(f.value) :: result
+              deque = deque ++ f.children
+            }
+          }
+        }
+        result.reverse
+      }
     }
   }
 }
