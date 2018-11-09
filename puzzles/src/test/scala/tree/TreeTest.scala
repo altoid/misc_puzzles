@@ -277,5 +277,32 @@ class TreeTest extends FunSuite {
     val message = t.foldPreorder("")((b, a) => b + " " + a)
     assert(" What Hath God Wrought" === message)
   }
+
+  test("foldBreadthFirst - add") {
+    val t = new Tree[Int]()
+
+    t.addValues(8, 3, 9, 1, 5, 12, 7, 11, 13, 10)
+
+    val sum = t.foldBreadthFirst(0)((b, a) => a + b)
+    assert(79 === sum)
+  }
+
+  test("foldBreadthFirst - list") {
+    val t = new Tree[Int]()
+
+    t.addValues(8, 3, 9, 1, 5, 12, 7, 11, 13, 10)
+
+    val traversal = t.foldBreadthFirst(List[Int]())((b, a) => b :+ a)
+    assert(List(8, 3, 9, 1, 5, 12, 7, 11, 13, 10) == traversal)
+  }
+
+  test("foldBreathFirst - concat") {
+    val t = new Tree[String]()
+
+    t.addValues("What", "Hath", "Wrought", "God")
+
+    val message = t.foldBreadthFirst("")((b, a) => b + " " + a)
+    assert(" What Hath Wrought God" === message)
+  }
 }
 

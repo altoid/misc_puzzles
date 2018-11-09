@@ -344,4 +344,30 @@ class Tree[A:Ordering] {
 
     helper(seed, root)(op)
   }
+
+  def foldBreadthFirst[B](seed: B)(op: (B, A) => B): B = {
+    var acc = seed
+
+    root match {
+      case None => acc
+      case Some(r) => {
+        var deque = Vector[Option[Node[A]]]()
+
+        deque = deque :+ root
+
+        while (deque.length > 0) {
+          val front: Option[Node[A]] = deque.take(1)(0)
+          deque = deque.drop(1)
+          front match {
+            case None => {}
+            case Some(f) => {
+              acc = op(acc, f.value)
+              deque = deque ++ f.children
+            }
+          }
+        }
+        acc
+      }
+    }
+  }
 }
