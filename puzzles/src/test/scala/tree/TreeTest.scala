@@ -237,7 +237,7 @@ class TreeTest extends FunSuite {
   //                        /
   //                      10
 
-  test("serialize breadth first") {
+  test("serialize") {
     val t = new Tree[Int]()
 
     t.addValues(8, 3, 9, 1, 5, 12, 7, 11, 13, 10)

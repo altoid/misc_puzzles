@@ -301,30 +301,7 @@ class Tree[A:Ordering] {
   // BSTs have an interesting property:  given a tree T, if you construct a new tree X by traversing T in breadth-first
   // order, X and T will have identical structures.
   def serialize(): List[A] = {
-    var result: List[A] = List()
-
-    root match {
-      case None => result
-      case Some(r) => {
-        var deque = Vector[Option[Node[A]]]()
-        var result = List[A]()
-
-        deque = deque :+ root
-
-        while (deque.length > 0) {
-          val front: Option[Node[A]] = deque.take(1)(0)
-          deque = deque.drop(1)
-          front match {
-            case None => {}
-            case Some(f) => {
-              result = f.value :: result
-              deque = deque ++ f.children
-            }
-          }
-        }
-        result.reverse
-      }
-    }
+    foldBreadthFirst(List[A]())((b, a) => b :+ a)
   }
 
   def foldPreorder[B](seed: B)(op: (B, A) => B): B = {
