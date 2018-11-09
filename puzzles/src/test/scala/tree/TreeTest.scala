@@ -250,5 +250,23 @@ class TreeTest extends FunSuite {
 
     assert(s === s_new)
   }
+
+  test ("foldPreorder - add") {
+    val t = new Tree[Int]()
+
+    t.addValues(8, 3, 9, 1, 5, 12, 7, 11, 13, 10)
+
+    val sum = t.foldPreorder(0)((b, a) => a + b)
+    assert(79 === sum)
+  }
+
+  test ("foldPreorder - concat") {
+    val t = new Tree[String]()
+
+    t.addValues("What", "Hath", "Wrought", "God")
+
+    val message = t.foldPreorder("")((b, a) => b + " " + a)
+    assert(" What Hath God Wrought" === message)
+  }
 }
 

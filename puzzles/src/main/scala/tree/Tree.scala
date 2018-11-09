@@ -326,4 +326,22 @@ class Tree[A:Ordering] {
       }
     }
   }
+
+  def foldPreorder[B](seed: B)(op: (B, A) => B): B = {
+    // applies a binary operation to all elements of this tree, going in preorder.
+
+    def helper(acc: B, node: Option[Node[A]])(op: (B, A) => B): B = {
+      node match {
+        case None => acc
+        case Some(n) => {
+          val v: B = op(acc, n.value)
+          val vl = helper(v, n.children(0))(op)
+          val vr = helper(vl, n.children(1))(op)
+          vr
+        }
+      }
+    }
+
+    helper(seed, root)(op)
+  }
 }
