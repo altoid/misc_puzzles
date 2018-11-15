@@ -14,7 +14,7 @@ class ColumnHeader(val name: String) extends Element
 // RowHeader objects are just an aid in navigation; nothing in the matrix points to them.
 class RowHeader extends Element
 
-class Bit(rowheader: RowHeader, columnheader: ColumnHeader) extends Element
+case class Bit(columnheader: ColumnHeader) extends Element
 
 class Matrix {
   val root = new ColumnHeader("__root__")
@@ -70,7 +70,7 @@ class Matrix {
       b match {
         case '0' => {}
         case '1' => {
-          val newbit = new Bit(rheader, ccursor)
+          val newbit = new Bit(ccursor)
           ccursor.u.d = newbit
           newbit.d = ccursor
           newbit.u = ccursor.u
@@ -97,6 +97,67 @@ class Matrix {
       case Some(b) => {
         rheader.r = b.r
       }
+      case None => {}
     }
+
+    rowheaders = rowheaders :+ rheader
+  }
+
+  private def displayRow(rheader: RowHeader): Unit = {
+    var h: ColumnHeader = root.r match {
+      case ch: ColumnHeader => ch
+      case _ => throw new ClassCastException
+    }
+
+    var data: Option[Bit] = rheader.r match {
+      case b: Bit => Some(b)
+      case _ => None
+    }
+
+    while (h != root) {
+      data = data match {
+        case None => {
+          print("0 ")
+          None
+        }
+        case Some(b: Bit) => {
+          if (b.columnheader == h) {
+            print("1 ")
+            b.r match {
+              case n: Bit => Some(n)
+              case _ => None
+            }
+          }
+          else {
+            print("0 ")
+            data
+          }
+        }
+      }
+
+      h = h.r match {
+        case ch: ColumnHeader => ch
+        case _ => throw new ClassCastException
+      }
+    }
+    println()
+  }
+
+  def display(): Unit = {
+    // display column headers
+    var h: ColumnHeader = root.r match {
+      case ch: ColumnHeader => ch
+      case _ => throw new ClassCastException
+    }
+    while (h != root) {
+      print(h.name + " ")
+      h = h.r match {
+        case ch: ColumnHeader => ch
+        case _ => throw new ClassCastException
+      }
+    }
+    println()
+
+    rowheaders.map(displayRow(_))
   }
 }

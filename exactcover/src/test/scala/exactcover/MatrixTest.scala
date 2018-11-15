@@ -28,4 +28,14 @@ class MatrixTest extends FunSuite {
       m.addRow("")
     }
   }
+
+  test ("display") {
+    val m = new Matrix()
+
+    m.addColumns("A", "B", "C", "D", "E", "F", "G")
+
+    m.addRow("0010110")
+    m.addRow("0000000")
+    m.display()
+  }
 }
