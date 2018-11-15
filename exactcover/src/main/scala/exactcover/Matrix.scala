@@ -37,6 +37,21 @@ class Matrix {
     }
   }
 
+  def findColumn(name: String): Option[ColumnHeader] = {
+    var h: ColumnHeader = root.r match {
+      case ch: ColumnHeader => ch
+      case _ => throw new ClassCastException
+    }
+    while (h != root) {
+      if (h.name == name) return Some(h)
+      h = h.r match {
+        case ch: ColumnHeader => ch
+        case _ => throw new ClassCastException
+      }
+    }
+    None
+  }
+
   def columnNames(): List[String] = {
     var buf = new ArrayBuffer[String]()
 
@@ -159,5 +174,24 @@ class Matrix {
     println()
 
     rowheaders.map(displayRow(_))
+  }
+
+  def cover(columnHeader: ColumnHeader): Unit = {
+    columnHeader.l.r = columnHeader.r
+    columnHeader.r.l = columnHeader.l
+
+    var cd = columnHeader.d
+
+    while (cd != columnHeader) {
+      var rd = cd.r
+
+      while (rd != cd) {
+        rd.d.u = rd.u
+        rd.u.d = rd.d
+
+        rd = rd.r
+      }
+      cd = cd.d
+    }
   }
 }

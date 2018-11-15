@@ -29,13 +29,27 @@ class MatrixTest extends FunSuite {
     }
   }
 
-  test ("display") {
+  test ("display and cover") {
     val m = new Matrix()
 
     m.addColumns("A", "B", "C", "D", "E", "F", "G")
 
     m.addRow("0010110")
-    m.addRow("0000000")
+//    m.addRow("0000000")
+    m.addRow("1001001")
+    m.addRow("0110010")
+    m.addRow("1001000")
+    m.addRow("0100001")
+    m.addRow("0001101")
     m.display()
+
+    val ch = m.findColumn("A")
+    ch match {
+      case None => throw new NoSuchElementException
+      case Some(ch) => {
+        m.cover(ch)
+        m.display()
+      }
+    }
   }
 }
