@@ -12,6 +12,20 @@ class MatrixTest extends FunSuite {
     m.addColumns("A", "B", "C")
 
     val headers = m.columnNames()
-    println(headers)
+    assert(List("A", "B", "C") == headers)
+  }
+
+  test ("addrow - error") {
+    val m = new Matrix()
+
+    m.addColumns("A", "B", "C")
+
+    assertThrows[IllegalStateException] {
+      m.addRow("1010")
+    }
+
+    assertThrows[IllegalArgumentException] {
+      m.addRow("")
+    }
   }
 }
