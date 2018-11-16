@@ -73,7 +73,9 @@ class Matrix {
     require(bits.length > 0)
 
     // bits is a string of 0s and 1s
-    if (bits.length != ncolumns) throw new IllegalStateException(s"bit vector has $bits.length bits but matrix has $ncolumns columns")
+    if (bits.length != ncolumns) {
+      throw new IllegalStateException(s"bit vector has $bits.length bits but matrix has $ncolumns columns")
+    }
 
     val rheader = new RowHeader
     var ccursor = root.r match {
@@ -111,6 +113,7 @@ class Matrix {
     last_item_inserted match {
       case Some(b) => {
         rheader.r = b.r
+        rheader.l = b
       }
       case None => {}
     }
@@ -192,6 +195,22 @@ class Matrix {
         rd = rd.r
       }
       cd = cd.d
+    }
+  }
+
+  def uncover(columnHeader: ColumnHeader): Unit = {
+    columnHeader.l.r = columnHeader
+    columnHeader.r.l = columnHeader
+
+    var cd = columnHeader.u
+    while (cd != columnHeader) {
+      var rd = cd.r
+      while (rd != cd) {
+        rd.d.u = rd
+        rd.u.d = rd
+        rd = rd.r
+      }
+      cd = cd.u
     }
   }
 }

@@ -29,7 +29,7 @@ class MatrixTest extends FunSuite {
     }
   }
 
-  test ("display and cover") {
+  test ("cover and uncover") {
     val m = new Matrix()
 
     m.addColumns("A", "B", "C", "D", "E", "F", "G")
@@ -48,6 +48,9 @@ class MatrixTest extends FunSuite {
       case None => throw new NoSuchElementException
       case Some(ch) => {
         m.cover(ch)
+        m.display()
+
+        m.uncover(ch)
         m.display()
       }
     }
