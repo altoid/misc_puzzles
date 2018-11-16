@@ -224,7 +224,7 @@ class Matrix {
       while (rd != cd) {
         rd.d.u = rd
         rd.u.d = rd
-        rd.columnheader += 1
+        rd.columnheader.count += 1
         rd = rd.r match {
           case b: Bit => b
           case _ => throw new ClassCastException
