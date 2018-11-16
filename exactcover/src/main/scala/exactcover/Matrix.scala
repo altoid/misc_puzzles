@@ -25,6 +25,8 @@ class Matrix {
   var ncolumns = 0
   var rowheaders = new ArrayBuffer[RowHeader]()
 
+  def empty(): Boolean = root.r == root
+
   def addColumn(name: String): Unit = {
     // no requirement that column names be unique
     val ch = new ColumnHeader(name)
@@ -183,6 +185,7 @@ class Matrix {
     println()
 
     rowheaders.map(displayRow(_))
+    println()
   }
 
   def cover(columnHeader: ColumnHeader): Unit = {
@@ -234,12 +237,44 @@ class Matrix {
     }
   }
 
-  def empty(): Boolean = root.r == root
+  def reduce_by_row(b: Bit): Unit = {
+    // cover all the columns that the bits in this row are in.
+
+    var nextbit = b.r match {
+      case x: Bit => x
+      case _ => throw new ClassCastException
+    }
+
+    while (nextbit != b) {
+      cover(nextbit.columnheader)
+      nextbit = nextbit.r match {
+        case x: Bit => x
+        case _ => throw new ClassCastException
+      }
+    }
+  }
+
+  def unreduce_by_row(b: Bit): Unit = {
+    // cover all the columns that the bits in this row are in.
+
+    var nextbit = b.l match {
+      case x: Bit => x
+      case _ => throw new ClassCastException
+    }
+
+    while (nextbit != b) {
+      uncover(nextbit.columnheader)
+      nextbit = nextbit.l match {
+        case x: Bit => x
+        case _ => throw new ClassCastException
+      }
+    }
+  }
 }
 
 class DLXAlgorithm(val matrix: Matrix) {
 
-  var partial_solutions = List[Bit]()
+  var partial_solutions = List[Element]()
 
   // returns the shortest column encountered in traversing the colums left to right.
   // (knuth's S heuristic.)
@@ -269,6 +304,7 @@ class DLXAlgorithm(val matrix: Matrix) {
 
   def dlx(level: Int = 0): Boolean = {
     if (matrix.empty()) {
+      println(s"solution exists at level $level")
       return true
     }
 
@@ -287,11 +323,39 @@ class DLXAlgorithm(val matrix: Matrix) {
       }
     }
 
-    var nextch = shortest()
-    while (nextch != None) {
+    var o_nextch = shortest()
+    while (o_nextch != None) {
+      val nextch = o_nextch match {
+        case Some(ch) => ch
+      }
 
+      matrix.cover(nextch)
+
+      // go through each row and reduce
+      var cvalue = nextch.d
+
+      while (cvalue != nextch) {
+
+        val bvalue = cvalue match {
+          case x: Bit => x
+          case _ => throw new ClassCastException
+        }
+        matrix.reduce_by_row(bvalue)
+
+        partial_solutions = cvalue :: partial_solutions
+
+        dlx(level + 1)
+
+        partial_solutions = partial_solutions.tail
+
+        matrix.unreduce_by_row(bvalue)
+        cvalue = cvalue.d
+      }
+      matrix.uncover(nextch)
+
+      o_nextch = shortest()
     }
-    ???
+    false
   }
 
 }

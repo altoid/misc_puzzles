@@ -29,13 +29,51 @@ class MatrixTest extends FunSuite with Matchers {
     }
   }
 
-  test ("cover and uncover") {
+  ignore ("reduce and unreduce") {
     val m = new Matrix()
 
     m.addColumns("A", "B", "C", "D", "E", "F", "G")
 
     m.addRow("0010110")
-//    m.addRow("0000000")
+    m.addRow("1001001")
+    m.addRow("0110010")
+    m.addRow("1001000")
+    m.addRow("0100001")
+    m.addRow("0001101")
+
+    val ch = m.findColumn("A")
+    ch match {
+      case None => throw new NoSuchElementException
+      case Some(ch) => {
+        m.cover(ch)
+
+        val b = ch.d match {
+          case x: Bit => x
+          case _ => throw new IllegalArgumentException
+        }
+
+        m.reduce_by_row(b)
+        println("reducing")
+        m.display()
+
+        println("unreducing")
+        m.unreduce_by_row(b)
+        m.display()
+
+        println("uncovering")
+        m.uncover(ch)
+        m.display()
+      }
+    }
+
+  }
+
+  ignore ("cover and uncover") {
+    val m = new Matrix()
+
+    m.addColumns("A", "B", "C", "D", "E", "F", "G")
+
+    m.addRow("0010110")
     m.addRow("1001001")
     m.addRow("0110010")
     m.addRow("1001000")
@@ -95,5 +133,22 @@ class MatrixTest extends FunSuite with Matchers {
 
     assert(shortest.name === "D")
     assert(shortest.count === 1)
+  }
+
+  test ("dlx - algorithm") {
+    val m = new Matrix()
+
+    m.addColumns("A", "B", "C", "D", "E", "F", "G")
+
+    m.addRow("0010110")
+    m.addRow("1001001")
+    m.addRow("0110010")
+    m.addRow("1001000")
+    m.addRow("0100001")
+    m.addRow("0001101")
+
+    val dlx = new DLXAlgorithm(m)
+
+    dlx.dlx()
   }
 }
