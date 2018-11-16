@@ -50,6 +50,10 @@ class MatrixTest extends FunSuite {
         m.cover(ch)
         m.display()
 
+        // covering is idempotent
+        m.cover(ch)
+        m.display()
+
         m.uncover(ch)
         m.display()
       }

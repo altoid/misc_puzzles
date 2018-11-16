@@ -9,7 +9,11 @@ class Element {
   var r = this
 }
 
-class ColumnHeader(val name: String) extends Element
+class ColumnHeader(val name: String) extends Element {
+  var count = 0  // number of bits in the column
+
+  def empty: Boolean = this == this.d
+}
 
 // RowHeader objects are just an aid in navigation; nothing in the matrix points to them.
 class RowHeader extends Element
@@ -92,6 +96,8 @@ class Matrix {
           newbit.d = ccursor
           newbit.u = ccursor.u
           ccursor.u = newbit
+          ccursor.count += 1
+
           last_item_inserted match {
             case Some(oldbit) => {
               newbit.l = oldbit
@@ -186,13 +192,19 @@ class Matrix {
     var cd = columnHeader.d
 
     while (cd != columnHeader) {
-      var rd = cd.r
+      var rd = cd.r match {
+        case b: Bit => b
+        case _ => throw new ClassCastException
+      }
 
       while (rd != cd) {
         rd.d.u = rd.u
         rd.u.d = rd.d
-
-        rd = rd.r
+        rd.columnheader.count -= 1
+        rd = rd.r match {
+          case b: Bit => b
+          case _ => throw new ClassCastException
+        }
       }
       cd = cd.d
     }
@@ -204,13 +216,23 @@ class Matrix {
 
     var cd = columnHeader.u
     while (cd != columnHeader) {
-      var rd = cd.r
+      var rd = cd.r match {
+        case b: Bit => b
+        case _ => throw new ClassCastException
+      }
+
       while (rd != cd) {
         rd.d.u = rd
         rd.u.d = rd
-        rd = rd.r
+        rd.columnheader += 1
+        rd = rd.r match {
+          case b: Bit => b
+          case _ => throw new ClassCastException
+        }
       }
       cd = cd.u
     }
   }
+
+  def empty(): Boolean = root.r == root
 }
