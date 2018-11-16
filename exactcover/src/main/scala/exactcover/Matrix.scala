@@ -236,3 +236,62 @@ class Matrix {
 
   def empty(): Boolean = root.r == root
 }
+
+class DLXAlgorithm(val matrix: Matrix) {
+
+  var partial_solutions = List[Bit]()
+
+  // returns the shortest column encountered in traversing the colums left to right.
+  // (knuth's S heuristic.)
+  def shortest(): Option[ColumnHeader] = {
+    var ch: ColumnHeader = matrix.root.r match {
+      case x: ColumnHeader => x
+      case _ => throw new ClassCastException
+    }
+
+    if (ch == matrix.root) return None
+
+    var result: Option[ColumnHeader] = Some(ch)
+    var mincount = ch.count
+
+    while (ch != matrix.root) {
+      if (ch.count < mincount) {
+        mincount = ch.count
+        result = Some(ch)
+      }
+      ch = ch.r match {
+        case x: ColumnHeader => x
+        case _ => throw new ClassCastException
+      }
+    }
+    result
+  }
+
+  def dlx(level: Int = 0): Boolean = {
+    if (matrix.empty()) {
+      return true
+    }
+
+    // check for an empty column.  if we find one, game over
+    var h: ColumnHeader = matrix.root.r match {
+      case x: ColumnHeader => x
+      case _ => throw new ClassCastException
+    }
+
+    while (h != matrix.root) {
+      if (h.empty) return false
+
+      h = h.r match {
+        case x: ColumnHeader => x
+        case _ => throw new ClassCastException
+      }
+    }
+
+    var nextch = shortest()
+    while (nextch != None) {
+
+    }
+    ???
+  }
+
+}

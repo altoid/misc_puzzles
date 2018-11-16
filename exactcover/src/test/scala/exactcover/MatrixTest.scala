@@ -1,10 +1,10 @@
 package exactcover
 
-import org.scalatest.FunSuite
+import org.scalatest._
 
 import exactcover.Matrix
 
-class MatrixTest extends FunSuite {
+class MatrixTest extends FunSuite with Matchers {
 
   test ("basic") {
     val m = new Matrix()
@@ -58,5 +58,42 @@ class MatrixTest extends FunSuite {
         m.display()
       }
     }
+  }
+
+  test ("dlx - shortest") {
+    val m = new Matrix()
+
+    m.addColumns("A", "B", "C", "D", "E", "F", "G")
+
+    m.addRow("0010110")
+    m.addRow("1001001")
+    m.addRow("0110010")
+    m.addRow("1001000")
+    m.addRow("0100001")
+    m.addRow("0001101")
+
+    val dlx = new DLXAlgorithm(m)
+
+    var shortest = dlx.shortest() match {
+      case Some(columnHeader: ColumnHeader) => columnHeader
+      case None => throw new IllegalArgumentException
+    }
+
+    assert(shortest.name === "A")
+
+    var och = dlx.matrix.findColumn("A")
+
+    och match {
+      case Some(ch) => dlx.matrix.cover(ch)
+      case None => throw new IllegalArgumentException
+    }
+
+    shortest = dlx.shortest() match {
+      case Some(columnHeader: ColumnHeader) => columnHeader
+      case None => throw new IllegalArgumentException
+    }
+
+    assert(shortest.name === "D")
+    assert(shortest.count === 1)
   }
 }
