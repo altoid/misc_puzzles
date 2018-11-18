@@ -13,14 +13,15 @@ class ColumnHeader(val name: String) extends Element {
   var count = 0  // number of bits in the column
 
   def empty: Boolean = this == this.d
+
+  override def toString = name
 }
 
-// RowHeader objects are just an aid in navigation; nothing in the matrix points to them.
 class RowHeader extends Element
 
-case class Bit(columnheader: ColumnHeader) extends Element
+case class Bit(rowHeader: RowHeader, columnheader: ColumnHeader) extends Element
 
-class Matrix {
+class DLXMatrix {
   val root = new ColumnHeader("__root__")
   var ncolumns = 0
   var rowheaders = new ArrayBuffer[RowHeader]()
@@ -93,7 +94,7 @@ class Matrix {
       b match {
         case '0' => {}
         case '1' => {
-          val newbit = new Bit(ccursor)
+          val newbit = Bit(rheader, ccursor)
           ccursor.u.d = newbit
           newbit.d = ccursor
           newbit.u = ccursor.u
@@ -129,7 +130,7 @@ class Matrix {
     rowheaders = rowheaders :+ rheader
   }
 
-  private def displayRow(rheader: RowHeader): Unit = {
+  def displayRow(rheader: RowHeader): Unit = {
     var h: ColumnHeader = root.r match {
       case ch: ColumnHeader => ch
       case _ => throw new ClassCastException
@@ -246,6 +247,7 @@ class Matrix {
     }
 
     while (nextbit != b) {
+      println("reduce_by_row:  covering " + nextbit.columnheader)
       cover(nextbit.columnheader)
       nextbit = nextbit.r match {
         case x: Bit => x
@@ -263,6 +265,7 @@ class Matrix {
     }
 
     while (nextbit != b) {
+      println("unreduce_by_row:  uncovering " + nextbit.columnheader)
       uncover(nextbit.columnheader)
       nextbit = nextbit.l match {
         case x: Bit => x
@@ -270,41 +273,35 @@ class Matrix {
       }
     }
   }
-}
 
-class DLXAlgorithm(val matrix: Matrix) {
+  def shortestColumns(): Array[ColumnHeader] = {
+    var columns = ArrayBuffer[ColumnHeader]()
 
-  var partial_solutions = List[Element]()
-
-  // returns the shortest column encountered in traversing the colums left to right.
-  // (knuth's S heuristic.)
-  def shortest(): Option[ColumnHeader] = {
-    var ch: ColumnHeader = matrix.root.r match {
+    var ch: ColumnHeader = root.r match {
       case x: ColumnHeader => x
       case _ => throw new ClassCastException
     }
 
-    if (ch == matrix.root) return None
-
-    var result: Option[ColumnHeader] = Some(ch)
-    var mincount = ch.count
-
-    while (ch != matrix.root) {
-      if (ch.count < mincount) {
-        mincount = ch.count
-        result = Some(ch)
-      }
+    while (ch != root) {
+      columns = columns :+ ch
       ch = ch.r match {
         case x: ColumnHeader => x
         case _ => throw new ClassCastException
       }
     }
-    result
+
+    columns.sortBy(_.count).toArray
   }
+}
+
+class DLXAlgorithm(val matrix: DLXMatrix) {
+
+  var partial_solutions = List[RowHeader]()
 
   def dlx(level: Int = 0): Boolean = {
     if (matrix.empty()) {
       println(s"solution exists at level $level")
+      partial_solutions.map(matrix.displayRow(_))
       return true
     }
 
@@ -315,7 +312,10 @@ class DLXAlgorithm(val matrix: Matrix) {
     }
 
     while (h != matrix.root) {
-      if (h.empty) return false
+      if (h.empty) {
+        println(h + " is empty")
+        return false
+      }
 
       h = h.r match {
         case x: ColumnHeader => x
@@ -323,12 +323,9 @@ class DLXAlgorithm(val matrix: Matrix) {
       }
     }
 
-    var o_nextch = shortest()
-    while (o_nextch != None) {
-      val nextch = o_nextch match {
-        case Some(ch) => ch
-      }
-
+    val shortest_columns = matrix.shortestColumns()
+    for (nextch <- shortest_columns) {
+      println(" " * level * 4 + "covering " + nextch)
       matrix.cover(nextch)
 
       // go through each row and reduce
@@ -342,7 +339,7 @@ class DLXAlgorithm(val matrix: Matrix) {
         }
         matrix.reduce_by_row(bvalue)
 
-        partial_solutions = cvalue :: partial_solutions
+        partial_solutions = bvalue.rowHeader :: partial_solutions
 
         dlx(level + 1)
 
@@ -351,9 +348,8 @@ class DLXAlgorithm(val matrix: Matrix) {
         matrix.unreduce_by_row(bvalue)
         cvalue = cvalue.d
       }
+      println(" " * level * 4 + "uncovering " + nextch)
       matrix.uncover(nextch)
-
-      o_nextch = shortest()
     }
     false
   }

@@ -2,12 +2,10 @@ package exactcover
 
 import org.scalatest._
 
-import exactcover.Matrix
-
 class MatrixTest extends FunSuite with Matchers {
 
   test ("basic") {
-    val m = new Matrix()
+    val m = new DLXMatrix()
 
     m.addColumns("A", "B", "C")
 
@@ -16,7 +14,7 @@ class MatrixTest extends FunSuite with Matchers {
   }
 
   test ("addrow - error") {
-    val m = new Matrix()
+    val m = new DLXMatrix()
 
     m.addColumns("A", "B", "C")
 
@@ -30,7 +28,7 @@ class MatrixTest extends FunSuite with Matchers {
   }
 
   ignore ("reduce and unreduce") {
-    val m = new Matrix()
+    val m = new DLXMatrix()
 
     m.addColumns("A", "B", "C", "D", "E", "F", "G")
 
@@ -44,11 +42,11 @@ class MatrixTest extends FunSuite with Matchers {
     val ch = m.findColumn("A")
     ch match {
       case None => throw new NoSuchElementException
-      case Some(ch) => {
-        m.cover(ch)
+      case Some(x) => {
+        m.cover(x)
 
-        val b = ch.d match {
-          case x: Bit => x
+        val b = x.d match {
+          case y: Bit => y
           case _ => throw new IllegalArgumentException
         }
 
@@ -61,7 +59,7 @@ class MatrixTest extends FunSuite with Matchers {
         m.display()
 
         println("uncovering")
-        m.uncover(ch)
+        m.uncover(x)
         m.display()
       }
     }
@@ -69,7 +67,7 @@ class MatrixTest extends FunSuite with Matchers {
   }
 
   ignore ("cover and uncover") {
-    val m = new Matrix()
+    val m = new DLXMatrix()
 
     m.addColumns("A", "B", "C", "D", "E", "F", "G")
 
@@ -84,59 +82,38 @@ class MatrixTest extends FunSuite with Matchers {
     val ch = m.findColumn("A")
     ch match {
       case None => throw new NoSuchElementException
-      case Some(ch) => {
-        m.cover(ch)
+      case Some(x) => {
+        m.cover(x)
         m.display()
 
         // covering is idempotent
-        m.cover(ch)
+        m.cover(x)
         m.display()
 
-        m.uncover(ch)
+        m.uncover(x)
         m.display()
       }
     }
   }
 
-  test ("dlx - shortest") {
-    val m = new Matrix()
+  test("matrix - shortest columns") {
+    val m = new DLXMatrix()
 
     m.addColumns("A", "B", "C", "D", "E", "F", "G")
 
-    m.addRow("0010110")
-    m.addRow("1001001")
-    m.addRow("0110010")
-    m.addRow("1001000")
-    m.addRow("0100001")
-    m.addRow("0001101")
+    m.addRow("1111110")
+    m.addRow("1111100")
+    m.addRow("1111000")
+    m.addRow("1110000")
+    m.addRow("1100000")
+    m.addRow("1000000")
 
-    val dlx = new DLXAlgorithm(m)
-
-    var shortest = dlx.shortest() match {
-      case Some(columnHeader: ColumnHeader) => columnHeader
-      case None => throw new IllegalArgumentException
-    }
-
-    assert(shortest.name === "A")
-
-    var och = dlx.matrix.findColumn("A")
-
-    och match {
-      case Some(ch) => dlx.matrix.cover(ch)
-      case None => throw new IllegalArgumentException
-    }
-
-    shortest = dlx.shortest() match {
-      case Some(columnHeader: ColumnHeader) => columnHeader
-      case None => throw new IllegalArgumentException
-    }
-
-    assert(shortest.name === "D")
-    assert(shortest.count === 1)
+    val shortest = m.shortestColumns()
+    assert("G F E D C B A" === shortest.mkString(" "))
   }
 
-  test ("dlx - algorithm") {
-    val m = new Matrix()
+  test("dlx - algorithm") {
+    val m = new DLXMatrix()
 
     m.addColumns("A", "B", "C", "D", "E", "F", "G")
 
@@ -146,6 +123,7 @@ class MatrixTest extends FunSuite with Matchers {
     m.addRow("1001000")
     m.addRow("0100001")
     m.addRow("0001101")
+    m.display()
 
     val dlx = new DLXAlgorithm(m)
 
