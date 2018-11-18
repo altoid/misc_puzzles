@@ -128,5 +128,12 @@ class MatrixTest extends FunSuite with Matchers {
     val dlx = new DLXAlgorithm(m)
 
     dlx.dlx()
+
+    assert(dlx.solutions.size === 1)
+    assert(dlx.solutions.toVector(0) === Vector(0, 3, 4))
+
+    for (s <- dlx.solutions) {
+      dlx.matrix.display(Some(s))
+    }
   }
 }

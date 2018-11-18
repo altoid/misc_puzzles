@@ -1,5 +1,6 @@
 package exactcover
 
+import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
 class Element {
@@ -17,7 +18,9 @@ class ColumnHeader(val name: String) extends Element {
   override def toString = name
 }
 
-class RowHeader extends Element
+class RowHeader(val index: Int) extends Element {
+  override def toString: String = index.toString
+}
 
 case class Bit(rowHeader: RowHeader, columnheader: ColumnHeader) extends Element
 
@@ -84,7 +87,7 @@ class DLXMatrix {
       throw new IllegalStateException(s"bit vector has $bits.length bits but matrix has $ncolumns columns")
     }
 
-    val rheader = new RowHeader
+    val rheader = new RowHeader(rowheaders.length)
     var ccursor = root.r match {
       case ch: ColumnHeader => ch
       case _ => throw new ClassCastException
@@ -170,7 +173,7 @@ class DLXMatrix {
     println()
   }
 
-  def display(): Unit = {
+  def display(subset: Option[Vector[Int]] = None): Unit = {
     // display column headers
     var h: ColumnHeader = root.r match {
       case ch: ColumnHeader => ch
@@ -185,7 +188,10 @@ class DLXMatrix {
     }
     println()
 
-    rowheaders.map(displayRow(_))
+    subset match {
+      case None => rowheaders.map(displayRow(_))
+      case Some(v: Vector[Int]) => v.map(i => displayRow(rowheaders(i)))
+    }
     println()
   }
 
@@ -247,7 +253,7 @@ class DLXMatrix {
     }
 
     while (nextbit != b) {
-      println("reduce_by_row:  covering " + nextbit.columnheader)
+      //println("reduce_by_row:  covering " + nextbit.columnheader)
       cover(nextbit.columnheader)
       nextbit = nextbit.r match {
         case x: Bit => x
@@ -265,7 +271,7 @@ class DLXMatrix {
     }
 
     while (nextbit != b) {
-      println("unreduce_by_row:  uncovering " + nextbit.columnheader)
+      //println("unreduce_by_row:  uncovering " + nextbit.columnheader)
       uncover(nextbit.columnheader)
       nextbit = nextbit.l match {
         case x: Bit => x
@@ -297,11 +303,13 @@ class DLXMatrix {
 class DLXAlgorithm(val matrix: DLXMatrix) {
 
   var partial_solutions = List[RowHeader]()
+  var solutions = mutable.HashSet[Vector[Int]]()
 
   def dlx(level: Int = 0): Boolean = {
     if (matrix.empty()) {
-      println(s"solution exists at level $level")
-      partial_solutions.map(matrix.displayRow(_))
+      val solution: Vector[Int] = partial_solutions.map(_.index).sorted.toVector
+//      println(s"solution exists at level $level:" + solution.mkString(" "))
+      solutions += solution
       return true
     }
 
@@ -313,7 +321,7 @@ class DLXAlgorithm(val matrix: DLXMatrix) {
 
     while (h != matrix.root) {
       if (h.empty) {
-        println(h + " is empty")
+        //println(h + " is empty")
         return false
       }
 
@@ -325,7 +333,7 @@ class DLXAlgorithm(val matrix: DLXMatrix) {
 
     val shortest_columns = matrix.shortestColumns()
     for (nextch <- shortest_columns) {
-      println(" " * level * 4 + "covering " + nextch)
+      //println(" " * level * 4 + "covering " + nextch)
       matrix.cover(nextch)
 
       // go through each row and reduce
@@ -348,7 +356,7 @@ class DLXAlgorithm(val matrix: DLXMatrix) {
         matrix.unreduce_by_row(bvalue)
         cvalue = cvalue.d
       }
-      println(" " * level * 4 + "uncovering " + nextch)
+      //println(" " * level * 4 + "uncovering " + nextch)
       matrix.uncover(nextch)
     }
     false
