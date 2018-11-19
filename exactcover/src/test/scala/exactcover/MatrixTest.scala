@@ -130,7 +130,7 @@ class MatrixTest extends FunSuite with Matchers {
     dlx.dlx()
 
     assert(dlx.solutions.size === 1)
-    assert(dlx.solutions.toVector(0) === Vector(0, 3, 4))
+    assert(dlx.solutions.toVector(0).map(_.index) === Vector(0, 3, 4))
 
     for (s <- dlx.solutions) {
       dlx.matrix.display(Some(s))

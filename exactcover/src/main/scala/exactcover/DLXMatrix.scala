@@ -22,6 +22,10 @@ class RowHeader(val index: Int) extends Element {
   override def toString: String = index.toString
 }
 
+object RowHeader {
+  implicit def ord: Ordering[RowHeader] = Ordering.by(_.index)
+}
+
 case class Bit(rowHeader: RowHeader, columnheader: ColumnHeader) extends Element
 
 class DLXMatrix {
@@ -166,7 +170,7 @@ class DLXMatrix {
     println()
   }
 
-  def display(subset: Option[Vector[Int]] = None): Unit = {
+  def display(subset: Option[Vector[RowHeader]] = None): Unit = {
     // display column headers
     var h = root.r
     while (h != root) {
@@ -177,7 +181,7 @@ class DLXMatrix {
 
     subset match {
       case None => rowheaders.map(displayRow(_))
-      case Some(v: Vector[Int]) => v.map(i => displayRow(rowheaders(i)))
+      case Some(v: Vector[RowHeader]) => v.map(displayRow(_))
     }
     println()
   }
@@ -290,11 +294,11 @@ class DLXMatrix {
 class DLXAlgorithm(val matrix: DLXMatrix) {
 
   var partial_solutions = List[RowHeader]()
-  var solutions = mutable.HashSet[Vector[Int]]()
+  var solutions = mutable.HashSet[Vector[RowHeader]]()
 
   def dlx(level: Int = 0): Boolean = {
     if (matrix.empty()) {
-      val solution: Vector[Int] = partial_solutions.map(_.index).sorted.toVector
+      val solution: Vector[RowHeader] = partial_solutions.toArray.sorted.toVector
 //      println(s"solution exists at level $level:" + solution.mkString(" "))
       solutions += solution
       return true
@@ -308,7 +312,6 @@ class DLXAlgorithm(val matrix: DLXMatrix) {
 
     while (h != matrix.root) {
       if (h.empty) {
-        //println(h + " is empty")
         return false
       }
 
