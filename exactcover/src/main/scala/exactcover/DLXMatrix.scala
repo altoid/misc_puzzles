@@ -4,10 +4,10 @@ import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
 class Element {
-  var u = this
-  var d = this
-  var l = this
-  var r = this
+  var u: Element = this
+  var d: Element = this
+  var l: Element = this
+  var r: Element = this
 }
 
 class ColumnHeader(val name: String) extends Element {
@@ -134,11 +134,7 @@ class DLXMatrix {
   }
 
   def displayRow(rheader: RowHeader): Unit = {
-    var h: ColumnHeader = root.r match {
-      case ch: ColumnHeader => ch
-      case _ => throw new ClassCastException
-    }
-
+    var h = root.r
     var data: Option[Bit] = rheader.r match {
       case b: Bit => Some(b)
       case _ => None
@@ -165,26 +161,17 @@ class DLXMatrix {
         }
       }
 
-      h = h.r match {
-        case ch: ColumnHeader => ch
-        case _ => throw new ClassCastException
-      }
+      h = h.r
     }
     println()
   }
 
   def display(subset: Option[Vector[Int]] = None): Unit = {
     // display column headers
-    var h: ColumnHeader = root.r match {
-      case ch: ColumnHeader => ch
-      case _ => throw new ClassCastException
-    }
+    var h = root.r
     while (h != root) {
-      print(h.name + " ")
-      h = h.r match {
-        case ch: ColumnHeader => ch
-        case _ => throw new ClassCastException
-      }
+      print(h + " ")
+      h = h.r
     }
     println()
 
