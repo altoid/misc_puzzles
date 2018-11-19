@@ -99,7 +99,7 @@ class DLXMatrix {
     var last_item_inserted: Option[Bit] = None
     for (b <- bits) {
       b match {
-        case '0' => {}
+        case '0' =>
         case '1' => {
           val newbit = Bit(rheader, ccursor)
           ccursor.u.d = newbit
@@ -115,7 +115,7 @@ class DLXMatrix {
               oldbit.r.l = newbit
               oldbit.r = newbit
             }
-            case None => {}
+            case None =>
           }
           last_item_inserted = Some(newbit)
         }
@@ -131,7 +131,7 @@ class DLXMatrix {
         rheader.r = b.r
         rheader.l = b
       }
-      case None => {}
+      case None =>
     }
 
     rowheaders = rowheaders :+ rheader
@@ -293,13 +293,12 @@ class DLXMatrix {
 
 class DLXAlgorithm(val matrix: DLXMatrix) {
 
-  var partial_solutions = List[RowHeader]()
+  private var partial_solutions = List[RowHeader]()
   var solutions = mutable.HashSet[Vector[RowHeader]]()
 
   def dlx(level: Int = 0): Boolean = {
     if (matrix.empty()) {
       val solution: Vector[RowHeader] = partial_solutions.toArray.sorted.toVector
-//      println(s"solution exists at level $level:" + solution.mkString(" "))
       solutions += solution
       return true
     }
