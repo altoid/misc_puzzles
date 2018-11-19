@@ -3,7 +3,7 @@ package exactcover
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
-class Element {
+trait Element {
   var u: Element = this
   var d: Element = this
   var l: Element = this
