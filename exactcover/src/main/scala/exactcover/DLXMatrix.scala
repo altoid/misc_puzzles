@@ -270,25 +270,6 @@ class DLXMatrix {
       }
     }
   }
-
-//  def shortestColumns(): Array[ColumnHeader] = {
-//    var columns = ArrayBuffer[ColumnHeader]()
-//
-//    var ch: ColumnHeader = root.r match {
-//      case x: ColumnHeader => x
-//      case _ => throw new ClassCastException
-//    }
-//
-//    while (ch != root) {
-//      columns = columns :+ ch
-//      ch = ch.r match {
-//        case x: ColumnHeader => x
-//        case _ => throw new ClassCastException
-//      }
-//    }
-//
-//    columns.sortBy(_.count).toArray
-//  }
 }
 
 class DLXAlgorithm(val matrix: DLXMatrix) {

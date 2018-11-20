@@ -182,14 +182,14 @@ class MatrixTest extends FunSuite with Matchers {
   test("dlx - leftmost vs. shortest") {
     val m = new DLXMatrix()
 
-    m.addColumns("A", "B", "C", "D", "E", "F", "G")
+    m.addColumns("A", "B", "C", "D", "E", "F", "G", "H")
 
-    m.addRow("0010110")
-    m.addRow("1001001")
-    m.addRow("0110010")
-    m.addRow("1001000")
-    m.addRow("0100001")
-    m.addRow("0001101")
+    m.addRow("10010110")
+    m.addRow("11001001")
+    m.addRow("10110010")
+    m.addRow("01001000")
+    m.addRow("00100001")
+    m.addRow("10001101")
 
     val dlx = new DLXAlgorithm(m)
 
