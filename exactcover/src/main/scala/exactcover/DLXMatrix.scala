@@ -137,7 +137,7 @@ class DLXMatrix {
     rowheaders = rowheaders :+ rheader
   }
 
-  def displayRow(rheader: RowHeader): Unit = {
+  private def displayRow(rheader: RowHeader): Unit = {
     var h = root.r
     var data: Option[Bit] = rheader.r match {
       case b: Bit => Some(b)
@@ -271,32 +271,32 @@ class DLXMatrix {
     }
   }
 
-  def shortestColumns(): Array[ColumnHeader] = {
-    var columns = ArrayBuffer[ColumnHeader]()
-
-    var ch: ColumnHeader = root.r match {
-      case x: ColumnHeader => x
-      case _ => throw new ClassCastException
-    }
-
-    while (ch != root) {
-      columns = columns :+ ch
-      ch = ch.r match {
-        case x: ColumnHeader => x
-        case _ => throw new ClassCastException
-      }
-    }
-
-    columns.sortBy(_.count).toArray
-  }
+//  def shortestColumns(): Array[ColumnHeader] = {
+//    var columns = ArrayBuffer[ColumnHeader]()
+//
+//    var ch: ColumnHeader = root.r match {
+//      case x: ColumnHeader => x
+//      case _ => throw new ClassCastException
+//    }
+//
+//    while (ch != root) {
+//      columns = columns :+ ch
+//      ch = ch.r match {
+//        case x: ColumnHeader => x
+//        case _ => throw new ClassCastException
+//      }
+//    }
+//
+//    columns.sortBy(_.count).toArray
+//  }
 }
 
 class DLXAlgorithm(val matrix: DLXMatrix) {
 
   private var partial_solutions = List[RowHeader]()
-  var solutions = mutable.HashSet[Vector[RowHeader]]()
+  var solutions: mutable.Set[Vector[RowHeader]] = mutable.HashSet[Vector[RowHeader]]()
 
-  def dlx(level: Int = 0): Boolean = {
+  def dlx(heuristic: DLXMatrix => Seq[ColumnHeader])(level: Int = 0): Boolean = {
     if (matrix.empty()) {
       val solution: Vector[RowHeader] = partial_solutions.toArray.sorted.toVector
       solutions += solution
@@ -320,7 +320,7 @@ class DLXAlgorithm(val matrix: DLXMatrix) {
       }
     }
 
-    val shortest_columns = matrix.shortestColumns()
+    val shortest_columns = heuristic(matrix)
     for (nextch <- shortest_columns) {
       //println(" " * level * 4 + "covering " + nextch)
       matrix.cover(nextch)
@@ -338,7 +338,7 @@ class DLXAlgorithm(val matrix: DLXMatrix) {
 
         partial_solutions = bvalue.rowHeader :: partial_solutions
 
-        dlx(level + 1)
+        dlx(heuristic)(level + 1)
 
         partial_solutions = partial_solutions.tail
 
@@ -350,5 +350,4 @@ class DLXAlgorithm(val matrix: DLXMatrix) {
     }
     false
   }
-
 }

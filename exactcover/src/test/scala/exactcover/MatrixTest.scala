@@ -2,7 +2,28 @@ package exactcover
 
 import org.scalatest._
 
+import scala.collection.mutable.ArrayBuffer
+
 class MatrixTest extends FunSuite with Matchers {
+
+  def shortestColumns(m: DLXMatrix): Array[ColumnHeader] = {
+    var columns = ArrayBuffer[ColumnHeader]()
+
+    var ch: ColumnHeader = m.root.r match {
+      case x: ColumnHeader => x
+      case _ => throw new ClassCastException
+    }
+
+    while (ch != m.root) {
+      columns = columns :+ ch
+      ch = ch.r match {
+        case x: ColumnHeader => x
+        case _ => throw new ClassCastException
+      }
+    }
+
+    columns.sortBy(_.count).toArray
+  }
 
   test ("basic") {
     val m = new DLXMatrix()
@@ -108,7 +129,7 @@ class MatrixTest extends FunSuite with Matchers {
     m.addRow("1100000")
     m.addRow("1000000")
 
-    val shortest = m.shortestColumns()
+    val shortest = shortestColumns(m)
     assert("G F E D C B A" === shortest.mkString(" "))
   }
 
@@ -123,11 +144,10 @@ class MatrixTest extends FunSuite with Matchers {
     m.addRow("1001000")
     m.addRow("0100001")
     m.addRow("0001101")
-    m.display()
 
     val dlx = new DLXAlgorithm(m)
 
-    dlx.dlx()
+    dlx.dlx(shortestColumns)()
 
     assert(dlx.solutions.size === 1)
     assert(dlx.solutions.toVector(0).map(_.index) === Vector(0, 3, 4))
