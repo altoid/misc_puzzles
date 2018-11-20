@@ -166,7 +166,7 @@ class MatrixTest extends FunSuite with Matchers {
 
     val dlx = new DLXAlgorithm(m)
 
-    dlx.dlx(shortestColumns)()
+    dlx.dlx(shortestColumns)
 
     assert(dlx.solutions.size === 1)
     assert(dlx.solutions.toVector(0).map(_.index) === Vector(0, 3, 4))
@@ -193,7 +193,7 @@ class MatrixTest extends FunSuite with Matchers {
 
     val dlx = new DLXAlgorithm(m)
 
-    dlx.dlx(leftMost)()
+    dlx.dlx(leftMost)
 
     assert(dlx.solutions.size === 1)
     assert(dlx.solutions.toVector(0).map(_.index) === Vector(0, 3, 4))
@@ -202,7 +202,7 @@ class MatrixTest extends FunSuite with Matchers {
     println(s"leaves = ${dlx.leaves}")
     println(s"nodes = ${dlx.nodes}")
 
-    dlx.dlx(shortestColumns)()
+    dlx.dlx(shortestColumns)
 
     assert(dlx.solutions.size === 1)
     assert(dlx.solutions.toVector(0).map(_.index) === Vector(0, 3, 4))
@@ -226,7 +226,7 @@ class MatrixTest extends FunSuite with Matchers {
 
     val dlx = new DLXAlgorithm(m)
 
-    dlx.dlx(shortestColumns)()
+    dlx.dlx(shortestColumns)
 
     assert(dlx.solutions.size === 0)
 

@@ -346,8 +346,8 @@ class DLXAlgorithm(val matrix: DLXMatrix) {
     false
   }
 
-  def dlx(heuristic: DLXMatrix => Seq[ColumnHeader])(level: Int = 0): Boolean = {
+  def dlx(heuristic: DLXMatrix => Seq[ColumnHeader]): Boolean = {
     reset()
-    helper(heuristic)(level)
+    helper(heuristic)(0)
   }
 }
