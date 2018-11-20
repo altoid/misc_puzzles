@@ -346,8 +346,30 @@ class DLXAlgorithm(val matrix: DLXMatrix) {
     false
   }
 
-  def dlx(heuristic: DLXMatrix => Seq[ColumnHeader]): Boolean = {
+  def dlx(heuristic: DLXMatrix => Seq[ColumnHeader], opt_seeds: Option[Seq[Int]] = None): Boolean = {
+    // seeds is the set of rows (by number) that we want in a
+    // solution.  it may be that the seed list precludes a solution
+    // when one may be present in general.  tough shit.
+
     reset()
+
+    opt_seeds match {
+      case None =>
+      case Some(seeds: Seq[Int]) => {
+        for (s <- seeds) {
+          val rheader = matrix.rowheaders(s)
+          val rdata: Bit = rheader.r match {
+            case b: Bit => b
+            case _ => throw new ClassCastException
+          }
+          val cheader = rdata.columnheader
+          matrix.cover(cheader)
+          matrix.reduce_by_row(rdata)
+        }
+        partial_solutions = seeds.map(matrix.rowheaders(_)).toList
+      }
+    }
+
     helper(heuristic)(0)
   }
 }

@@ -233,4 +233,45 @@ class MatrixTest extends FunSuite with Matchers {
     println(s"leaves = ${dlx.leaves}")
     println(s"nodes = ${dlx.nodes}")
   }
+
+  test("dlx - seed - solution") {
+    val m = new DLXMatrix()
+
+    m.addColumns("A", "B", "C", "D", "E", "F", "G")
+
+    m.addRow("0010110")
+    m.addRow("1001001")
+    m.addRow("0110010")
+    m.addRow("1001000")
+    m.addRow("0100001")
+    m.addRow("0001101")
+
+    val dlx = new DLXAlgorithm(m)
+
+    val seed = Vector(0)
+    dlx.dlx(shortestColumns, Some(seed))
+
+    assert(dlx.solutions.size === 1)
+    assert(dlx.solutions.toVector(0).map(_.index) === Vector(0, 3, 4))
+  }
+
+  test("dlx - seed - no solution") {
+    val m = new DLXMatrix()
+
+    m.addColumns("A", "B", "C", "D", "E", "F", "G")
+
+    m.addRow("0010110")
+    m.addRow("1001001")
+    m.addRow("0110010")
+    m.addRow("1001000")
+    m.addRow("0100001")
+    m.addRow("0001101")
+
+    val dlx = new DLXAlgorithm(m)
+
+    val seed = Vector(1)
+    dlx.dlx(shortestColumns, Some(seed))
+
+    assert(dlx.solutions.size === 0)
+  }
 }
