@@ -295,13 +295,29 @@ class DLXAlgorithm(val matrix: DLXMatrix) {
 
   private var partial_solutions = List[RowHeader]()
   var solutions: mutable.Set[Vector[RowHeader]] = mutable.HashSet[Vector[RowHeader]]()
+  private var _leaves = 0
+  private var _nodes = 0
 
-  def dlx(heuristic: DLXMatrix => Seq[ColumnHeader])(level: Int = 0): Boolean = {
+  def leaves = _leaves
+
+  def nodes = _nodes
+
+  private def reset(): Unit = {
+    _leaves = 0
+    _nodes = 0
+    partial_solutions = Nil
+    solutions.clear()
+  }
+
+  private def helper(heuristic: DLXMatrix => Seq[ColumnHeader])(level: Int): Boolean = {
     if (matrix.empty()) {
       val solution: Vector[RowHeader] = partial_solutions.toArray.sorted.toVector
       solutions += solution
+      _leaves += 1
       return true
     }
+
+    _nodes += 1
 
     // check for an empty column.  if we find one, game over
     var h: ColumnHeader = matrix.root.r match {
@@ -338,7 +354,7 @@ class DLXAlgorithm(val matrix: DLXMatrix) {
 
         partial_solutions = bvalue.rowHeader :: partial_solutions
 
-        dlx(heuristic)(level + 1)
+        helper(heuristic)(level + 1)
 
         partial_solutions = partial_solutions.tail
 
@@ -349,5 +365,10 @@ class DLXAlgorithm(val matrix: DLXMatrix) {
       matrix.uncover(nextch)
     }
     false
+  }
+
+  def dlx(heuristic: DLXMatrix => Seq[ColumnHeader])(level: Int = 0): Boolean = {
+    reset()
+    helper(heuristic)(level)
   }
 }

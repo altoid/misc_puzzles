@@ -25,6 +25,25 @@ class MatrixTest extends FunSuite with Matchers {
     columns.sortBy(_.count).toArray
   }
 
+  def leftMost(m: DLXMatrix): Array[ColumnHeader] = {
+    var columns = ArrayBuffer[ColumnHeader]()
+
+    var ch: ColumnHeader = m.root.r match {
+      case x: ColumnHeader => x
+      case _ => throw new ClassCastException
+    }
+
+    while (ch != m.root) {
+      columns = columns :+ ch
+      ch = ch.r match {
+        case x: ColumnHeader => x
+        case _ => throw new ClassCastException
+      }
+    }
+
+    columns.toArray
+  }
+
   test ("basic") {
     val m = new DLXMatrix()
 
@@ -117,7 +136,7 @@ class MatrixTest extends FunSuite with Matchers {
     }
   }
 
-  test("matrix - shortest columns") {
+  ignore("matrix - shortest columns") {
     val m = new DLXMatrix()
 
     m.addColumns("A", "B", "C", "D", "E", "F", "G")
@@ -133,7 +152,7 @@ class MatrixTest extends FunSuite with Matchers {
     assert("G F E D C B A" === shortest.mkString(" "))
   }
 
-  test("dlx - algorithm") {
+  ignore("dlx - algorithm") {
     val m = new DLXMatrix()
 
     m.addColumns("A", "B", "C", "D", "E", "F", "G")
@@ -155,5 +174,41 @@ class MatrixTest extends FunSuite with Matchers {
     for (s <- dlx.solutions) {
       dlx.matrix.display(Some(s))
     }
+
+    println(s"leaves = ${dlx.leaves}")
+    println(s"nodes = ${dlx.nodes}")
+  }
+
+  test("dlx - leftmost vs. shortest") {
+    val m = new DLXMatrix()
+
+    m.addColumns("A", "B", "C", "D", "E", "F", "G")
+
+    m.addRow("0010110")
+    m.addRow("1001001")
+    m.addRow("0110010")
+    m.addRow("1001000")
+    m.addRow("0100001")
+    m.addRow("0001101")
+
+    val dlx = new DLXAlgorithm(m)
+
+    dlx.dlx(leftMost)()
+
+    assert(dlx.solutions.size === 1)
+    assert(dlx.solutions.toVector(0).map(_.index) === Vector(0, 3, 4))
+
+    println("leftmost:")
+    println(s"leaves = ${dlx.leaves}")
+    println(s"nodes = ${dlx.nodes}")
+
+    dlx.dlx(shortestColumns)()
+
+    assert(dlx.solutions.size === 1)
+    assert(dlx.solutions.toVector(0).map(_.index) === Vector(0, 3, 4))
+
+    println("shortestColumns:")
+    println(s"leaves = ${dlx.leaves}")
+    println(s"nodes = ${dlx.nodes}")
   }
 }
