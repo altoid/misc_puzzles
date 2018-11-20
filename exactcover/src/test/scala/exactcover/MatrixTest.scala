@@ -211,4 +211,26 @@ class MatrixTest extends FunSuite with Matchers {
     println(s"leaves = ${dlx.leaves}")
     println(s"nodes = ${dlx.nodes}")
   }
+
+  test("dlx - no solution") {
+    val m = new DLXMatrix()
+
+    m.addColumns("A", "B", "C", "D", "E", "F", "G", "H", "I")
+
+    m.addRow("100101100")
+    m.addRow("110010010")
+    m.addRow("101100100")
+    m.addRow("010010000")
+    m.addRow("001000010")
+    m.addRow("100011010")
+
+    val dlx = new DLXAlgorithm(m)
+
+    dlx.dlx(shortestColumns)()
+
+    assert(dlx.solutions.size === 0)
+
+    println(s"leaves = ${dlx.leaves}")
+    println(s"nodes = ${dlx.nodes}")
+  }
 }

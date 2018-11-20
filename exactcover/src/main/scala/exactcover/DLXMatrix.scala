@@ -319,7 +319,6 @@ class DLXAlgorithm(val matrix: DLXMatrix) {
 
     val shortest_columns = heuristic(matrix)
     for (nextch <- shortest_columns) {
-      //println(" " * level * 4 + "covering " + nextch)
       matrix.cover(nextch)
 
       // go through each row and reduce
@@ -342,7 +341,6 @@ class DLXAlgorithm(val matrix: DLXMatrix) {
         matrix.unreduce_by_row(bvalue)
         cvalue = cvalue.d
       }
-      //println(" " * level * 4 + "uncovering " + nextch)
       matrix.uncover(nextch)
     }
     false
