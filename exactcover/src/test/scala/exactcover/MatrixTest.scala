@@ -47,7 +47,7 @@ class MatrixTest extends FunSuite with Matchers {
   test ("basic") {
     val m = new DLXMatrix()
 
-    m.addColumns("A", "B", "C")
+    m.addColumns(List("A", "B", "C"))
 
     val headers = m.columnNames()
     assert(List("A", "B", "C") == headers)
@@ -56,7 +56,7 @@ class MatrixTest extends FunSuite with Matchers {
   test ("addrow - error") {
     val m = new DLXMatrix()
 
-    m.addColumns("A", "B", "C")
+    m.addColumns(List("A", "B", "C"))
 
     assertThrows[IllegalStateException] {
       m.addRow("1010")
@@ -70,7 +70,7 @@ class MatrixTest extends FunSuite with Matchers {
   ignore ("reduce and unreduce") {
     val m = new DLXMatrix()
 
-    m.addColumns("A", "B", "C", "D", "E", "F", "G")
+    m.addColumns(List("A", "B", "C", "D", "E", "F", "G"))
 
     m.addRow("0010110")
     m.addRow("1001001")
@@ -109,7 +109,7 @@ class MatrixTest extends FunSuite with Matchers {
   ignore ("cover and uncover") {
     val m = new DLXMatrix()
 
-    m.addColumns("A", "B", "C", "D", "E", "F", "G")
+    m.addColumns(List("A", "B", "C", "D", "E", "F", "G"))
 
     m.addRow("0010110")
     m.addRow("1001001")
@@ -139,7 +139,7 @@ class MatrixTest extends FunSuite with Matchers {
   ignore("matrix - shortest columns") {
     val m = new DLXMatrix()
 
-    m.addColumns("A", "B", "C", "D", "E", "F", "G")
+    m.addColumns(List("A", "B", "C", "D", "E", "F", "G"))
 
     m.addRow("1111110")
     m.addRow("1111100")
@@ -155,7 +155,7 @@ class MatrixTest extends FunSuite with Matchers {
   ignore("dlx - algorithm") {
     val m = new DLXMatrix()
 
-    m.addColumns("A", "B", "C", "D", "E", "F", "G")
+    m.addColumns(List("A", "B", "C", "D", "E", "F", "G"))
 
     m.addRow("0010110")
     m.addRow("1001001")
@@ -182,7 +182,7 @@ class MatrixTest extends FunSuite with Matchers {
   test("dlx - leftmost vs. shortest") {
     val m = new DLXMatrix()
 
-    m.addColumns("A", "B", "C", "D", "E", "F", "G", "H")
+    m.addColumns(List("A", "B", "C", "D", "E", "F", "G", "H"))
 
     m.addRow("10010110")
     m.addRow("11001001")
@@ -215,7 +215,7 @@ class MatrixTest extends FunSuite with Matchers {
   test("dlx - no solution") {
     val m = new DLXMatrix()
 
-    m.addColumns("A", "B", "C", "D", "E", "F", "G", "H", "I")
+    m.addColumns(List("A", "B", "C", "D", "E", "F", "G", "H", "I"))
 
     m.addRow("100101100")
     m.addRow("110010010")
@@ -237,7 +237,7 @@ class MatrixTest extends FunSuite with Matchers {
   test("dlx - seed - solution") {
     val m = new DLXMatrix()
 
-    m.addColumns("A", "B", "C", "D", "E", "F", "G")
+    m.addColumns(List("A", "B", "C", "D", "E", "F", "G"))
 
     m.addRow("0010110")
     m.addRow("1001001")
@@ -258,7 +258,7 @@ class MatrixTest extends FunSuite with Matchers {
   test("dlx - seed - no solution") {
     val m = new DLXMatrix()
 
-    m.addColumns("A", "B", "C", "D", "E", "F", "G")
+    m.addColumns(List("A", "B", "C", "D", "E", "F", "G"))
 
     m.addRow("0010110")
     m.addRow("1001001")

@@ -32,6 +32,7 @@ class DLXMatrix {
   val root = new ColumnHeader("__root__")
   var ncolumns = 0
   var rowheaders = new ArrayBuffer[RowHeader]()
+  val bits2rowheaders = new mutable.HashMap[String, RowHeader]()
 
   def empty(): Boolean = root.r == root
 
@@ -45,7 +46,7 @@ class DLXMatrix {
     ncolumns += 1
   }
 
-  def addColumns(name: String*): Unit = {
+  def addColumns(name: Seq[String]): Unit = {
     for (n <- name) {
       addColumn(n)
     }
@@ -133,6 +134,8 @@ class DLXMatrix {
       }
       case None =>
     }
+
+    bits2rowheaders += (bits -> rheader)
 
     rowheaders = rowheaders :+ rheader
   }

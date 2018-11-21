@@ -20,6 +20,12 @@ class Sudoku(var size: Int) {
 
   */
 
+  val matrix = new DLXMatrix()
+
+  val columnNames = Array.fill(4 * size * size)("x")
+
+  matrix.addColumns(columnNames)
+
   def rowFor(r: Int, c: Int) = r
   def columnFor(r: Int, c: Int) = c
   def regionFor(r: Int, c: Int): Int = {
@@ -72,6 +78,8 @@ object Sudoku {
   def main(args: Array[String]): Unit = {
     val sz = 4
     val sdk = new Sudoku(sz)
+
+    var matrix = new DLXMatrix()
 
     for (r <- 0 until sz) {
       for (c <- 0 until sz) {
