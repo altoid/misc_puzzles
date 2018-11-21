@@ -118,7 +118,6 @@ object Sudoku {
       }
     }
 
-    val logger = Logging.
     seeds.foreach(println)
 
 //    val dlx = new DLXAlgorithm(sdk.matrix)
