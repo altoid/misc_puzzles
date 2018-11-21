@@ -321,13 +321,14 @@ class DLXAlgorithm(val matrix: DLXMatrix) {
     }
 
     val shortest_columns = heuristic(matrix)
+    var found_solution = false
     for (nextch <- shortest_columns) {
       matrix.cover(nextch)
 
       // go through each row and reduce
       var cvalue = nextch.d
 
-      while (cvalue != nextch) {
+      while (!found_solution && cvalue != nextch) {
 
         val bvalue = cvalue match {
           case x: Bit => x
@@ -337,7 +338,7 @@ class DLXAlgorithm(val matrix: DLXMatrix) {
 
         partial_solutions = bvalue.rowHeader :: partial_solutions
 
-        helper(heuristic)(level + 1)
+        found_solution = helper(heuristic)(level + 1)
 
         partial_solutions = partial_solutions.tail
 
@@ -345,6 +346,9 @@ class DLXAlgorithm(val matrix: DLXMatrix) {
         cvalue = cvalue.d
       }
       matrix.uncover(nextch)
+      if (found_solution) {
+        return found_solution
+      }
     }
     false
   }

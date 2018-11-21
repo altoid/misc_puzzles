@@ -120,10 +120,14 @@ object Sudoku {
 
     seeds.foreach(println)
 
-//    val dlx = new DLXAlgorithm(sdk.matrix)
-//
-//    dlx.dlx(DLXMatrix.shortestColumns, Some(seeds))
+    val dlx = new DLXAlgorithm(sdk.matrix)
 
-//    println(dlx.solutions.size + " solutions")
+    dlx.dlx(DLXMatrix.shortestColumns, Some(seeds))
+
+    println(dlx.solutions.size + " solutions")
+
+    for (v <- dlx.solutions) {
+      sdk.matrix.display(Some(v))
+    }
   }
 }
