@@ -248,7 +248,7 @@ class MatrixTest extends FunSuite with Matchers {
 
     val dlx = new DLXAlgorithm(m)
 
-    val seed = Vector(0)
+    val seed = Vector("0010110")
     dlx.dlx(shortestColumns, Some(seed))
 
     assert(dlx.solutions.size === 1)
@@ -269,7 +269,7 @@ class MatrixTest extends FunSuite with Matchers {
 
     val dlx = new DLXAlgorithm(m)
 
-    val seed = Vector(1)
+    val seed = Vector("1001001")
     dlx.dlx(shortestColumns, Some(seed))
 
     assert(dlx.solutions.size === 0)
