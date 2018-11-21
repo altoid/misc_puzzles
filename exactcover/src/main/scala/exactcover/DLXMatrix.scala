@@ -376,3 +376,43 @@ class DLXAlgorithm(val matrix: DLXMatrix) {
     helper(heuristic)(0)
   }
 }
+
+object DLXMatrix {
+  def shortestColumns(m: DLXMatrix): Array[ColumnHeader] = {
+    var columns = ArrayBuffer[ColumnHeader]()
+
+    var ch: ColumnHeader = m.root.r match {
+      case x: ColumnHeader => x
+      case _ => throw new ClassCastException
+    }
+
+    while (ch != m.root) {
+      columns = columns :+ ch
+      ch = ch.r match {
+        case x: ColumnHeader => x
+        case _ => throw new ClassCastException
+      }
+    }
+
+    columns.sortBy(_.count).toArray
+  }
+
+  def leftMost(m: DLXMatrix): Array[ColumnHeader] = {
+    var columns = ArrayBuffer[ColumnHeader]()
+
+    var ch: ColumnHeader = m.root.r match {
+      case x: ColumnHeader => x
+      case _ => throw new ClassCastException
+    }
+
+    while (ch != m.root) {
+      columns = columns :+ ch
+      ch = ch.r match {
+        case x: ColumnHeader => x
+        case _ => throw new ClassCastException
+      }
+    }
+
+    columns.toArray
+  }
+}

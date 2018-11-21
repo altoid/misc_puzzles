@@ -6,44 +6,6 @@ import scala.collection.mutable.ArrayBuffer
 
 class MatrixTest extends FunSuite with Matchers {
 
-  def shortestColumns(m: DLXMatrix): Array[ColumnHeader] = {
-    var columns = ArrayBuffer[ColumnHeader]()
-
-    var ch: ColumnHeader = m.root.r match {
-      case x: ColumnHeader => x
-      case _ => throw new ClassCastException
-    }
-
-    while (ch != m.root) {
-      columns = columns :+ ch
-      ch = ch.r match {
-        case x: ColumnHeader => x
-        case _ => throw new ClassCastException
-      }
-    }
-
-    columns.sortBy(_.count).toArray
-  }
-
-  def leftMost(m: DLXMatrix): Array[ColumnHeader] = {
-    var columns = ArrayBuffer[ColumnHeader]()
-
-    var ch: ColumnHeader = m.root.r match {
-      case x: ColumnHeader => x
-      case _ => throw new ClassCastException
-    }
-
-    while (ch != m.root) {
-      columns = columns :+ ch
-      ch = ch.r match {
-        case x: ColumnHeader => x
-        case _ => throw new ClassCastException
-      }
-    }
-
-    columns.toArray
-  }
-
   test ("basic") {
     val m = new DLXMatrix()
 
@@ -148,7 +110,7 @@ class MatrixTest extends FunSuite with Matchers {
     m.addRow("1100000")
     m.addRow("1000000")
 
-    val shortest = shortestColumns(m)
+    val shortest = DLXMatrix.shortestColumns(m)
     assert("G F E D C B A" === shortest.mkString(" "))
   }
 
@@ -166,7 +128,7 @@ class MatrixTest extends FunSuite with Matchers {
 
     val dlx = new DLXAlgorithm(m)
 
-    dlx.dlx(shortestColumns)
+    dlx.dlx(DLXMatrix.shortestColumns)
 
     assert(dlx.solutions.size === 1)
     assert(dlx.solutions.toVector(0).map(_.index) === Vector(0, 3, 4))
@@ -193,7 +155,7 @@ class MatrixTest extends FunSuite with Matchers {
 
     val dlx = new DLXAlgorithm(m)
 
-    dlx.dlx(leftMost)
+    dlx.dlx(DLXMatrix.leftMost)
 
     assert(dlx.solutions.size === 1)
     assert(dlx.solutions.toVector(0).map(_.index) === Vector(0, 3, 4))
@@ -202,7 +164,7 @@ class MatrixTest extends FunSuite with Matchers {
     println(s"leaves = ${dlx.leaves}")
     println(s"nodes = ${dlx.nodes}")
 
-    dlx.dlx(shortestColumns)
+    dlx.dlx(DLXMatrix.shortestColumns)
 
     assert(dlx.solutions.size === 1)
     assert(dlx.solutions.toVector(0).map(_.index) === Vector(0, 3, 4))
@@ -226,7 +188,7 @@ class MatrixTest extends FunSuite with Matchers {
 
     val dlx = new DLXAlgorithm(m)
 
-    dlx.dlx(shortestColumns)
+    dlx.dlx(DLXMatrix.shortestColumns)
 
     assert(dlx.solutions.size === 0)
 
@@ -249,7 +211,7 @@ class MatrixTest extends FunSuite with Matchers {
     val dlx = new DLXAlgorithm(m)
 
     val seed = Vector("0010110")
-    dlx.dlx(shortestColumns, Some(seed))
+    dlx.dlx(DLXMatrix.shortestColumns, Some(seed))
 
     assert(dlx.solutions.size === 1)
     assert(dlx.solutions.toVector(0).map(_.index) === Vector(0, 3, 4))
@@ -270,7 +232,7 @@ class MatrixTest extends FunSuite with Matchers {
     val dlx = new DLXAlgorithm(m)
 
     val seed = Vector("1001001")
-    dlx.dlx(shortestColumns, Some(seed))
+    dlx.dlx(DLXMatrix.shortestColumns, Some(seed))
 
     assert(dlx.solutions.size === 0)
   }

@@ -1,10 +1,11 @@
 package sudoku
 
+import com.sun.javafx.util.Logging
 import exactcover._
 
 import scala.collection.mutable.ArrayBuffer
 
-class Sudoku(var size: Int) {
+class Sudoku(val size: Int) {
   assert(size == 4 || size == 9)
 
   /*
@@ -25,6 +26,15 @@ class Sudoku(var size: Int) {
   val columnNames = Array.fill(4 * size * size)("x")
 
   matrix.addColumns(columnNames)
+
+  for (r <- 0 until size) {
+    for (c <- 0 until size) {
+      for (v <- 1 to size) {
+        val row = cellToRow(r, c, v)
+        matrix.addRow(row)
+      }
+    }
+  }
 
   def rowFor(r: Int, c: Int) = r
   def columnFor(r: Int, c: Int) = c
@@ -79,16 +89,42 @@ object Sudoku {
     val sz = 4
     val sdk = new Sudoku(sz)
 
-    var matrix = new DLXMatrix()
+//    val tableau = Array(
+//      Array(0, 0, 5, 7, 0, 0, 8, 0, 0),
+//      Array(2, 4, 0, 0, 9, 5, 0, 1, 0),
+//      Array(0, 9, 0, 0, 0, 0, 0, 0, 2),
+//      Array(0, 5, 0, 3, 1, 0, 9, 6, 8),
+//      Array(4, 0, 0, 2, 0, 8, 1, 0, 0),
+//      Array(0, 0, 3, 9, 0, 0, 2, 0, 0),
+//      Array(6, 0, 0, 0, 0, 3, 4, 5, 0),
+//      Array(0, 2, 1, 0, 6, 0, 0, 0, 3),
+//      Array(0, 0, 4, 0, 8, 7, 6, 2, 0)
+//    )
 
+    val tableau = Array(
+      Array(0, 2, 0, 4),
+      Array(0, 0, 0, 0),
+      Array(4, 0, 0, 0),
+      Array(0, 1, 0, 0)
+    )
+
+    var seeds = ArrayBuffer[String]()
     for (r <- 0 until sz) {
       for (c <- 0 until sz) {
-        for (v <- 1 to sz) {
-          val row = sdk.cellToRow(r, c, v)
-          val (rw, cl, vl) = sdk.rowToCell(row)
-          println(row + s" - row $rw, col $cl, val $vl")
+        val v = tableau(r)(c)
+        if (v != 0) {
+          seeds = seeds :+ sdk.cellToRow(r, c, v)
         }
       }
     }
+
+    val logger = Logging.
+    seeds.foreach(println)
+
+//    val dlx = new DLXAlgorithm(sdk.matrix)
+//
+//    dlx.dlx(DLXMatrix.shortestColumns, Some(seeds))
+
+//    println(dlx.solutions.size + " solutions")
   }
 }
