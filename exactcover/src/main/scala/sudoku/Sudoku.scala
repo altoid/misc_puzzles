@@ -140,5 +140,8 @@ object Sudoku {
       }
       println
     }
+
+    println("nodes:  " + dlx.nodes)
+    println("leaves:  " + dlx.leaves)
   }
 }
