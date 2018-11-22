@@ -32,7 +32,8 @@ class Sudoku(val size: Int) {
   private val lines: Iterator[String] = Source.fromResource(fileToRead).getLines()
 
   private val headers = lines.next()
-  headers.foreach(c => matrix.addColumn(c.toString))
+  // headers.foreach(c => matrix.addColumn(c.toString))
+  (0 until 4 * size * size) foreach (i => matrix.addColumn(i.toString))
 
   while (lines.hasNext) {
     val row = lines.next()
@@ -132,6 +133,7 @@ object Sudoku {
       solved(r)(c) = value
     })
 
+    println("============================ solution")
     for (r <- 0 until size) {
       for (c <- 0 until size) {
         print(solved(r)(c) + " ")

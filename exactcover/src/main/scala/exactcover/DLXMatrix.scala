@@ -219,7 +219,7 @@ class DLXMatrix {
     }
 
     while (nextbit != b) {
-      //println("reduce_by_row:  covering " + nextbit.columnheader)
+      // println("reduce_by_row:  covering " + nextbit.columnheader)
       cover(nextbit.columnheader)
       nextbit = nextbit.r match {
         case x: Bit => x
@@ -237,7 +237,7 @@ class DLXMatrix {
     }
 
     while (nextbit != b) {
-      //println("unreduce_by_row:  uncovering " + nextbit.columnheader)
+      // println("unreduce_by_row:  uncovering " + nextbit.columnheader)
       uncover(nextbit.columnheader)
       nextbit = nextbit.l match {
         case x: Bit => x
@@ -296,9 +296,10 @@ class DLXAlgorithm(val matrix: DLXMatrix) {
       }
     }
 
-    val shortest_columns = heuristic(matrix)
+    val columns_to_traverse = heuristic(matrix)
     var found_solution = false
-    for (nextch <- shortest_columns) {
+    for (nextch <- columns_to_traverse) {
+      // println("    " * level + s"covering $nextch")
       matrix.cover(nextch)
 
       // go through each row and reduce
@@ -321,6 +322,7 @@ class DLXAlgorithm(val matrix: DLXMatrix) {
         matrix.unreduce_by_row(bvalue)
         cvalue = cvalue.d
       }
+      // println("    " * level + s"uncovering $nextch")
       matrix.uncover(nextch)
       if (found_solution) {
         return found_solution
@@ -366,15 +368,23 @@ object DLXMatrix {
       case _ => throw new ClassCastException
     }
 
+    var mincount = ch.count
+    var shortest = ch
+
     while (ch != m.root) {
-      columns = columns :+ ch
+      if (ch.count < mincount) {
+        mincount = ch.count
+        shortest = ch
+      }
       ch = ch.r match {
         case x: ColumnHeader => x
         case _ => throw new ClassCastException
       }
     }
 
-    columns.sortBy(_.count).toArray
+    columns = columns :+ shortest
+
+    columns.toArray
   }
 
   def leftMost(m: DLXMatrix): Array[ColumnHeader] = {
@@ -385,12 +395,8 @@ object DLXMatrix {
       case _ => throw new ClassCastException
     }
 
-    while (ch != m.root) {
+    if (ch != m.root) {
       columns = columns :+ ch
-      ch = ch.r match {
-        case x: ColumnHeader => x
-        case _ => throw new ClassCastException
-      }
     }
 
     columns.toArray
