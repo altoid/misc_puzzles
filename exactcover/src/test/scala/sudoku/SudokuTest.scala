@@ -16,7 +16,6 @@ class SudokuTest extends FunSuite {
     assert(v === 2)
 
     assert((r, c, v) === (0, 1, 2))
-    // 2 0 4, 3 1 1
   }
 
   test("row to cell - (2, 0, 4)") {
@@ -28,13 +27,8 @@ class SudokuTest extends FunSuite {
 
     // cell                  row                   column                region
     // 0000-0000-1000-0000   0000-0000-0001-0000   0001-0000-0000-0000   0000-0000-0001-0000
-    println(row)
-    assert(r === 2)
-    assert(c === 0)
-    assert(v === 4)
 
     assert((r, c, v) === (2, 0, 4))
-    // 2 0 4, 3 1 1
   }
 
   test("row to cell - (3, 1, 1)") {

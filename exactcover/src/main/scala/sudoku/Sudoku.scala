@@ -1,6 +1,5 @@
 package sudoku
 
-import com.sun.javafx.util.Logging
 import exactcover._
 
 import scala.collection.mutable.ArrayBuffer
@@ -36,32 +35,32 @@ class Sudoku(val size: Int) {
     }
   }
 
-  def rowFor(r: Int, c: Int) = r
-  def columnFor(r: Int, c: Int) = c
-  def regionFor(r: Int, c: Int): Int = {
+  private def rowFor(r: Int, c: Int) = r
+  private def columnFor(r: Int, c: Int) = c
+  private def regionFor(r: Int, c: Int): Int = {
     val size_sqrt = math.sqrt(size).toInt
 
     c / size_sqrt + (r / size_sqrt) * size_sqrt
   }
 
-  def cellFor(r: Int, c: Int): Int = {
+  private def cellFor(r: Int, c: Int): Int = {
     c + r * size
   }
 
   def cellToRow(r: Int, c: Int, value: Int): String = {
-    var columnPart = ArrayBuffer.fill(size * size)("0")
+    val columnPart = ArrayBuffer.fill(size * size)("0")
     val column = columnFor(r, c)
     columnPart(column * size + (value - 1)) = "1"
 
-    var rowPart = ArrayBuffer.fill(size * size)("0")
+    val rowPart = ArrayBuffer.fill(size * size)("0")
     val row = rowFor(r, c)
     rowPart(row * size + (value - 1)) = "1"
 
-    var regionPart = ArrayBuffer.fill(size * size)("0")
+    val regionPart = ArrayBuffer.fill(size * size)("0")
     val region = regionFor(r, c)
     regionPart(region * size + (value - 1)) = "1"
 
-    var cellPart = ArrayBuffer.fill(size * size)("0")
+    val cellPart = ArrayBuffer.fill(size * size)("0")
     val cell = cellFor(r, c)
     cellPart(cell) = "1"
 
