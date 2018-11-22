@@ -127,21 +127,28 @@ object Sudoku {
     dlx.dlx(DLXMatrix.shortestColumns, Some(seeds))
 
     val solved = Array.ofDim[Int](size, size)
-    val solution = dlx.solutions.toVector(0)
-    solution.foreach(rh => {
-      val (r, c, value) = sdk.rowToCell(rh.bits)
-      solved(r)(c) = value
-    })
+    if (dlx.solutions.size > 0) {
 
-    println("============================ solution")
-    for (r <- 0 until size) {
-      for (c <- 0 until size) {
-        print(solved(r)(c) + " ")
+
+      val solution = dlx.solutions.toVector(0)
+      solution.foreach(rh => {
+        val (r, c, value) = sdk.rowToCell(rh.bits)
+        solved(r)(c) = value
+      })
+
+      println("============================ solution")
+      for (r <- 0 until size) {
+        for (c <- 0 until size) {
+          print(solved(r)(c) + " ")
+        }
+        println
       }
-      println
-    }
 
-    println("nodes:  " + dlx.nodes)
-    println("leaves:  " + dlx.leaves)
+      println("nodes:  " + dlx.nodes)
+      println("leaves:  " + dlx.leaves)
+    }
+    else {
+      println("no solution")
+    }
   }
 }
