@@ -23,9 +23,9 @@ class Sudoku(val size: Int) {
 
   val matrix = new DLXMatrix()
 
-  val columnNames = Array.fill(4 * size * size)("x")
-
-  matrix.addColumns(columnNames)
+  for (i <- 0 until 4 * size * size) {
+    matrix.addColumn(i.toString)
+  }
 
   for (r <- 0 until size) {
     for (c <- 0 until size) {
@@ -69,16 +69,16 @@ class Sudoku(val size: Int) {
   }
 
   def rowToCell(row: String): Tuple3[Int, Int, Int] = {
-    val cellPart = row.substring(0, size * size)
+    val columnPart = row.substring(2 * size * size, 3 * size * size)
     val rowPart = row.substring(size * size, 2 * size * size)
 
-    val cellindex = cellPart.indexOf('1')
+    val columnindex = columnPart.indexOf('1')
     val rowindex = rowPart.indexOf('1')
 
     val value = rowindex % size + 1
 
     val r = rowindex / size
-    val c = rowindex - r * size
+    val c = columnindex / size
 
     (r, c, value)
   }
@@ -113,21 +113,37 @@ object Sudoku {
       for (c <- 0 until sz) {
         val v = tableau(r)(c)
         if (v != 0) {
-          seeds = seeds :+ sdk.cellToRow(r, c, v)
+          val seed = sdk.cellToRow(r, c, v)
+          println(s"$r, $c, $v, $seed")
+          seeds = seeds :+ seed
         }
       }
     }
+    println("===============")
+    seeds.foreach(s => {
+      val (r, c, value) = sdk.rowToCell(s)
+      println(s"$r, $c, $value, $s")
 
-    seeds.foreach(println)
-
+    })
     val dlx = new DLXAlgorithm(sdk.matrix)
 
     dlx.dlx(DLXMatrix.shortestColumns, Some(seeds))
 
     println(dlx.solutions.size + " solutions")
 
-    for (v <- dlx.solutions) {
-      sdk.matrix.display(Some(v))
+    val solved = Array.ofDim[Int](sz, sz)
+    val solution = dlx.solutions.toVector(0)
+    solution.foreach(rh => {
+      val (r, c, value) = sdk.rowToCell(rh.bits)
+      println(s"$r, $c, $value")
+      solved(r)(c) = value
+    })
+
+    for (r <- 0 until sz) {
+      for (c <- 0 until sz) {
+        print(solved(r)(c) + " ")
+      }
+      println
     }
   }
 }

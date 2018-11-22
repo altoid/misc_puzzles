@@ -18,8 +18,8 @@ class ColumnHeader(val name: String) extends Element {
   override def toString = name
 }
 
-class RowHeader(val index: Int) extends Element {
-  override def toString: String = index.toString
+class RowHeader(val index: Int, val bits: String) extends Element {
+  override def toString: String = bits
 }
 
 object RowHeader {
@@ -92,7 +92,7 @@ class DLXMatrix {
       throw new IllegalStateException(s"bit vector has $bits.length bits but matrix has $ncolumns columns")
     }
 
-    val rheader = new RowHeader(rowheaders.length)
+    val rheader = new RowHeader(rowheaders.length, bits)
     var ccursor = root.r match {
       case ch: ColumnHeader => ch
       case _ => throw new ClassCastException
@@ -141,40 +141,12 @@ class DLXMatrix {
   }
 
   private def displayRow(rheader: RowHeader): Unit = {
-    var h = root.r
-    var data: Option[Bit] = rheader.r match {
-      case b: Bit => Some(b)
-      case _ => None
-    }
-
-    while (h != root) {
-      data = data match {
-        case None => {
-          print("0 ")
-          None
-        }
-        case Some(b: Bit) => {
-          if (b.columnheader == h) {
-            print("1 ")
-            b.r match {
-              case n: Bit => Some(n)
-              case _ => None
-            }
-          }
-          else {
-            print("0 ")
-            data
-          }
-        }
-      }
-
-      h = h.r
-    }
-    println()
+    println(rheader.bits.mkString(" "))
   }
 
   def display(subset: Option[Vector[RowHeader]] = None): Unit = {
     // display column headers
+    println(s"$ncolumns columns")
     var h = root.r
     while (h != root) {
       print(h + " ")
@@ -292,6 +264,10 @@ class DLXAlgorithm(val matrix: DLXMatrix) {
     partial_solutions = Nil
     solutions.clear()
   }
+
+  // the algorithm is written to gracefully terminate when 1 solution is found.  "gracefully terminate" means
+  // that all of the covering steps that were done will be undone when dlx() returns.  note, however, that any
+  // columns covered by initializing with a seed will remain covered.
 
   private def helper(heuristic: DLXMatrix => Seq[ColumnHeader])(level: Int): Boolean = {
     if (matrix.empty()) {
