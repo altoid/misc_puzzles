@@ -86,27 +86,27 @@ class Sudoku(val size: Int) {
 
 object Sudoku {
   def main(args: Array[String]): Unit = {
-    val sz = 4
+    val sz = 9
     val sdk = new Sudoku(sz)
 
-//    val tableau = Array(
-//      Array(0, 0, 5, 7, 0, 0, 8, 0, 0),
-//      Array(2, 4, 0, 0, 9, 5, 0, 1, 0),
-//      Array(0, 9, 0, 0, 0, 0, 0, 0, 2),
-//      Array(0, 5, 0, 3, 1, 0, 9, 6, 8),
-//      Array(4, 0, 0, 2, 0, 8, 1, 0, 0),
-//      Array(0, 0, 3, 9, 0, 0, 2, 0, 0),
-//      Array(6, 0, 0, 0, 0, 3, 4, 5, 0),
-//      Array(0, 2, 1, 0, 6, 0, 0, 0, 3),
-//      Array(0, 0, 4, 0, 8, 7, 6, 2, 0)
-//    )
-
     val tableau = Array(
-      Array(0, 2, 0, 4),
-      Array(0, 0, 0, 0),
-      Array(4, 0, 0, 0),
-      Array(0, 1, 0, 0)
+      Array(0, 0, 5, 7, 0, 0, 8, 0, 0),
+      Array(2, 4, 0, 0, 9, 5, 0, 1, 0),
+      Array(0, 9, 0, 0, 0, 0, 0, 0, 2),
+      Array(0, 5, 0, 3, 1, 0, 9, 6, 8),
+      Array(4, 0, 0, 2, 0, 8, 1, 0, 0),
+      Array(0, 0, 3, 9, 0, 0, 2, 0, 0),
+      Array(6, 0, 0, 0, 0, 3, 4, 5, 0),
+      Array(0, 2, 1, 0, 6, 0, 0, 0, 3),
+      Array(0, 0, 4, 0, 8, 7, 6, 2, 0)
     )
+
+//    val tableau = Array(
+//      Array(0, 2, 0, 4),
+//      Array(0, 0, 0, 0),
+//      Array(4, 0, 0, 0),
+//      Array(0, 1, 0, 0)
+//    )
 
     var seeds = ArrayBuffer[String]()
     for (r <- 0 until sz) {
@@ -114,17 +114,11 @@ object Sudoku {
         val v = tableau(r)(c)
         if (v != 0) {
           val seed = sdk.cellToRow(r, c, v)
-          println(s"$r, $c, $v, $seed")
           seeds = seeds :+ seed
         }
       }
     }
-    println("===============")
-    seeds.foreach(s => {
-      val (r, c, value) = sdk.rowToCell(s)
-      println(s"$r, $c, $value, $s")
 
-    })
     val dlx = new DLXAlgorithm(sdk.matrix)
 
     dlx.dlx(DLXMatrix.shortestColumns, Some(seeds))
@@ -135,7 +129,6 @@ object Sudoku {
     val solution = dlx.solutions.toVector(0)
     solution.foreach(rh => {
       val (r, c, value) = sdk.rowToCell(rh.bits)
-      println(s"$r, $c, $value")
       solved(r)(c) = value
     })
 
