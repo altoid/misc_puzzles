@@ -3,6 +3,7 @@ package sudoku
 import exactcover._
 
 import scala.collection.mutable.ArrayBuffer
+import scala.io.Source
 
 class Sudoku(val size: Int) {
   assert(size == 4 || size == 9)
@@ -22,17 +23,20 @@ class Sudoku(val size: Int) {
 
   val matrix = new DLXMatrix()
 
-  for (i <- 0 until 4 * size * size) {
-    matrix.addColumn(i.toString)
+  val fileToRead = size match {
+    case 4 => "sudoku4_data.txt"
+    case 9 => "sudoku9_data.txt"
+    case _ => throw new IllegalArgumentException
   }
 
-  for (r <- 0 until size) {
-    for (c <- 0 until size) {
-      for (v <- 1 to size) {
-        val row = cellToRow(r, c, v)
-        matrix.addRow(row)
-      }
-    }
+  val lines: Iterator[String] = Source.fromResource(fileToRead).getLines()
+
+  val headers = lines.next()
+  headers.foreach(c => matrix.addColumn(c.toString))
+
+  while (lines.hasNext) {
+    val row = lines.next()
+    matrix.addRow(row)
   }
 
   private def rowFor(r: Int, c: Int) = r
