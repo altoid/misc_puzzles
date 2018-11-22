@@ -110,25 +110,6 @@ object Sudoku {
 
     val sdk = new Sudoku(size)
 
-//    val tableau = Array(
-//      Array(0, 0, 5, 7, 0, 0, 8, 0, 0),
-//      Array(2, 4, 0, 0, 9, 5, 0, 1, 0),
-//      Array(0, 9, 0, 0, 0, 0, 0, 0, 2),
-//      Array(0, 5, 0, 3, 1, 0, 9, 6, 8),
-//      Array(4, 0, 0, 2, 0, 8, 1, 0, 0),
-//      Array(0, 0, 3, 9, 0, 0, 2, 0, 0),
-//      Array(6, 0, 0, 0, 0, 3, 4, 5, 0),
-//      Array(0, 2, 1, 0, 6, 0, 0, 0, 3),
-//      Array(0, 0, 4, 0, 8, 7, 6, 2, 0)
-//    )
-
-//    val tableau = Array(
-//      Array(0, 2, 0, 4),
-//      Array(0, 0, 0, 0),
-//      Array(4, 0, 0, 0),
-//      Array(0, 1, 0, 0)
-//    )
-
     var seeds = ArrayBuffer[String]()
     for (r <- 0 until size) {
       for (c <- 0 until size) {
@@ -143,8 +124,6 @@ object Sudoku {
     val dlx = new DLXAlgorithm(sdk.matrix)
 
     dlx.dlx(DLXMatrix.shortestColumns, Some(seeds))
-
-    println(dlx.solutions.size + " solutions")
 
     val solved = Array.ofDim[Int](size, size)
     val solution = dlx.solutions.toVector(0)
