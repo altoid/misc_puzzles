@@ -23,15 +23,15 @@ class Sudoku(val size: Int) {
 
   val matrix = new DLXMatrix()
 
-  val fileToRead = size match {
+  private val fileToRead = size match {
     case 4 => "sudoku4_data.txt"
     case 9 => "sudoku9_data.txt"
     case _ => throw new IllegalArgumentException
   }
 
-  val lines: Iterator[String] = Source.fromResource(fileToRead).getLines()
+  private val lines: Iterator[String] = Source.fromResource(fileToRead).getLines()
 
-  val headers = lines.next()
+  private val headers = lines.next()
   headers.foreach(c => matrix.addColumn(c.toString))
 
   while (lines.hasNext) {
@@ -89,20 +89,38 @@ class Sudoku(val size: Int) {
 
 object Sudoku {
   def main(args: Array[String]): Unit = {
-    val sz = 9
-    val sdk = new Sudoku(sz)
+    if (args.length < 1) {
+      println("no args")
+      return
+    }
 
-    val tableau = Array(
-      Array(0, 0, 5, 7, 0, 0, 8, 0, 0),
-      Array(2, 4, 0, 0, 9, 5, 0, 1, 0),
-      Array(0, 9, 0, 0, 0, 0, 0, 0, 2),
-      Array(0, 5, 0, 3, 1, 0, 9, 6, 8),
-      Array(4, 0, 0, 2, 0, 8, 1, 0, 0),
-      Array(0, 0, 3, 9, 0, 0, 2, 0, 0),
-      Array(6, 0, 0, 0, 0, 3, 4, 5, 0),
-      Array(0, 2, 1, 0, 6, 0, 0, 0, 3),
-      Array(0, 0, 4, 0, 8, 7, 6, 2, 0)
-    )
+    val filename = args(0)
+
+    val linesItr = Source.fromFile(filename).getLines()
+
+    val size = linesItr.next().toInt
+    var tableau = ArrayBuffer[Array[Int]]()
+
+    while (linesItr.hasNext) {
+      val row = linesItr.next().split(" ").map(_.toInt)
+      tableau = tableau :+ row
+      row.foreach(n => print(n + " "))
+      println
+    }
+
+    val sdk = new Sudoku(size)
+
+//    val tableau = Array(
+//      Array(0, 0, 5, 7, 0, 0, 8, 0, 0),
+//      Array(2, 4, 0, 0, 9, 5, 0, 1, 0),
+//      Array(0, 9, 0, 0, 0, 0, 0, 0, 2),
+//      Array(0, 5, 0, 3, 1, 0, 9, 6, 8),
+//      Array(4, 0, 0, 2, 0, 8, 1, 0, 0),
+//      Array(0, 0, 3, 9, 0, 0, 2, 0, 0),
+//      Array(6, 0, 0, 0, 0, 3, 4, 5, 0),
+//      Array(0, 2, 1, 0, 6, 0, 0, 0, 3),
+//      Array(0, 0, 4, 0, 8, 7, 6, 2, 0)
+//    )
 
 //    val tableau = Array(
 //      Array(0, 2, 0, 4),
@@ -112,8 +130,8 @@ object Sudoku {
 //    )
 
     var seeds = ArrayBuffer[String]()
-    for (r <- 0 until sz) {
-      for (c <- 0 until sz) {
+    for (r <- 0 until size) {
+      for (c <- 0 until size) {
         val v = tableau(r)(c)
         if (v != 0) {
           val seed = sdk.cellToRow(r, c, v)
@@ -128,15 +146,15 @@ object Sudoku {
 
     println(dlx.solutions.size + " solutions")
 
-    val solved = Array.ofDim[Int](sz, sz)
+    val solved = Array.ofDim[Int](size, size)
     val solution = dlx.solutions.toVector(0)
     solution.foreach(rh => {
       val (r, c, value) = sdk.rowToCell(rh.bits)
       solved(r)(c) = value
     })
 
-    for (r <- 0 until sz) {
-      for (c <- 0 until sz) {
+    for (r <- 0 until size) {
+      for (c <- 0 until size) {
         print(solved(r)(c) + " ")
       }
       println
