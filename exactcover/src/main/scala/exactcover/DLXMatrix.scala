@@ -11,7 +11,7 @@ trait Element {
 }
 
 class ColumnHeader(val name: String) extends Element {
-  var count = 0  // number of bits in the column
+  var count = 0 // number of bits in the column
 
   def empty: Boolean = this == this.d
 
@@ -269,7 +269,7 @@ class DLXAlgorithm(val matrix: DLXMatrix) {
   // that all of the covering steps that were done will be undone when dlx() returns.  note, however, that any
   // columns covered by initializing with a seed will remain covered.
 
-  private def helper(heuristic: DLXMatrix => Seq[ColumnHeader])(level: Int): Boolean = {
+  private def helper(heuristic: DLXMatrix => Option[ColumnHeader])(level: Int): Boolean = {
     if (matrix.empty()) {
       val solution: Vector[RowHeader] = partial_solutions.toArray.sorted.toVector
       solutions += solution
@@ -296,42 +296,45 @@ class DLXAlgorithm(val matrix: DLXMatrix) {
       }
     }
 
-    val columns_to_traverse = heuristic(matrix)
     var found_solution = false
-    for (nextch <- columns_to_traverse) {
-      // println("    " * level + s"covering $nextch")
-      matrix.cover(nextch)
+    val column_to_traverse = heuristic(matrix)
+    column_to_traverse match {
+      case None =>
+      case Some(nextch) => {
+        // println("    " * level + s"covering $nextch")
+        matrix.cover(nextch)
 
-      // go through each row and reduce
-      var cvalue = nextch.d
+        // go through each row and reduce
+        var cvalue = nextch.d
 
-      while (!found_solution && cvalue != nextch) {
+        while (!found_solution && cvalue != nextch) {
 
-        val bvalue = cvalue match {
-          case x: Bit => x
-          case _ => throw new ClassCastException
+          val bvalue = cvalue match {
+            case x: Bit => x
+            case _ => throw new ClassCastException
+          }
+          matrix.reduce_by_row(bvalue)
+
+          partial_solutions = bvalue.rowHeader :: partial_solutions
+
+          found_solution = helper(heuristic)(level + 1)
+
+          partial_solutions = partial_solutions.tail
+
+          matrix.unreduce_by_row(bvalue)
+          cvalue = cvalue.d
         }
-        matrix.reduce_by_row(bvalue)
-
-        partial_solutions = bvalue.rowHeader :: partial_solutions
-
-        found_solution = helper(heuristic)(level + 1)
-
-        partial_solutions = partial_solutions.tail
-
-        matrix.unreduce_by_row(bvalue)
-        cvalue = cvalue.d
-      }
-      // println("    " * level + s"uncovering $nextch")
-      matrix.uncover(nextch)
-      if (found_solution) {
-        return found_solution
+        // println("    " * level + s"uncovering $nextch")
+        matrix.uncover(nextch)
+        if (found_solution) {
+          return found_solution
+        }
       }
     }
     false
   }
 
-  def dlx(heuristic: DLXMatrix => Seq[ColumnHeader], opt_seeds: Option[Seq[String]] = None): Boolean = {
+  def dlx(heuristic: DLXMatrix => Option[ColumnHeader], opt_seeds: Option[Seq[String]] = None): Boolean = {
     // seeds is the set of rows (by number) that we want in a
     // solution.  it may be that the seed list precludes a solution
     // when one may be present in general.  tough shit.
@@ -360,7 +363,7 @@ class DLXAlgorithm(val matrix: DLXMatrix) {
 }
 
 object DLXMatrix {
-  def shortestColumns(m: DLXMatrix): Array[ColumnHeader] = {
+  def shortestColumns(m: DLXMatrix): Option[ColumnHeader] = {
     var columns = ArrayBuffer[ColumnHeader]()
 
     var ch: ColumnHeader = m.root.r match {
@@ -382,23 +385,19 @@ object DLXMatrix {
       }
     }
 
-    columns = columns :+ shortest
-
-    columns.toArray
+    if (shortest != m.root) Some(shortest)
+    else None
   }
 
-  def leftMost(m: DLXMatrix): Array[ColumnHeader] = {
+  def leftMost(m: DLXMatrix): Option[ColumnHeader] = {
     var columns = ArrayBuffer[ColumnHeader]()
 
-    var ch: ColumnHeader = m.root.r match {
+    val ch: ColumnHeader = m.root.r match {
       case x: ColumnHeader => x
       case _ => throw new ClassCastException
     }
 
-    if (ch != m.root) {
-      columns = columns :+ ch
-    }
-
-    columns.toArray
+    if (ch != m.root) Some(ch)
+    else None
   }
 }
