@@ -364,8 +364,6 @@ class DLXAlgorithm(val matrix: DLXMatrix) {
 
 object DLXMatrix {
   def shortestColumns(m: DLXMatrix): Option[ColumnHeader] = {
-    var columns = ArrayBuffer[ColumnHeader]()
-
     var ch: ColumnHeader = m.root.r match {
       case x: ColumnHeader => x
       case _ => throw new ClassCastException
@@ -390,8 +388,6 @@ object DLXMatrix {
   }
 
   def leftMost(m: DLXMatrix): Option[ColumnHeader] = {
-    var columns = ArrayBuffer[ColumnHeader]()
-
     val ch: ColumnHeader = m.root.r match {
       case x: ColumnHeader => x
       case _ => throw new ClassCastException
