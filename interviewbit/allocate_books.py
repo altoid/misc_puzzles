@@ -21,21 +21,10 @@ def partition(a, l, r, n):
 def partition_sums(a, partition):
     return [sum(a[x[0]:x[1]]) for x in partition]
 
-a = [1,7,2,4,6,1,8,0,9]
-
-#for p in partition(a, 0, len(a), 1):
-#    print p
-#
-#for p in partition(a, 0, len(a), 2):
-#    print p
-#
-
 def minmax(a, n):
     mmax = None
 
     for p in partition(a, 0, len(a), n):
-#        print p
-#        print partition_sums(a, p)
         mx = max(partition_sums(a, p))
         if mmax is None:
             mmax = mx
@@ -47,8 +36,8 @@ def minmax(a, n):
 
     return mmax
 
-print a, minmax(a, 3)
-
-a =  [12,34,67,90]
-print a, minmax(a, 2)
+class MyTest(unittest.TestCase):
+    def test1(self):
+        a = [12,34,67,90]
+        self.assertEqual(113, minmax(a, 2))
 

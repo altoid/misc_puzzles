@@ -85,7 +85,7 @@ class GraphTest extends FunSuite {
       gr.dfs(outsider)
     }
 
-    var result = gr.dfs(a).mkString
+    val result = gr.dfs(a).mkString
     assert(result == "abegfchd")
   }
 
@@ -117,7 +117,7 @@ class GraphTest extends FunSuite {
 
     gr.addEdge(e, g)
 
-    var result = gr.dfs(a).mkString(" ")
+    val result = gr.dfs(a).mkString(" ")
     assert(result == "i iii ix xiii xi v xv vii")
   }
 
@@ -155,7 +155,7 @@ class GraphTest extends FunSuite {
       gr.dfs(outsider)
     }
 
-    var result = gr.bfs(a).mkString
+    val result = gr.bfs(a).mkString
     assert(result == "abdgefch")
   }
 }

@@ -46,8 +46,8 @@ class Graph[A:Ordering] extends mutable.HashMap[Node[A], scala.collection.mutabl
     // non-recursive implementation
     require(this.contains(startHere))
 
-    var visited = mutable.HashSet[Node[A]]()
-    var stack = mutable.Stack[Node[A]]()
+    val visited = mutable.HashSet[Node[A]]()
+    val stack = mutable.Stack[Node[A]]()
     var result_buffer = ArrayBuffer[Node[A]]()
 
     stack.push(startHere)
@@ -59,7 +59,7 @@ class Graph[A:Ordering] extends mutable.HashMap[Node[A], scala.collection.mutabl
       adj_list.filterNot(x => visited.contains(x)).headOption
     }
 
-    while (!stack.isEmpty) {
+    while (stack.nonEmpty) {
       val top = stack.top
       val k = next_unvisited_neighbor(top)
 
@@ -87,7 +87,7 @@ class Graph[A:Ordering] extends mutable.HashMap[Node[A], scala.collection.mutabl
     visited.add(startHere)
     var result_buffer = ArrayBuffer[Node[A]]()
 
-    while (!deque.isEmpty) {
+    while (deque.nonEmpty) {
       val front: Node[A] = deque.take(1)(0)
       deque = deque.drop(1)
       result_buffer += front
