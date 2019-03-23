@@ -85,4 +85,7 @@ if __name__ == '__main__':
     b = Board()
     b.display()
 
-    b.traverse_from(0, 0)
+    for r in xrange(Board.size):
+        for c in xrange(Board.size):
+            b.traverse_from(r, c)
+
