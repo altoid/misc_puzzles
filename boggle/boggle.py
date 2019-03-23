@@ -6,12 +6,11 @@ from pprint import pprint
 
 DICTIONARY = '/Users/dtomm/Dropbox/personal/EOWL/all.txt'
 
-class Dictionary(object):
+with open(DICTIONARY) as f:
+    dictionary = f.read().split('\n')
 
-    def __init__(self):
-        with open(DICTIONARY) as f:
-            self.dictionary = f.read().split('\n')
-
+def words_matching_prefix(prefix, wordlist):
+    return filter(lambda x: x.startswith(prefix), wordlist)
 
 class Cell(object):
     def __init__(self, letter):
@@ -34,7 +33,7 @@ class Board(object):
         self.board = []
         for i in xrange(self.size):
             self.board.append([Cell(random.choice(self.alphabet)) for x in xrange(self.size)])
-        self.chain = []
+        self.chain = ''
 
     def display(self):
         for i in xrange(self.size):
@@ -42,7 +41,7 @@ class Board(object):
                 print self.board[i][j],
             print
 
-    def visit(self, r, c):
+    def visit(self, r, c, current_matches):
         if not (0 <= r < self.size):
             return
 
@@ -53,27 +52,36 @@ class Board(object):
             return
 
         self.board[r][c].visited = True
-        self.chain.append(self.board[r][c].letter)
-        print ''.join(self.chain)
+        self.chain += self.board[r][c].letter
+        new_matches = words_matching_prefix(self.chain, current_matches)
 
-        for dr in xrange(-1, 2):
-            for dc in xrange(-1, 2):
-                if dc == 0 and dr == 0:
-                    continue
+        if new_matches:
+            # if current chain is a word, print it out
+            w = filter(lambda x: len(x) == len(self.chain), new_matches)
+            if w:
+                print w[0]
 
-                self.visit(r + dr, c + dc)
+            for dr in xrange(-1, 2):
+                for dc in xrange(-1, 2):
+                    if dc == 0 and dr == 0:
+                        continue
+    
+                    self.visit(r + dr, c + dc, new_matches)
 
-        del self.chain[-1]
+        self.chain = self.chain[:-1]
         self.board[r][c].visited = False
 
     def traverse_from(self, r, c):
-        self.visit(r, c)
+        self.visit(r, c, dictionary)
 
+
+class MyTest(unittest.TestCase):
+    def test_matches(self):
+        prefix = 'neo'
+        matches = words_matching_prefix(prefix, dictionary)
+        pprint(matches)
 
 if __name__ == '__main__':
-    d = Dictionary()
-    print d.dictionary[:11]
-
     b = Board()
     b.display()
 
