@@ -34,6 +34,7 @@ class Board(object):
         for i in xrange(self.size):
             self.board.append([Cell(random.choice(self.alphabet)) for x in xrange(self.size)])
         self.chain = ''
+        self.results = set()
 
     def display(self):
         for i in xrange(self.size):
@@ -59,7 +60,7 @@ class Board(object):
             # if current chain is a word, print it out
             w = filter(lambda x: len(x) == len(self.chain), new_matches)
             if w:
-                print w[0]
+                self.results.add(w[0])
 
             for dr in xrange(-1, 2):
                 for dc in xrange(-1, 2):
@@ -88,4 +89,28 @@ if __name__ == '__main__':
     for r in xrange(Board.size):
         for c in xrange(Board.size):
             b.traverse_from(r, c)
+
+    print 'found %s words!' % len(b.results)
+
+    # display them nicely across 5 columns
+    max_word_len = max([len(x) for x in b.results])
+    margin = 5
+    ncolumns = 5
+
+    nrows = len(b.results) / ncolumns
+    leftovers = len(b.results) % ncolumns
+
+    sorted_list = sorted(b.results)
+
+    for r in xrange(nrows):
+        for c in xrange(ncolumns):
+            print sorted_list[r * ncolumns + c].ljust(max_word_len + margin),
+        print
+    if leftovers:
+        for i in xrange(leftovers):
+            print sorted_list[nrows * ncolumns + i].ljust(max_word_len + margin),
+        print
+
+        
+
 
