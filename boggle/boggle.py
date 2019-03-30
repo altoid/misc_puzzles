@@ -82,6 +82,28 @@ class MyTest(unittest.TestCase):
         matches = words_matching_prefix(prefix, dictionary)
         pprint(matches)
 
+    def test_display(self):
+        ncolumns = 3
+        l = list('abcdefghij')
+        nrows = len(l) / ncolumns
+        leftovers = len(l) % ncolumns
+        result = [0] * len(l)
+
+        c = 0
+        n = 0
+        while c < leftovers:
+            i = 0
+            while i < nrows + 1:
+                result[i * ncolumns + c] = l[n]
+                i += 1
+                n += 1
+            c += 1
+
+        for 
+            result[] = l[n]
+
+        print result
+
 if __name__ == '__main__':
     b = Board()
     b.display()
