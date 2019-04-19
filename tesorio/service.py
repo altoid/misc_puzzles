@@ -7,13 +7,36 @@ import MySQLdb
 import MySQLdb.cursors
 from contextlib import closing
 from pprint import pprint
+import json
 
 app = Flask(__name__)
 api = Api(app)
 
 class User(Resource):
     def get(self, name):
-        return "hello", 200
+        try:
+            with closing(MySQLdb.connect(user=config.mysql_user,
+                                         passwd=config.mysql_passwd,
+                                         host=config.mysql_host,
+                                         db=config.mysql_db,
+                                         cursorclass=MySQLdb.cursors.DictCursor)) as conn:
+     
+                cursor = conn.cursor()
+    
+                # check whether this login exists
+                select_user = """
+    select *
+    from user
+    where login = %s
+    """
+                cursor.execute(select_user, (name,))
+                rows = cursor.fetchone()
+                if rows:
+                    return rows['json'], 200
+
+                return "user %s not found" % name, 400
+        except Exception as e:
+            return name, 500
 
     def put(self, name):
         parser = reqparse.RequestParser()
