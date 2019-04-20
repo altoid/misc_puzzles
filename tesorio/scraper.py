@@ -74,8 +74,10 @@ if __name__ == '__main__':
     user_text_as_json = json.loads(user_response.text)
 
     repo_response = requests.get(repo_url, headers=headers)
-    repos = json.loads(repo_response.text)
-    # print repo_response.status_code
+
+    if repo_response.status_code != 200:
+        print 'aw dang:  %s' % repo_response.status_code
+        sys.exit(1)
 
     dml_args = {
             'id': user_text_as_json['id'],
@@ -83,7 +85,15 @@ if __name__ == '__main__':
             'json': user_response.text
             }
 
-    put_response = requests.put("%s/user/%s" (config.serviceurl, %user_text_as_json['login']),
-                                data = dml_args)
+    put_response = requests.put("%s/user/%s" % (config.serviceurl, user_text_as_json['login']),
+                                data=dml_args)
+
+    dml_args = {
+            'json': repo_response.text
+            }
+
+    put_response = requests.put("%s/user/%s/repos" % (config.serviceurl, user_text_as_json['login']),
+                                data=dml_args)
 
 
+    
