@@ -12,6 +12,16 @@ import json
 app = Flask(__name__)
 api = Api(app)
 
+def get_login_info(cursor, login):
+    select_user = """
+    select *
+    from user
+    where login = %s
+    """
+    cursor.execute(select_user, (login,))
+    return cursor.fetchone()
+
+
 class User(Resource):
     def get(self, login):
         try:
@@ -24,15 +34,9 @@ class User(Resource):
                 cursor = conn.cursor()
     
                 # check whether this login exists
-                select_user = """
-    select *
-    from user
-    where login = %s
-    """
-                cursor.execute(select_user, (login,))
-                rows = cursor.fetchone()
-                if rows:
-                    return rows['json'], 200
+                login_info = get_login_info(cursor, login)
+                if login_info:
+                    return login_info['json'], 200
 
                 return "user %s not found" % login, 404
         except Exception as e:
@@ -69,14 +73,8 @@ class User(Resource):
             try:
     
                 # check whether this login exists
-                select_login = """
-select login
-from user
-where login = %s
-"""
-                cursor.execute(select_login, (args.login,))
-                row = cursor.fetchone()
-                if row:
+                login_info = get_login_info(cursor, args.login)
+                if login_info:
                     return_code = 200
                 else:
                     return_code = 201
@@ -123,17 +121,12 @@ class RepoBatch(Resource):
             try:
                 # get the id for this login, 404 if not found
                 # check whether this login exists
-                select_login = """
-select login, id
-from user
-where login = %s
-"""
-                cursor.execute(select_login, (login,))
-                row = cursor.fetchone()
-                if not row:
+
+                login_info = get_login_info(cursor, login)
+                if not login_info:
                     return "no such login:  %s" % login, 404
                 
-                login_id = row['id']
+                login_id = login_info['id']
 
                 # get all repo ids for this login
                 select_repo_ids = """
