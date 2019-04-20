@@ -135,6 +135,40 @@ class RepoBatch(Resource):
     batch get/update operations on repos
     """
 
+    def get(self, login):
+        with closing(MySQLdb.connect(user=config.mysql_user,
+                                     passwd=config.mysql_passwd,
+                                     host=config.mysql_host,
+                                     db=config.mysql_db,
+                                     cursorclass=MySQLdb.cursors.DictCursor)) as conn:
+     
+            cursor = conn.cursor()
+            try:
+                login_info = get_login_info(cursor, login)
+                if not login_info:
+                    return "no such login:  %s" % login, 404
+                
+                login_id = login_info['id']
+
+                # get all repos for this login
+                select_repos = """
+select *
+from repo
+where owner_id = %s
+"""
+                cursor.execute(select_repos, (login_id,))
+                rows = cursor.fetchall()
+                if rows:
+                    result = [x['json'] for x in rows]
+                else:
+                    result = []
+
+                return str(result), 200
+
+            except Exception as e:
+                conn.rollback()
+                return 'BAD', 500
+
     def put(self, login):
         parser = reqparse.RequestParser()
         parser.add_argument("json")

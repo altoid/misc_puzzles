@@ -9,41 +9,6 @@ import MySQLdb.cursors
 import argparse
 from contextlib import closing
 
-# def update_repos():
-# 
-#     # get all the repos we know about from the database.  delete any from the database that do not appear
-#     # in the return result from the repo call.
-# 
-#     repos = json.loads(repo_response.text)
-# 
-#     select_repo = """
-# select id
-# from repo
-# where owner_id = %(owner_id)s
-# """
-#     select_args = {
-#         'owner_id': 
-#     insert_repo = """
-# insert into repo
-# (owner_id, id, url, json)
-# values
-# (%(owner_id)s, %(id)s, %(url)s, %(json)s)
-# on duplicate key update
-# json=values(json)
-# """
-# 
-#     for repo in repos:
-#         dml_args = {
-#             'owner_id': repo['owner']['id'],
-#             'id': repo['id'],
-#             'url': repo['html_url'],
-#             'json': repo_response.text
-#             }
-#         cursor.execute(insert_repo, dml_args)
-# 
-#     print "%s repos" % len(repos)
-
-
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
