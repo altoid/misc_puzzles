@@ -42,7 +42,7 @@ class User(Resource):
         except Exception as e:
             return login, 500
 
-    def template(self):
+    def ___template(self):
         with closing(MySQLdb.connect(user=config.mysql_user,
                                      passwd=config.mysql_passwd,
                                      host=config.mysql_host,
@@ -51,7 +51,36 @@ class User(Resource):
      
             cursor = conn.cursor()
             try:
-                return 'OK'
+                conn.commit()
+            except Exception as e:
+                conn.rollback()
+                return 'BAD', 500
+
+    def delete(self, login):
+        with closing(MySQLdb.connect(user=config.mysql_user,
+                                     passwd=config.mysql_passwd,
+                                     host=config.mysql_host,
+                                     db=config.mysql_db,
+                                     cursorclass=MySQLdb.cursors.DictCursor)) as conn:
+     
+            cursor = conn.cursor()
+            try:
+                login_info = get_login_info(cursor, login)
+
+                if login_info:
+                    delete_user = """
+delete from user
+where id = %s
+"""
+                    cursor.execute(delete_user, (login_info['id'],))
+
+                    delete_repos = """
+delete from repo
+where owner_id = %s
+"""
+                    cursor.execute(delete_repos, (login_info['id'],))
+
+                    conn.commit()
             except Exception as e:
                 conn.rollback()
                 return 'BAD', 500
