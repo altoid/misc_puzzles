@@ -22,6 +22,16 @@ def get_login_info(cursor, login):
     return cursor.fetchone()
 
 
+def get_repo_info(cursor, id):
+    select_repo = """
+    select *
+    from repo
+    where id = %s
+    """
+    cursor.execute(select_repo, (id,))
+    return cursor.fetchone()
+
+
 class User(Resource):
     def get(self, login):
         try:
@@ -130,6 +140,98 @@ where owner_id = %s
                 return args.login, 500
 
 
+class Repo(Resource):
+    def get(self, id):
+        with closing(MySQLdb.connect(user=config.mysql_user,
+                                     passwd=config.mysql_passwd,
+                                     host=config.mysql_host,
+                                     db=config.mysql_db,
+                                     cursorclass=MySQLdb.cursors.DictCursor)) as conn:
+     
+            cursor = conn.cursor()
+            try:
+                select_repo = """
+select *
+from repo
+where id = %s
+"""
+                cursor.execute(select_repo, (id,))
+                row = cursor.fetchone()
+                if row:
+                    return row['json'], 200
+                return "no such repo id: %s" % id, 404
+            except Exception as e:
+                conn.rollback()
+                return 'BAD', 500
+
+    def put(self, id):
+        parser = reqparse.RequestParser()
+        parser.add_argument("id")
+        parser.add_argument("owner_id")
+        parser.add_argument("url")
+        parser.add_argument("json")
+        args = parser.parse_args()
+
+        with closing(MySQLdb.connect(user=config.mysql_user,
+                                     passwd=config.mysql_passwd,
+                                     host=config.mysql_host,
+                                     db=config.mysql_db,
+                                     cursorclass=MySQLdb.cursors.DictCursor)) as conn:
+     
+            cursor = conn.cursor()
+            try:
+                repo_info = get_repo_info(cursor, args.id)
+                if repo_info:
+                    return_code = 200
+                else:
+                    return_code = 201
+
+                insert_login = """
+    insert into repo
+    (id, owner_id, url, json)
+    values (%(id)s, %(owner_id)s, %(url)s, %(json)s)
+    on duplicate key update
+    json=values(json),
+    owner_id=values(json),
+    url=values(url)
+    """
+                dml_args = {
+                    'id': args.id,
+                    'owner_id': args.owner_id,
+                    'url': args.url,
+                    'json': args.json,
+                    }
+    
+                cursor.execute(insert_login, dml_args)
+                conn.commit()
+            except Exception as e:
+                print e
+                conn.rollback()
+                return 'BAD', 500
+
+    def delete(self, id):
+        with closing(MySQLdb.connect(user=config.mysql_user,
+                                     passwd=config.mysql_passwd,
+                                     host=config.mysql_host,
+                                     db=config.mysql_db,
+                                     cursorclass=MySQLdb.cursors.DictCursor)) as conn:
+     
+            cursor = conn.cursor()
+            try:
+                delete_repo = """
+delete
+from repo
+where id = %s
+"""
+                cursor.execute(delete_repo, (id,))
+                conn.commit()
+                return 'OK', 200
+
+            except Exception as e:
+                conn.rollback()
+                return 'BAD', 500
+
+
 class RepoBatch(Resource):
     """
     batch get/update operations on repos
@@ -166,7 +268,6 @@ where owner_id = %s
                 return str(result), 200
 
             except Exception as e:
-                conn.rollback()
                 return 'BAD', 500
 
     def put(self, login):
@@ -249,6 +350,7 @@ json=values(json)
 
 
 api.add_resource(User, "/user/<string:login>")
+api.add_resource(Repo, "/repo/<int:id>")
 api.add_resource(RepoBatch, "/user/<string:login>/repos")
 
 app.run(debug=True)
