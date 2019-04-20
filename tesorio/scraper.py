@@ -83,7 +83,7 @@ if __name__ == '__main__':
             'json': user_response.text
             }
 
-    put_response = requests.put("http://localhost:5000/user/%s" %user_text_as_json['login'],
+    put_response = requests.put("%s/user/%s" (config.serviceurl, %user_text_as_json['login']),
                                 data = dml_args)
 
 
