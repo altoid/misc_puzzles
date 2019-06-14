@@ -13,11 +13,11 @@ insert into salaries values
 ( 'director' ,  300000),
 ( 'director' ,  350000),
 ( 'director' ,  200000),
-( 'coder'    ,   10000),
-( 'coder'    ,   20000),
 ( 'coder'    ,   32233),
 ( 'coder'    ,   32456),
-( 'coder'    ,   25646)
+( 'coder'    ,   25646),
+( 'coder'    ,   10000),
+( 'coder'    ,   20000)
 ;
 
 
