@@ -99,10 +99,10 @@ class MyTest(unittest.TestCase):
                 n += 1
             c += 1
 
-        for 
-            result[] = l[n]
-
-        print result
+#        for 
+#            result[] = l[n]
+#
+#        print result
 
 if __name__ == '__main__':
     b = Board()
