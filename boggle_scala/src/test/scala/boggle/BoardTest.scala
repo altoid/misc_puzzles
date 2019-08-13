@@ -42,9 +42,23 @@ class BoardTest extends FunSuite {
     } println(s"$dr, $dc")
   }
 
-  test("play") {
+  ignore("play") {
     val board = new Board()
 
     board.play()
+  }
+
+  test("dislay results") {
+    val nwords = 53
+    val displayColumns = 6
+    val nrows: Int = (nwords + (displayColumns - 1)) / displayColumns
+    assert(nrows == 9)
+
+    for (r <- 0 until nrows) {
+      for (i <- r until nwords by nrows) {
+        print(s"$i ")
+      }
+      println
+    }
   }
 }

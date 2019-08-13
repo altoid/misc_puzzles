@@ -20,7 +20,7 @@ object Cell {
 object Board {
   val alphabet = "abcdefghijklmnoprstuvwxyz".toCharArray // q is omitted
   val size = 4
-
+  val displayColumns = 6
 }
 
 class Board {
@@ -84,21 +84,29 @@ class Board {
   def play(): Unit = {
     display()
 
-    for (r <- 0 until Board.size) {
-      for (c <- 0 until Board.size) {
+    for (r <- 0 until Board.size; c <- 0 until Board.size) {
         traverse_from(r, c)
-      }
     }
-    println("found " + results.length + " words!")
+
+    val nwords = results.length
+    println(s"found $nwords words!")
     val widest = results.map(x => x.length).max
 
-    var k = 0
-    results.sorted.foreach(s => {
-      print(s"$s")
-      print(" " * (widest - s.length + 5))
-      k = k + 1
-      if (k % 5 == 0) println
-    })
+    // print out the results sorted vertically in columns
+
+    val sortedArr = results.sorted.toArray
+    val nrows: Int = (nwords + (Board.displayColumns - 1)) / Board.displayColumns
+
+    for (r <- 0 until nrows) {
+
+      val row = for (i <- r until nwords by nrows) yield sortedArr(i)
+      row.foreach (w => {
+        print(w)
+        print(" " * (widest - w.length + 5))
+      })
+      println
+    }
+
   }
 }
 
