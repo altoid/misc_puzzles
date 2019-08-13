@@ -18,7 +18,7 @@ object Cell {
 }
 
 object Board {
-  val alphabet = "abcdefghijklmnoprstuvwxyz".toCharArray // q is omitted
+  val alphabet: Array[Char] = "abcdefghijklmnoprstuvwxyz".toCharArray // q is omitted
   val size = 4
   val displayColumns = 6
 }
@@ -28,7 +28,7 @@ class Board {
   private val tableau: Array[Cell] = Array.fill[Cell](Board.size * Board.size)(Board.alphabet(Random.nextInt(Board.alphabet.length)))
 
   val all_words: List[String] = Source.fromResource("all.txt").getLines().toList
-  var results: List[String] = List[String]()
+  var results: Set[String] = Set[String]()
 
   private var current_path = ListBuffer[Char]()
 
@@ -65,7 +65,7 @@ class Board {
     if (new_matches.nonEmpty) {
       val w = new_matches.filter(x => x == prefix)
       if (w.nonEmpty) {
-        results = results :+ w.head
+        results = results + w.head
       }
 
       for {
@@ -88,13 +88,13 @@ class Board {
         traverse_from(r, c)
     }
 
-    val nwords = results.length
-    println(s"found $nwords words!")
     val widest = results.map(x => x.length).max
 
     // print out the results sorted vertically in columns
 
-    val sortedArr = results.sorted.toArray
+    val sortedArr = results.toArray.sorted
+    val nwords = sortedArr.length
+    println(s"found $nwords words!")
     val nrows: Int = (nwords + (Board.displayColumns - 1)) / Board.displayColumns
 
     for (r <- 0 until nrows) {
