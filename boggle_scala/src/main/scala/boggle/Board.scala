@@ -62,10 +62,10 @@ class Board {
 
     val new_matches = words_matching_prefix(prefix, current_matches)
 
-    if (new_matches.length > 0) {
+    if (new_matches.nonEmpty) {
       val w = new_matches.filter(x => x == prefix)
-      if (w.length > 0) {
-        results = results :+ w(0)
+      if (w.nonEmpty) {
+        results = results :+ w.head
       }
 
       for {
@@ -90,6 +90,21 @@ class Board {
       }
     }
     println("found " + results.length + " words!")
-    println(results)
+    val widest = results.map(x => x.length).max
+
+    var k = 0
+    results.sorted.foreach(s => {
+      print(s"$s")
+      print(" " * (widest - s.length + 5))
+      k = k + 1
+      if (k % 5 == 0) println
+    })
+  }
+}
+
+object Boggle {
+  def main(args: Array[String]): Unit = {
+    val board = new Board()
+    board.play()
   }
 }
