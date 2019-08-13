@@ -3,16 +3,17 @@ package boggle
 import org.scalatest.FunSuite
 
 class BoardTest extends FunSuite {
-  test("basic") {
+  ignore("basic") {
     assert(true)
   }
 
-  test("generate board") {
+  ignore("generate board") {
     val board = new Board()
     board.display()
+    println(Board.size)
   }
 
-  test("cell test") {
+  ignore("cell test") {
     val cell = Cell('A')
     println(cell)
 
@@ -20,10 +21,30 @@ class BoardTest extends FunSuite {
     println(cell2)
   }
 
-  test("dict test") {
+  ignore("dict test") {
     val board = new Board()
-    if (board.all_words.hasNext) {
-      println(board.all_words.next())
+    if (board.all_words.nonEmpty) {
+      println(board.all_words.head)
     }
+  }
+
+  ignore("prefixes") {
+    val board = new Board()
+    val matches = board.words_matching_prefix("a", board.all_words)
+    println(matches.length)
+    // matches.foreach(println(_))
+  }
+
+  ignore("delta") {
+    for {
+      dr <- -1 until 2
+      dc <- -1 until 2 if dc != 0 || dr != 0
+    } println(s"$dr, $dc")
+  }
+
+  test("play") {
+    val board = new Board()
+
+    board.play()
   }
 }
