@@ -14,12 +14,12 @@ object BitVector {
   }
 }
 
-class BitVector(nums: Array[Int], nth: Int) {
+class BitVector(nums: Array[Int]) {
   // retrieve the nth order bit from each member of nums.  0 is the most significant bit.
 
   // how many bits in the largest member of nums?
   val width = BitVector.width(nums.max)
-  val mask = 1 << (width - (nth + 1))
+  val mask: Int = 1 << (width - 1)
 
   val bits = nums.map(e => if ((e & mask) == 0) 0 else 1)
 
@@ -39,13 +39,21 @@ class BitVector(nums: Array[Int], nth: Int) {
     }
   }
 
+  def length(): Int = nums.length
+
+  def partition(): (Array[Int], Array[Int]) = {
+    nums.partition(x => (x & mask) == 0)
+  }
+
   def zeroesPreceding(x: Int): Int = {
-    // return the number of zeroes in the bv *before* position x (zero-based).  doesn't include x.
+    // return the number of zeroes in the bv *before* position x (zero-based).
+    // doesn't include x.
     zeroesBefore(x)
   }
 
   def onesPreceding(x: Int): Int = {
-    // return the number of ones in the bv *before* position x (zero-based).  doesn't include x.
+    // return the number of ones in the bv *before* position x (zero-based).
+    // doesn't include x.
     onesBefore(x)
   }
 
@@ -70,5 +78,64 @@ class BitVector(nums: Array[Int], nth: Int) {
     else {
       result
     }
+  }
+}
+
+class Node(bitVector: BitVector) {
+  var left: Option[Node] = None
+  var right: Option[Node] = None
+
+  def addChildren(leftArr: Array[Int], rightArr: Array[Int]): Unit = {
+    // proceed with recursion only if the left/right parts have > 1 unique elements
+
+    var numUniques = leftArr.groupBy(identity).size
+
+    if (numUniques > 1) {
+      val bv = new BitVector(leftArr)
+      val (leftPart, rightPart) = bv.partition()
+      val leftNode = new Node(bv)
+      left = Some(leftNode)
+      leftNode.addChildren(leftPart, rightPart)
+    }
+
+    numUniques = rightArr.groupBy(identity).size
+
+    if (numUniques > 1) {
+      val bv = new BitVector(rightArr)
+      val (leftPart, rightPart) = bv.partition()
+      val rightNode = new Node(bv)
+      right = Some(rightNode)
+      rightNode.addChildren(leftPart, rightPart)
+    }
+  }
+
+  def dump(depth: Int): Unit = {
+    print(" " * depth)
+    println(bitVector.bits.mkString(" "))
+
+    left match {
+      case Some(x) => x.dump(depth + 1)
+      case _ =>
+    }
+
+    right match {
+      case Some(x) => x.dump(depth + 1)
+      case _ =>
+    }
+  }
+}
+
+class WaveletTree(nums: Array[Int]) {
+
+  val depth = 0
+  val bv = new BitVector(nums)
+  val root = new Node(bv)
+
+  val (leftArr, rightArr) = bv.partition()
+
+  root.addChildren(leftArr, rightArr)
+
+  def dump(): Unit = {
+    root.dump(depth)
   }
 }
