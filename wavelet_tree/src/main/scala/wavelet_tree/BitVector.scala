@@ -1,25 +1,7 @@
 package wavelet_tree
 
-object BitVector {
-  def width(n: Int): Int = {
-    // how many bits are needed to express this number?
-    var counter = 0
-    var n2 = n
-
-    while (n2 > 0) {
-      counter += 1
-      n2 = n2 >> 1
-    }
-    counter
-  }
-}
-
-class BitVector(nums: Array[Int]) {
+class BitVector(nums: Array[Int], mask: Int) {
   // retrieve the nth order bit from each member of nums.  0 is the most significant bit.
-
-  // how many bits in the largest member of nums?
-  val width = BitVector.width(nums.max)
-  val mask: Int = 1 << (width - 1)
 
   val bits = nums.map(e => if ((e & mask) == 0) 0 else 1)
 
@@ -28,7 +10,7 @@ class BitVector(nums: Array[Int]) {
 
   var zeroesSeen = 0
   var onesSeen = 0
-  for (i <- 0 until bits.length) {
+  for (i <- bits.indices) {
     zeroesBefore(i) = zeroesSeen
     onesBefore(i) = onesSeen
     if (bits(i) == 0) {
@@ -85,27 +67,29 @@ class Node(bitVector: BitVector) {
   var left: Option[Node] = None
   var right: Option[Node] = None
 
-  def addChildren(leftArr: Array[Int], rightArr: Array[Int]): Unit = {
+  def addChildren(leftArr: Array[Int], rightArr: Array[Int], mask: Int): Unit = {
     // proceed with recursion only if the left/right parts have > 1 unique elements
 
-    var numUniques = leftArr.groupBy(identity).size
-
-    if (numUniques > 1) {
-      val bv = new BitVector(leftArr)
-      val (leftPart, rightPart) = bv.partition()
+    if (leftArr.length > 0) {
+      val numUniques = leftArr.groupBy(identity).size
+      val bv = new BitVector(leftArr, mask)
       val leftNode = new Node(bv)
       left = Some(leftNode)
-      leftNode.addChildren(leftPart, rightPart)
+      if (numUniques > 1) {
+        val (leftPart, rightPart) = bv.partition()
+        leftNode.addChildren(leftPart, rightPart, mask >> 1)
+      }
     }
 
-    numUniques = rightArr.groupBy(identity).size
-
-    if (numUniques > 1) {
-      val bv = new BitVector(rightArr)
-      val (leftPart, rightPart) = bv.partition()
+    if (rightArr.length > 1) {
+      val numUniques = rightArr.groupBy(identity).size
+      val bv = new BitVector(rightArr, mask)
       val rightNode = new Node(bv)
       right = Some(rightNode)
-      rightNode.addChildren(leftPart, rightPart)
+      if (numUniques > 1) {
+        val (leftPart, rightPart) = bv.partition()
+        rightNode.addChildren(leftPart, rightPart, mask >> 1)
+      }
     }
   }
 
@@ -125,15 +109,32 @@ class Node(bitVector: BitVector) {
   }
 }
 
+object WaveletTree {
+  def width(n: Int): Int = {
+    // how many bits are needed to express this number?
+    var counter = 0
+    var n2 = n
+
+    while (n2 > 0) {
+      counter += 1
+      n2 = n2 >> 1
+    }
+    counter
+  }
+}
+
 class WaveletTree(nums: Array[Int]) {
 
+  // how many bits in the largest member of nums?
+  val bitwidth = WaveletTree.width(nums.max)
+  val mask = 1 << (bitwidth - 1)
   val depth = 0
-  val bv = new BitVector(nums)
+  val bv = new BitVector(nums, mask)
   val root = new Node(bv)
 
   val (leftArr, rightArr) = bv.partition()
 
-  root.addChildren(leftArr, rightArr)
+  root.addChildren(leftArr, rightArr, mask >> 1)
 
   def dump(): Unit = {
     root.dump(depth)
