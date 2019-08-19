@@ -65,7 +65,14 @@ class BitVectorTest extends FunSuite {
   }
 
   test("WT construction") {
+    new WaveletTree(Array(1,2,3,4,9)).dump()
+  }
+
+  test("subrange median") {
     val wt = new WaveletTree(Array(1,7,2,4,6,1,3,0,5))
-    wt.dump()
+
+    val m = wt.subrangeMedian(2, 6)
+    assert(m == 3)
+
   }
 }

@@ -1,10 +1,8 @@
 package wavelet_tree
 
 class BitVector(nums: Array[Int], mask: Int) {
-  // retrieve the nth order bit from each member of nums.  0 is the most significant bit.
-
   val bits = nums.map(e => if ((e & mask) == 0) 0 else 1)
-
+  val vals = nums
   val zeroesBefore = Array.fill[Int](bits.length)(0)
   val onesBefore = Array.fill[Int](bits.length)(0)
 
@@ -69,6 +67,8 @@ class Node(bitVector: BitVector) {
 
   def addChildren(leftArr: Array[Int], rightArr: Array[Int], mask: Int): Unit = {
     // proceed with recursion only if the left/right parts have > 1 unique elements
+
+    if (mask == 0) return
 
     if (leftArr.length > 0) {
       val numUniques = leftArr.groupBy(identity).size
