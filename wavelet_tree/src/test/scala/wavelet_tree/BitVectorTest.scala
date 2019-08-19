@@ -71,8 +71,18 @@ class BitVectorTest extends FunSuite {
   test("subrange median") {
     val wt = new WaveletTree(Array(1,7,2,4,6,1,3,0,5))
 
-    val m = wt.subrangeMedian(2, 6)
-    assert(m == 3)
+    assert(wt.subrangeMedian(0, 0) == 1)
+    assert(wt.subrangeMedian(3, 3) == 4)
+    assert(wt.subrangeMedian(8, 8) == 5)
 
+    assert(wt.subrangeMedian(1, 3) == 4)
+
+    assert(wt.subrangeMedian(0, 4) == 4)
+    assert(wt.subrangeMedian(1, 5) == 4)
+    assert(wt.subrangeMedian(2, 6) == 3)
+    assert(wt.subrangeMedian(3, 7) == 3)
+    assert(wt.subrangeMedian(4, 8) == 3)
+
+    assert(wt.subrangeMedian(0, 8) == 3)
   }
 }
