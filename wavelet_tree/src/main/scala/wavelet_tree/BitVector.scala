@@ -110,31 +110,26 @@ class Node(bitVector: BitVector) {
 
   def subrangeMedian(from: Int, to: Int, rank: Int): Int = {
 
-    if (from == to) {
-      bitVector.vals(from)
+    val nzeroes = bitVector.zeroesInRange(from, to)
+
+    if (nzeroes >= rank) {
+      // it's on the 0 side
+      val newFrom = bitVector.zeroesPreceding(from)
+      val newTo = newFrom + nzeroes - 1
+
+      left match {
+        case Some(x) => x.subrangeMedian(newFrom, newTo, rank)
+        case None => bitVector.vals(from)
+      }
     }
     else {
-      val nzeroes = bitVector.zeroesInRange(from, to)
+      // it's on the 1 side
+      val newFrom = bitVector.onesPreceding(from)
+      val newTo = newFrom + bitVector.onesInRange(from, to) - 1
 
-      if (nzeroes >= rank) {
-        // it's on the 0 side
-        val newFrom = bitVector.zeroesPreceding(from)
-        val newTo = newFrom + nzeroes - 1
-
-        left match {
-          case Some(x) => x.subrangeMedian(newFrom, newTo, rank)
-          case None => bitVector.vals(from)
-        }
-      }
-      else {
-        // it's on the 1 side
-        val newFrom = bitVector.onesPreceding(from)
-        val newTo = newFrom + bitVector.onesInRange(from, to) - 1
-
-        right match {
-          case Some(x) => x.subrangeMedian(newFrom, newTo, rank - nzeroes)
-          case None => bitVector.vals(from + nzeroes)
-        }
+      right match {
+        case Some(x) => x.subrangeMedian(newFrom, newTo, rank - nzeroes)
+        case None => bitVector.vals(from + nzeroes)
       }
     }
   }
