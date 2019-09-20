@@ -158,4 +158,33 @@ class GraphTest extends FunSuite {
     val result = gr.bfs(a).mkString
     assert(result == "abdgefch")
   }
+
+  test("bipartite") {
+    val gr = UGraph[String]()
+
+    val a: Node[String] = "a"
+    val b: Node[String] = "b"
+    val c: Node[String] = "c"
+    val d: Node[String] = "d"
+
+    gr.addNodes(a, b, c, d)
+
+    gr.addEdge(a, b)
+    gr.addEdge(b, c)
+    gr.addEdge(c, d)
+    gr.addEdge(d, a)
+
+    /*
+      a ----- b
+      |       |
+      |       |
+      d ----- c
+     */
+
+    assert(gr.isBipartite())
+
+    gr.addEdge(a, c)
+
+    assert(!gr.isBipartite())
+  }
 }

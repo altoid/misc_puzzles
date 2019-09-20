@@ -76,6 +76,82 @@ class Graph[A:Ordering] extends mutable.HashMap[Node[A], scala.collection.mutabl
     result_buffer.map(x => x.label.toString).toArray
   }
 
+  def isBipartite(): Boolean = {
+    // look for odd-length cycles.  if there are any, return False
+    // non-recursive implementation
+
+    val visited = mutable.HashSet[Node[A]]()
+
+    def oddCycleHere(startHere:Node[A]): Boolean = {
+      // do a DFS at startHere and return true iff an odd-length cycle exists from this node
+
+      // per the scala Stack documentation, we will implement the stack as a list.
+      // top is element 0.
+
+      var stack = List[Node[A]]()
+
+      stack = startHere :: stack
+      visited.add(startHere)
+
+      def next_unvisited_neighbor(n: Node[A]): Option[Node[A]] = {
+        val adj_list = this(n).toList.sorted
+        adj_list.filterNot(x => visited.contains(x)).headOption
+      }
+
+      def any_visited_neighbors(n: Node[A], antecedent: Option[Node[A]]): Boolean = {
+        // look for any visited nodes in our adjacency list, but ignore the node that
+        // precedes n in the current path.
+        var adj_list = this(n).toList
+        adj_list = antecedent match {
+          case Some(x) => adj_list.filter(n => n != x)
+          case _ => adj_list
+        }
+        val visited_neighbors = adj_list.filter(x => visited.contains(x))
+        visited_neighbors.nonEmpty
+      }
+
+      var path_length = 0
+
+      while (stack.nonEmpty) {
+        val top = stack.head
+        val antecedent: Option[Node[A]] = stack match {
+          case x :: y :: rest => Some(y)
+          case _ => None
+        }
+
+        // see if there are neighbors that we have visited
+        if (path_length % 2 == 0 && any_visited_neighbors(top, antecedent)) {
+          // we have an odd-length cycle - path_length is even but adding another edge gives a cycle
+          return true
+        }
+
+        val k = next_unvisited_neighbor(top)
+
+        k match {
+          case Some(x) => {
+            stack = x :: stack
+            visited.add(x)
+            path_length += 1
+          }
+          case None => {
+            stack = stack.tail
+            path_length -= 1
+          }
+        }
+      }
+      false
+    }
+
+    for (k <- keys) {
+      if (!visited.contains(k)) {
+        if (oddCycleHere(k)) {
+          return false
+        }
+      }
+    }
+    true
+  }
+
   def bfs(startHere: Node[A]): Array[String] = {
     require(this.contains(startHere))
 

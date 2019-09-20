@@ -5,7 +5,7 @@ import scala.util.Random
 import scala.collection.mutable.ListBuffer
 
 class Cell(l: Char) {
-    val letter = l
+    val letter: Char = l
     var visited: Boolean = false
 
   override def toString: String = letter.toString
@@ -14,7 +14,7 @@ class Cell(l: Char) {
 object Cell {
   def apply(letter: Char): Cell = new Cell(letter)
 
-  implicit def toCell(letter: Char) = Cell(letter)
+  implicit def toCell(letter: Char): Cell = Cell(letter)
 }
 
 object Board {

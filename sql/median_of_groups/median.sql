@@ -2,6 +2,8 @@
 
 use hackerrank;
 
+/* give me the median population for each state */
+
 select
 state, sum(population) / count(*) median
 from
