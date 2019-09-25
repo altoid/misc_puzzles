@@ -91,16 +91,12 @@ if __name__ == '__main__':
     ) engine=innodb
     """ % (db_name, table_name, ',\n'.join(colspecs))
 
-    print create_table
-
     rows = []
     for i in xrange(nrows):
         row = []
         for c in columns:
             row.append(table_dict[c][i])
         rows.append(row)
-
-    pprint(rows)
 
     conn = MySQLdb.connect(host='localhost',
                            user='root',
