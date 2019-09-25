@@ -47,7 +47,6 @@ if __name__ == '__main__':
 
     table_name = args.filename.split('.')[0]
     db_name = args.database
-    print table_name
 
     with open(args.filename) as fd:
         fd.readline() # toss first line

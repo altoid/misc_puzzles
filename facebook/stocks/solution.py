@@ -2,14 +2,13 @@
 
 import unittest
 
+# this solves parts I, II, and III
 
 # identify all the increasing subarrays
 
 def find_subarrays(a):
-    p = 0
-
     transactions = []
-    start = p
+    start = 0
 
     for p in xrange(1, len(a)):
         if a[p] >= a[p - 1]:
