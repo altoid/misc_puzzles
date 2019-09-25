@@ -1,0 +1,24 @@
++-----------+---------+-----------+---------+
+| title     | salary  | title     | salary  |
++-----------+---------+-----------+---------+
+| president | 1000000 | president | 1000000 |
+
+| director  |  500000 | director  |  500000 |
+
+| director  |  454000 | director  |  500000 |
+| director  |  454000 | director  |  454000 |
+
+| director  |  400000 | director  |  500000 |
+| director  |  400000 | director  |  454000 |
+| director  |  400000 | director  |  400000 |
+
+| coder     |   32456 | coder     |   32456 |
+
+| coder     |   32233 | coder     |   32456 |
+| coder     |   32233 | coder     |   32233 |
+
+| coder     |   25646 | coder     |   25646 |
+| coder     |   25646 | coder     |   32456 |
+| coder     |   25646 | coder     |   32233 |
+
++-----------+---------+-----------+---------+

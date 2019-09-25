@@ -1,0 +1,18 @@
+use deutsch;
+
+select * 
+from
+(select @n := 0, @prev := 0) init
+join
+(
+		select
+				@n := if(length(word) != @prev, 1, @prev + 1) nn,
+				@prev := length(word)
+				word,
+				length(word)
+		from word
+		order by length(word)
+) x
+where nn <= 5
+;
+
