@@ -20,7 +20,7 @@
 # columns with all numbers will be given int types
 # all columns not null
 # database named on command line
-# if table already exists, abort the whole thing - don't bother to insert the data.
+# if table already exists, drop and reinsert
 # name of file is name of table.
 
 import unittest
@@ -28,6 +28,8 @@ import argparse
 from pprint import pprint
 import MySQLdb
 import MySQLdb.cursors
+from datetime import datetime
+
 
 def parse_line(line):
     line = line.strip()
@@ -57,7 +59,7 @@ if __name__ == '__main__':
         for c in columns:
             table_dict[c] = []
 
-        column_types = {k:'varchar(64)' for k in columns}
+        column_types = {}
 
         fd.readline() # toss line after column header
 
@@ -72,23 +74,31 @@ if __name__ == '__main__':
             data = fd.readline().strip()
             nrows += 1
 
-        # try to cast column values with ints
         for c in columns:
+            # try to cast column values with ints
             try:
                 l = map(int, table_dict[c])
                 column_types[c] = 'int'
                 table_dict[c] = l
+                continue
             except ValueError as e:
                 pass
 
-    colspecs = map(lambda x: "%s %s not null" % (x, column_types[x]), columns)
+            # try to cast them as dates
+            try:
+                l = map(lambda x: datetime.strptime(x, "%Y-%m-%d"), table_dict[c])
 
-    create_table = """
-    create table %s.%s
-    (
-    %s
-    ) engine=innodb
-    """ % (db_name, table_name, ',\n'.join(colspecs))
+                column_types[c] = 'date'
+                table_dict[c] = l
+                continue
+            except ValueError as e:
+                pass
+
+            # find the length of the longest string
+            maxlength = len(max(table_dict[c], key=len))
+            column_types[c] = 'varchar(%s)' % maxlength
+
+    colspecs = map(lambda x: "%s %s not null" % (x, column_types[x]), columns)
 
     rows = []
     for i in xrange(nrows):
@@ -102,6 +112,18 @@ if __name__ == '__main__':
                            passwd='aoeu',
                            db=db_name)
     cursor = conn.cursor(MySQLdb.cursors.DictCursor)
+
+    drop_table = """
+    drop table if exists %s.%s
+    """ % (db_name, table_name)
+    cursor.execute(drop_table)
+
+    create_table = """
+    create table %s.%s
+    (
+    %s
+    ) engine=innodb
+    """ % (db_name, table_name, ',\n'.join(colspecs))
 
     cursor.execute(create_table)
 
@@ -120,4 +142,26 @@ if __name__ == '__main__':
     print "done"
 
 
+class MyTest(unittest.TestCase):
 
+    def test_all_dates_good(self):
+        candidates = ['2019-09-22', '2019-04-29']
+
+        results = map(lambda x: datetime.strptime(x, "%Y-%m-%d"), candidates)
+        self.assertEqual(2, len(results))
+
+    def test_no_dates_good(self):
+        candidates = ['barf', 'whee']
+
+        with self.assertRaises(ValueError) as context:
+            results = map(lambda x: datetime.strptime(x, "%Y-%m-%d"), candidates)
+
+    def test_one_date_bad(self):
+        candidates = ['barf', '2019-09-22', '2017-09-11']
+
+        with self.assertRaises(ValueError) as context:
+            results = map(lambda x: datetime.strptime(x, "%Y-%m-%d"), candidates)
+
+    def test_longest(self):
+        l = ['h', 'hh','hhh','hhhh']
+        self.assertEqual(4, len(max(l, key=len)))
