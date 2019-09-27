@@ -99,7 +99,7 @@ for i in range(1, 10):
 print "done"
 """
         lines = text.split('\n')
-        self.assertEqual(0, is_valid(lines))
+        self.assertEqual(2, is_valid(lines))
 
     def test_noblocks(self):
         text = """
