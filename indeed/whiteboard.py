@@ -3,7 +3,6 @@
 # syntax rules
 
 import unittest
-import fileinput
 
 
 def indentation(line):
@@ -55,10 +54,6 @@ def is_valid(lines):
         counter += 1
 
     return -1
-
-
-if __name__ == '__main__':
-    fi = fileinput.input()
 
 
 class MyTest(unittest.TestCase):
