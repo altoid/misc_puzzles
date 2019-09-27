@@ -5,16 +5,12 @@
 import unittest
 import fileinput
 
+
 def indentation(line):
     if not line:
         return 0
 
-    i = 0
-    for c in line:
-        if c != ' ':
-            break
-        i += 1
-    return i
+    return len(line) - len(line.lstrip())
 
 
 def is_valid(lines):
@@ -74,7 +70,7 @@ class MyTest(unittest.TestCase):
         self.assertEqual(4, indentation("    "))
 
     def test_valid(self):
-        text = """
+            text = """
 x = 5
 for i in range(1, 10):
     if i == 2:
@@ -84,8 +80,39 @@ for i in range(1, 10):
           print "stop"
 print "done"
 """
+            lines = text.split('\n')
+            self.assertEqual(-1, is_valid(lines))
+
+    def test_valid_blank_lines(self):
+        text = """
+x = 5
+
+for i in range(1, 10):
+
+    if i == 2:
+
+        print "hard to read"
+
+    else:
+
+          x = 3
+
+          print "stop"
+
+print "done"
+"""
         lines = text.split('\n')
         self.assertEqual(-1, is_valid(lines))
+
+    def test_outdent_after_block(self):
+            text = """
+x = 5
+for i in range(1, 10):
+    if i == 2:
+print "hard to read"
+"""
+            lines = text.split('\n')
+            self.assertEqual(5, is_valid(lines))
 
     def test_invalid(self):
         text = """
