@@ -16,6 +16,7 @@ def indentation(line):
         i += 1
     return i
 
+
 def is_valid(lines):
     """
 
@@ -29,27 +30,32 @@ def is_valid(lines):
     counter = 1
 
     for l in lines:
-        if not l:
+        stripped = l.strip()
+        if not stripped:
             counter += 1
             continue
 
         line_indent = indentation(l)
         if after_block:
-            if line_indent > indentation_levels[-1]:
-                indentation_levels.append(line_indent)
-                after_block = False
-                counter += 1
-                continue
-            return counter
-        if line_indent == indentation_levels[-1]:
-            if l[-1] != ':':
-                counter += 1
-                continue
-            after_block = True
-        elif line_indent < indentation_levels[-1]:
-            indentation_levels = indentation_levels[:-1]
-            if line_indent != indentation_levels[-1]:
+            after_block = False
+            if line_indent <= indentation_levels[-1]:
                 return counter
+
+            indentation_levels.append(line_indent)
+
+        if line_indent < indentation_levels[-1]:
+            # keep popping stack until indent level matches
+            while indentation_levels[-1] > line_indent:
+                indentation_levels = indentation_levels[:-1]
+            if indentation_levels[-1] < line_indent:
+                return counter
+
+        if line_indent != indentation_levels[-1]:
+            return counter
+
+        if l[-1] == ':':
+            after_block = True
+
         counter += 1
 
     return -1
@@ -103,8 +109,7 @@ print "done"
         lines = text.split('\n')
         self.assertEqual(-1, is_valid(lines))
 
-
-    def test5(self):
+    def test_wrong_indent(self):
         text = """
 if x == 5:
 print "done"
