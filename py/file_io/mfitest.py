@@ -26,6 +26,12 @@ class MFITest(unittest.TestCase):
         for line in mfi:
             print line.rstrip()
 
+    def test_lineno(self):
+        mfi = MyFileInput(['testfiles/sonnet_cxxviii', 'testfiles/empty', 'testfiles/one_Liner', 'testfiles/sonnet_cxxviii'])
+        print mfi.lineno(), mfi.filelineno()
+        for line in mfi:
+            print mfi.filename(), mfi.lineno(), mfi.filelineno(), line.rstrip()
+
     def test_filename_1(self):
         mfi = MyFileInput(['testfiles/sonnet_cxxviii', 'testfiles/empty', 'testfiles/one_liner'])
 

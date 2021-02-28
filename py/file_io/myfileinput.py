@@ -12,6 +12,8 @@ class MyFileInput():
         self.__currentfilename = None
         self.__currentfilehandle = None
         self.__isfirstline = False
+        self.__lineno = 0
+        self.__filelineno = 0
 
     def filename(self):
         """
@@ -38,10 +40,10 @@ class MyFileInput():
         will return 2.
         :return:
         """
-        pass
+        return self.__lineno
 
     def filelineno(self):
-        pass
+        return self.__filelineno
 
     def isfirstline(self):
         return self.__isfirstline
@@ -77,7 +79,10 @@ class MyFileInput():
             self.__currentfilehandle = open(self.__currentfilename, 'r')
             line = self.__currentfilehandle.readline()
             self.__isfirstline = True
+            self.__filelineno = 0
 
+        self.__lineno += 1
+        self.__filelineno += 1
         return line
 
     def next(self):
