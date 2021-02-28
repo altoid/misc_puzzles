@@ -7,7 +7,7 @@ import unittest
 
 
 class MyFileInput():
-    def __init__(self, files):
+    def __init__(self, files=[]):
         self.filenameiter = iter(files)
         self.currentfilename = None
         self.currentfilehandle = None
@@ -19,12 +19,24 @@ class MyFileInput():
         if the file being read is empty, this will never return the name of that file.  we will skip over it.
         :return:
         """
-        pass
+        return self.currentfilename
+
+    def readline(self):
+        try:
+            return self.next()
+        except StopIteration:
+            return ''
 
     def fileno(self):
         pass
 
     def lineno(self):
+        """
+        returns the number of lines that have been read, not the total lines in all files up to here.  for example,
+        if we read the first line of a file with 100 lines, and lineno returns 1, then call nextfile(), lineno()
+        will return 2.
+        :return:
+        """
         pass
 
     def filelineno(self):
@@ -37,7 +49,9 @@ class MyFileInput():
         pass
 
     def nextfile(self):
-        pass
+        if self.currentfilehandle:
+            self.currentfilehandle.close()
+            self.currentfilehandle = None
 
     def close(self):
         pass
