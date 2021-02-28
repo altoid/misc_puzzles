@@ -8,9 +8,10 @@ import unittest
 
 class MyFileInput():
     def __init__(self, files=[]):
-        self.filenameiter = iter(files)
-        self.currentfilename = None
-        self.currentfilehandle = None
+        self.__filenameiter = iter(files)
+        self.__currentfilename = None
+        self.__currentfilehandle = None
+        self.__isfirstline = False
 
     def filename(self):
         """
@@ -19,7 +20,7 @@ class MyFileInput():
         if the file being read is empty, this will never return the name of that file.  we will skip over it.
         :return:
         """
-        return self.currentfilename
+        return self.__currentfilename
 
     def readline(self):
         try:
@@ -43,15 +44,15 @@ class MyFileInput():
         pass
 
     def isfirstline(self):
-        pass
+        return self.__isfirstline
 
     def isstdin(self):
         pass
 
     def nextfile(self):
-        if self.currentfilehandle:
-            self.currentfilehandle.close()
-            self.currentfilehandle = None
+        if self.__currentfilehandle:
+            self.__currentfilehandle.close()
+            self.__currentfilehandle = None
 
     def close(self):
         pass
@@ -61,16 +62,21 @@ class MyFileInput():
 
     def __next__(self):
         # has to raise StopIteration when there are no more items
-        if self.currentfilehandle is None:
-            self.currentfilename = self.filenameiter.next()
-            self.currentfilehandle = open(self.currentfilename, 'r')
+        if self.__isfirstline:
+            self.__isfirstline = False
 
-        line = self.currentfilehandle.readline()
+        if self.__currentfilehandle is None:
+            self.__currentfilename = self.__filenameiter.next()
+            self.__currentfilehandle = open(self.__currentfilename, 'r')
+            self.__isfirstline = True
+
+        line = self.__currentfilehandle.readline()
         while not line:
-            self.currentfilehandle.close()
-            self.currentfilename = self.filenameiter.next()
-            self.currentfilehandle = open(self.currentfilename, 'r')
-            line = self.currentfilehandle.readline()
+            self.__currentfilehandle.close()
+            self.__currentfilename = self.__filenameiter.next()
+            self.__currentfilehandle = open(self.__currentfilename, 'r')
+            line = self.__currentfilehandle.readline()
+            self.__isfirstline = True
 
         return line
 
