@@ -3,12 +3,18 @@
 # processing will stop if a file can't be opened for any reason
 # this is an iterable
 
-import unittest
+import sys
 
 
 class MyFileInput():
     def __init__(self, files=[]):
-        self.__filenameiter = iter(files)
+        files_to_read = files
+        if not files_to_read:
+            if len(sys.argv) > 1:
+                files_to_read = sys.argv[1:]
+        if not files_to_read:
+            files_to_read = ['-']
+        self.__filenameiter = iter(files_to_read)
         self.__currentfilename = None
         self.__currentfilehandle = None
         self.__isfirstline = False
@@ -53,7 +59,8 @@ class MyFileInput():
 
     def nextfile(self):
         if self.__currentfilehandle:
-            self.__currentfilehandle.close()
+            if self.__currentfilename != '<stdin>':
+                self.__currentfilehandle.close()
             self.__currentfilehandle = None
 
     def close(self):
@@ -68,15 +75,28 @@ class MyFileInput():
             self.__isfirstline = False
 
         if self.__currentfilehandle is None:
-            self.__currentfilename = self.__filenameiter.next()
-            self.__currentfilehandle = open(self.__currentfilename, 'r')
+            nextfilename = self.__filenameiter.next()
+            if nextfilename == '-':
+                self.__currentfilename = '<stdin>'
+                self.__currentfilehandle = sys.stdin
+            else:
+                self.__currentfilename = nextfilename
+                self.__currentfilehandle = open(nextfilename, 'r')
             self.__isfirstline = True
 
         line = self.__currentfilehandle.readline()
         while not line:
-            self.__currentfilehandle.close()
-            self.__currentfilename = self.__filenameiter.next()
-            self.__currentfilehandle = open(self.__currentfilename, 'r')
+            if self.__currentfilename != '<stdin>':
+                self.__currentfilehandle.close()
+
+            nextfilename = self.__filenameiter.next()
+            if nextfilename == '-':
+                self.__currentfilename = '<stdin>'
+                self.__currentfilehandle = sys.stdin
+            else:
+                self.__currentfilename = nextfilename
+                self.__currentfilehandle = open(nextfilename, 'r')
+
             line = self.__currentfilehandle.readline()
             self.__isfirstline = True
             self.__filelineno = 0
