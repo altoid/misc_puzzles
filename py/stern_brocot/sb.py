@@ -54,7 +54,6 @@ def fraction_to_path(numerator, denominator):
         numerator = numerator - p * denominator
         numerator, denominator = denominator, numerator
 
-    # result.append(numerator)
     return result
 
 
@@ -72,14 +71,13 @@ if __name__ == '__main__':
     n, d = path_to_fraction(path)
     print n, d
     print fraction_to_path(n, d)
-    
+
 
 class MyTest(unittest.TestCase):
     def test_p2f_1(self):
         path = [1, 2, 3, 4]
 
         (n, d) = path_to_fraction(path)
-        print n, d
         self.assertEqual(96, n)
         self.assertEqual(67, d)
 
@@ -107,22 +105,16 @@ class MyTest(unittest.TestCase):
         path = [1]
         n, d = path_to_fraction(path)
         p2 = fraction_to_path(n, d)
-        print n, d
-        print p2
         self.assertEqual(p2, path)
 
     def test_p2f_4(self):
         path = [1, 1]
         n, d = path_to_fraction(path)
         p2 = fraction_to_path(n, d)
-        print n, d
-        print p2
         self.assertEqual(p2, path)
 
     def test_p2f_5(self):
         path = [1, 1, 1, 1, 1, 1, 1]
         n, d = path_to_fraction(path)
         p2 = fraction_to_path(n, d)
-        print n, d
-        print p2
         self.assertEqual(p2, path)
