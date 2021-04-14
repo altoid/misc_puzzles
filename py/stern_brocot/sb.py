@@ -59,11 +59,20 @@ def fraction_to_path(numerator, denominator):
 
 
 if __name__ == '__main__':
-    path = [1, 2, 3, 5, 11, 31, 1, 46, 4562, 14, 1]
+    path = [1, 2, 3, 5, 11, 31, 1, 46, 4562, 14, 1, 1, 1, 31005, 1, 1, 1]
     n, d = path_to_fraction(path)
     print n, d
     print fraction_to_path(n, d)
 
+    n = 293473596273642947
+    d = 97265465762987346
+    print fraction_to_path(n, d)
+
+    path = [725, 384, 508, 497, 991, 3548, 8167, 6834]
+    n, d = path_to_fraction(path)
+    print n, d
+    print fraction_to_path(n, d)
+    
 
 class MyTest(unittest.TestCase):
     def test_p2f_1(self):
