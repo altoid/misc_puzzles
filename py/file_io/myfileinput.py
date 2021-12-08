@@ -101,3 +101,6 @@ class MyFileInput():
         self.__lineno += 1
         self.__filelineno += 1
         return line
+
+    def next(self):
+        return self.__next__()
