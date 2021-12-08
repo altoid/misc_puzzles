@@ -34,7 +34,7 @@ class MyFileInput():
 
     def readline(self):
         try:
-            return self.next()
+            return next(self)
         except StopIteration:
             return ''
 
@@ -72,7 +72,7 @@ class MyFileInput():
         return self
 
     def __nextfile(self):
-        self.__currentfilename = self.__filenameiter.next()
+        self.__currentfilename = next(self.__filenameiter)
         if self.__currentfilename == '-':
             self.__currentfilehandle = sys.stdin
         else:
@@ -101,7 +101,3 @@ class MyFileInput():
         self.__lineno += 1
         self.__filelineno += 1
         return line
-
-    def next(self):
-        return self.__next__()
-

@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import unittest
 from myfileinput import MyFileInput
 
@@ -14,23 +16,23 @@ class MFITest(unittest.TestCase):
     def test_iteration_1(self):
         mfi = MyFileInput(['testfiles/one_liner'])
         for line in mfi:
-            print line
+            print(line)
 
     def test_iteration_2(self):
         mfi = MyFileInput(['testfiles/one_liner', 'testfiles/empty', 'testfiles/sonnet_cxxviii'])
         for line in mfi:
-            print line.rstrip()
+            print(line.rstrip())
 
     def test_iteration_3(self):
         mfi = MyFileInput(['testfiles/one_liner', 'testfiles/empty', 'testfiles/sonnet_cxxviii'])
         for line in mfi:
-            print line.rstrip()
+            print(line.rstrip())
 
     def test_lineno(self):
         mfi = MyFileInput(['testfiles/sonnet_cxxviii', 'testfiles/empty', 'testfiles/one_Liner', 'testfiles/sonnet_cxxviii'])
-        print mfi.lineno(), mfi.filelineno()
+        print(mfi.lineno(), mfi.filelineno())
         for line in mfi:
-            print mfi.filename(), mfi.lineno(), mfi.filelineno(), line.rstrip()
+            print(mfi.filename(), mfi.lineno(), mfi.filelineno(), line.rstrip())
 
     def test_filename_1(self):
         mfi = MyFileInput(['testfiles/sonnet_cxxviii', 'testfiles/empty', 'testfiles/one_liner'])
@@ -86,4 +88,9 @@ class MFITest(unittest.TestCase):
 
 
 if __name__ == '__main__':
-    unittest.main()
+    mfi = MyFileInput()
+    for line in mfi:
+        print(mfi.filename(), line.rstrip())
+        # if mfi.isfirstline():
+        #     mfi.nextfile()
+
