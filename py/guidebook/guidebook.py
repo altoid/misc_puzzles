@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 """
 read from a file and produce a string consisting of characters that appear exactly once in the file.
@@ -21,7 +21,7 @@ if __name__ == '__main__':
             char_to_count[c] += 1
             char_counter += 1
 
-    solo_chars = [k for k, v in char_to_count.iteritems() if v == 1]
+    solo_chars = [k for k, v in char_to_count.items() if v == 1]
 
     result = ''.join(sorted(solo_chars, key=lambda x: char_to_first_location[x])).strip()
-    print result
+    print(result)
