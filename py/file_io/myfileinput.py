@@ -5,6 +5,7 @@
 
 import sys
 
+_state = None
 
 class MyFileInput():
     def __init__(self, files=[]):
@@ -104,3 +105,11 @@ class MyFileInput():
 
     def next(self):
         return self.__next__()
+
+def input(files=None):
+    global _state
+
+    if not _state:
+        _state = MyFileInput(files)
+
+    return _state
