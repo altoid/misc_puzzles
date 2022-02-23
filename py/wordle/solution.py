@@ -23,10 +23,14 @@ def match(guess, solution):
     if result[i] == 0, letter <i> is not correct.
     """
 
-    result = [0] * LETTERS
-    visits = [False] * LETTERS
+    # first, set result[i] = 2 where the letters match in position
+    result = [2 if x[0] == x[1] else 0 for x in zip(guess, solution)]
+    visits = [True if x[0] == x[1] else False for x in zip(guess, solution)]
 
     for i in range(LETTERS):
+        if result[i] != 0:
+            continue
+
         for j in range(LETTERS):
             if visits[j]:
                 continue
@@ -34,10 +38,6 @@ def match(guess, solution):
                 result[i] = 1
                 visits[j] = True
                 break
-
-    for i in range(LETTERS):
-        if guess[i] == solution[i]:
-            result[i] += 1
 
     return result
 
@@ -82,6 +82,11 @@ if __name__ == '__main__':
     while True:
         guess = input('--> ')
         guess = guess.strip()
+
+        if guess == '?':
+            print("answer: %s" % solution)
+            break
+        
         if guess == 'quit':
             print("quitting...")
             break
@@ -137,4 +142,19 @@ class WordleTest(unittest.TestCase):
         solution = 'aaaaa'
         result = match(guess, solution)
         self.assertEqual([2, 2, 2, 2, 2], result)
+
+    def test7(self):
+        # got this while playing:
+        #
+        # --> razor
+        # | (r) | *a* |  z  | *o* | (r) |
+        # --> ?
+        # answer: vapor
+        #
+        # the final 'r' is in the correct position
+        
+        guess = 'razor'
+        solution = 'vapor'
+        result = match(guess, solution)
+        self.assertEqual([0, 2, 0, 2, 2], result)
 
