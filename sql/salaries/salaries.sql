@@ -1,6 +1,8 @@
 use test;
 
 -- top 3 salaries for each job title
+-- this only works if the salaries are unique per department
+-- best to use (select distinct) in a subquery.
 
 select s1.*
 from
