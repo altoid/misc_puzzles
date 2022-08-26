@@ -38,28 +38,7 @@
 # (999,999,999,999) is uniform.
 
 import unittest
-
-
-def next_uniform_le(n):
-    if n < 10:
-        return n
-
-    digits = list(str(n))
-    digits = list(map(int, digits))
-    ndigits = len(digits)
-
-    smallest = min(digits)
-    if smallest < digits[0]:
-        if digits[0] == 1:
-            result = ['9'] * (ndigits - 1)
-        else:
-            result = [str(digits[0] - 1)] * ndigits
-        result = ''.join(result)
-        return int(result)
-
-    result = [str(digits[0])] * ndigits
-    result = ''.join(result)
-    return int(result)
+import random
 
 
 def next_uniform_ge(n):
@@ -67,23 +46,44 @@ def next_uniform_ge(n):
         return n
 
     # observation:  answer always has same number of digits as n.
-    # if all digits equal, return the number.
-    # if any digit < first digit, return first digit + 1 length of n
-    # otherwise return first digit length of n
+    # traverse the digits.  keep going until you find a digit != to the first
+    # digit.
 
     digits = list(str(n))
     digits = list(map(int, digits))
     ndigits = len(digits)
 
-    biggest = max(digits)
-    if biggest > digits[0]:
-        result = [str(digits[0] + 1)] * ndigits
+    for d in digits[1:]:
+        if d == digits[0]:
+            continue
+
+        if d < digits[0]:
+            result = [str(digits[0])] * ndigits
+        else:
+            result = [str(digits[0] + 1)] * ndigits
+
         result = ''.join(result)
         return int(result)
 
-    result = [str(digits[0])] * ndigits
-    result = ''.join(result)
-    return int(result)
+    return n
+
+
+def next_uniform_le(n):
+    ge = next_uniform_ge(n)
+    if ge == n:
+        return n
+
+    digits = list(str(ge))
+    digits = list(map(int, digits))
+    ndigits = len(digits)
+
+    if digits[0] > 1:
+        result = [str(digits[0] - 1)] * ndigits
+        result = ''.join(result)
+        return int(result)
+
+    result = 10 ** (ndigits - 1) - 1
+    return result
 
 
 def uniform_in_range(a, b):
@@ -112,7 +112,18 @@ def uniform_in_range(a, b):
     return (10 - digit_of_smallest) + digit_of_biggest + 9 * (digits_in_biggest - digits_in_smallest - 1)
 
 
+if __name__ == '__main__':
+    x = random.randint(1, 10 ** 12)
+    y = random.randint(1, 10 ** 12)
+    a = min(x, y)
+    b = max(x, y)
+    print(a, b, uniform_in_range(a, b))
+
+
 class MyTest(unittest.TestCase):
+    def test_uniform_3(self):
+        self.assertEqual(1, uniform_in_range(319454609043, 390169680506))
+
     def test_uniform_2(self):
         self.assertEqual(18, uniform_in_range(1, 100))
         self.assertEqual(17, uniform_in_range(2, 100))
@@ -132,9 +143,9 @@ class MyTest(unittest.TestCase):
         self.assertEqual(1, uniform_in_range(1, 1))
         self.assertEqual(2, uniform_in_range(1, 2))
 
-
     def test_next_ge_3(self):
-        self.assertEqual(22, next_uniform_ge(12))
+        self.assertEqual(333333333333, next_uniform_ge(319454609043))
+        self.assertEqual(333333333333, next_uniform_ge(333333333329))
 
     def test_next_ge_2(self):
         self.assertEqual(1, next_uniform_ge(1))
