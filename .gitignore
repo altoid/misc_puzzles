@@ -4,3 +4,4 @@
 *.class
 *.cache
 target/**
+venv*
