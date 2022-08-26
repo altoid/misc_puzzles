@@ -69,6 +69,9 @@ def next_uniform_ge(n):
 
 
 def next_uniform_le(n):
+    # if n is not uniform, return the largest uniform number strictly smaller than the next
+    # larger uniform number.  i.e. just implement this in terms of next_uniform_ge.
+    
     ge = next_uniform_ge(n)
     if ge == n:
         return n
