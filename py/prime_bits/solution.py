@@ -45,7 +45,7 @@ def decorate_zeroes(width, n):
     return decoration
 
 
-def n_bigger_with_k_bits(width, n):
+def n_bigger_with_same_bits(width, n):
     """
     given a number n with k bits set, find the number of numbers >= n,
     expressible with <width> bits, that have exactly k bits set.
@@ -133,12 +133,12 @@ def binary_coefficient(n, k):
 
 
 class MyTest(unittest.TestCase):
-    def test_n_bigger_k_bits_1(self):
+    def test_n_bigger_same_bits_1(self):
         n = 358
         width = 12
         expected = binary_coefficient(11, 4) + binary_coefficient(10, 4) + binary_coefficient(9, 4)
         expected += binary_coefficient(7, 3) + binary_coefficient(4, 1) + binary_coefficient(3, 1)
-        self.assertEqual(expected, n_bigger_with_k_bits(width, n))
+        self.assertEqual(expected, n_bigger_with_same_bits(width, n))
 
     def test_decorate_zeroes_1(self):
         n = 358
