@@ -3,6 +3,7 @@
 # given 1 <= a <= b <= 2 ** 1024
 #
 # find the number of numbers in [a, b] that have a prime number of bits set.
+#
 
 
 import unittest
@@ -23,6 +24,19 @@ def get_bits(n):
 
 
 def decorate_zeroes(width, n):
+    """
+    given a bit vector, create an array of integers that shows, for each 0 bit position, the number
+    of 1 bits from the least significant bit up to and including that position.  put another way,
+    show the number of 1 bits to the right of, and including, that position.
+
+    11  10   9   8   7   6   5   4   3   2   1   0
+    +---+---+---+---+---+---+---+---+---+---+---+---+
+    |   |   |   | 1 |   | 1 | 1 |   |   | 1 | 1 |   |
+    +---+---+---+---+---+---+---+---+---+---+---+---+
+      5   5   5   0   4   0   0   2   2   0   0   0
+
+    TODO:  currently puts 0 in the location of each 1 bit.  not sure if we should bit-count those too.
+    """
     bits = get_bits(n)
     nbits = len(bits)
 
@@ -44,6 +58,12 @@ def decorate_zeroes(width, n):
 
     return decoration
 
+# TODO: next we have to find all the numbers bigger than n with 1 fewer set bits than n.  then two fewer, etc.
+# for the 1 fewer case, find the first 0 following a 1.  set the 0 and clear the 1.  if there is a lower
+# 1 bit, clear it.  if there isn't, repeat.
+#
+# TODO: then we find all the numbers bigger than n with x more bits.  to do this,
+# set to 1 the lowest x 0 bits, then run n_bigger_with_same bits.
 
 def n_bigger_with_same_bits(width, n):
     """
