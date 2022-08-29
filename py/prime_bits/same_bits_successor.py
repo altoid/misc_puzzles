@@ -92,6 +92,13 @@ def same_bits_successor(n, width):
     return result
 
 
+if __name__ == '__main__':
+    n = random.randint(1, 8191)
+    s = same_bits_successor(n, 15)
+    print(bin(n))
+    print(bin(s))
+
+
 class MyTest(unittest.TestCase):
     def test_degenerate_cases(self):
         self.assertIsNone(same_bits_successor(0, 8))
@@ -113,3 +120,12 @@ class MyTest(unittest.TestCase):
     def test_3(self):
         self.assertEqual(21, same_bits_successor(19, 6))
 
+    def test_same_bit_count(self):
+        n = random.randint(1, 2 ** 32 - 2)
+        s = same_bits_successor(n, 32)
+
+        n_bits = list(map(int, bin(n)[2:]))
+        s_bits = list(map(int, bin(s)[2:]))
+
+        self.assertEqual(sum(s_bits), sum(n_bits))
+        self.assertGreater(s, n)
