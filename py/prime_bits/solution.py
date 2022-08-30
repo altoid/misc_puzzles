@@ -65,16 +65,62 @@ def decorate_zeroes(width, n):
 # TODO: then we find all the numbers bigger than n with x more bits.  to do this,
 # set to 1 the lowest x 0 bits, then run n_bigger_with_same bits.
 
-def n_bigger_with_same_bits(width, n):
+
+def add_bits(n, b, width):
+    """
+    return a value m > n.  we do this by setting to 1 the least significant b 0 bits.
+    if the lowest <width> bits are already set, return None.
+    if we can only set fewer than b bits, return None.
+    """
+    if n == 2 ** width - 1:
+        return None
+
+    mask = 1
+    result = n
+    i = 0
+    while mask < 2 ** width:
+        if mask & n == 0:
+            i += 1
+            result |= mask
+        if i == b:
+            break
+
+        mask <<= 1
+
+    if i == b:
+        return result
+
+
+def n_bigger_with_more_bits(n, width):
     """
     given a number n with k bits set, find the number of numbers >= n,
+    expressible with <width> bits, that have more k bits set.
+
+    to do this, set to 1 the lowest x 0 bits, then run n_bigger_with_same bits on the result.
+    keep doing this until there are no more 0 bits left.
+    """
+    total = 0
+    next = add_bits(n, 1, width)
+    print("n = %s, width = %s" % (n, width))
+    while next is not None:
+        i = n_bigger_with_same_bits(next, width)
+        total += i
+        print("next = %s, i = %s, total = %s" % (next, i, total))
+        next = add_bits(next, 1, width)
+
+    return total
+
+
+def n_bigger_with_same_bits(n, width):
+    """
+    given a number n with k bits set, find the number of numbers > n,
     expressible with <width> bits, that have exactly k bits set.
 
     consider:
 
      11  10   9   8   7   6   5   4   3   2   1   0
     +---+---+---+---+---+---+---+---+---+---+---+---+
-    |   |   |   | 1 |   | 1 | 1 |   |   | 1 | 1 |   |
+    |   |   |   | 1 |   | 1 | 1 |   |   | 1 | 1 |   |  ==> 358
     +---+---+---+---+---+---+---+---+---+---+---+---+
 
     to get the answer, we decorate each of the 0 bits with the number
@@ -133,16 +179,15 @@ def count_bits_set(n):
 
 
 def binary_coefficient(n, k):
-    assert n > 0
-    assert 1 <= k <= n
+    assert 0 <= k <= n
 
     from_this = n
     choose_this = k
-    if k > (n - k + 1):
-        choose_this = n - k + 1
+    if k > (n - k):
+        choose_this = n - k
 
     if (from_this, choose_this) not in binary_coeff_cache:
-        if from_this == 1 or choose_this == 1:
+        if from_this <= 1 or choose_this == 0:
             result = 1
         else:
             result = binary_coefficient(n - 1, k - 1) + binary_coefficient(n - 1, k)
@@ -153,12 +198,71 @@ def binary_coefficient(n, k):
 
 
 class MyTest(unittest.TestCase):
+    def test_add_1_bit(self):
+        n = 358
+        adding = [1, 8, 16, 128, 512, 1024, 2048]
+        for b in adding:
+            result = add_bits(n, 1, 12)
+            self.assertEqual(n + b, result)
+            n = result
+
+    def test_add_bits_1(self):
+        n = 358
+        adding = [1, 8, 16, 128, 512, 1024, 2048]
+        b = 1
+        check = n
+        for a in adding:
+            result = add_bits(n, b, 12)
+            self.assertEqual(check + a, result)
+            check += a
+            b += 1
+
+    def test_add_bits_2(self):
+        self.assertIsNone(add_bits(2 ** 12 - 1, 1, 12))
+        self.assertIsNone(add_bits(358, 12, 12))
+
+    def test_n_bigger_more_bits_1(self):
+        n = 358
+        result = n_bigger_with_more_bits(n, 12)
+        self.assertEqual(1439, result)
+
+    def test_n_bigger_more_bits_2(self):
+        width = 12
+        mask = 1
+        allbits = 2 ** width - 1
+        while mask < 2 ** width:
+            self.assertEqual(1, n_bigger_with_more_bits(allbits ^ mask, width))
+            mask <<= 1
+
     def test_n_bigger_same_bits_1(self):
         n = 358
         width = 12
         expected = binary_coefficient(11, 4) + binary_coefficient(10, 4) + binary_coefficient(9, 4)
         expected += binary_coefficient(7, 3) + binary_coefficient(4, 1) + binary_coefficient(3, 1)
-        self.assertEqual(expected, n_bigger_with_same_bits(width, n))
+        self.assertEqual(expected, n_bigger_with_same_bits(n, width))
+
+    def test_n_bigger_same_bits_2(self):
+        self.assertEqual(0, n_bigger_with_same_bits(4095, 12))
+
+    def test_n_bigger_same_bits_3(self):
+        width = 12
+        self.assertEqual(0, n_bigger_with_same_bits(2 ** width - 1, width))
+
+    def test_n_bigger_same_bits_4(self):
+        self.assertEqual(3, n_bigger_with_same_bits(4087, 12))
+
+    def test_n_bigger_same_bits_5(self):
+        self.assertEqual(0, n_bigger_with_same_bits(4094, 12))
+
+    def test_n_bigger_same_bits_6(self):
+        width = 12
+        mask = 1
+        ngreater = 0
+        allbits = 2 ** width - 1
+        while mask < 2 ** width:
+            self.assertEqual(ngreater, n_bigger_with_same_bits(allbits ^ mask, width))
+            ngreater += 1
+            mask <<= 1
 
     def test_decorate_zeroes_1(self):
         n = 358
@@ -170,21 +274,27 @@ class MyTest(unittest.TestCase):
         decoration = decorate_zeroes(width, n)
         self.assertEqual([0, 0, 0, 2, 2, 0, 0, 4, 0], decoration)
 
+    def test_binary_coeff_0(self):
+        self.assertEqual(1, binary_coefficient(0, 0))
+
     def test_binary_coeff_1(self):
+        self.assertEqual(1, binary_coefficient(1, 0))
         self.assertEqual(1, binary_coefficient(1, 1))
-        self.assertEqual(1, binary_coefficient(2, 1))
+
+        self.assertEqual(1, binary_coefficient(2, 0))
+        self.assertEqual(2, binary_coefficient(2, 1))
         self.assertEqual(1, binary_coefficient(2, 2))
-        self.assertEqual(1, binary_coefficient(1, 1))
 
-        self.assertEqual(1, binary_coefficient(5, 1))
-        self.assertEqual(4, binary_coefficient(5, 2))
-        self.assertEqual(6, binary_coefficient(5, 3))
-        self.assertEqual(4, binary_coefficient(5, 4))
-        self.assertEqual(1, binary_coefficient(5, 5))
+        self.assertEqual(1140, binary_coefficient(20, 3))
 
-        # (n 3) is a triangle number
-        for n in range(3, 100):
-            self.assertEqual(((n - 2) * (n - 1)) // 2, binary_coefficient(n, 3))
+    def test_binary_coeff_3_1(self):
+        self.assertEqual(3, binary_coefficient(3, 1))
+
+    def test_binary_coeff_3_2(self):
+        self.assertEqual(3, binary_coefficient(3, 2))
+
+    def test_binary_coeff_3_3(self):
+        self.assertEqual(1, binary_coefficient(3, 3))
 
     def test_count_bits_set_1(self):
         self.assertEqual(0, count_bits_set(0))
