@@ -93,10 +93,26 @@ def same_bits_successor(n, width):
 
 
 if __name__ == '__main__':
-    n = random.randint(1, 8191)
-    s = same_bits_successor(n, 15)
-    print(bin(n))
-    print(bin(s))
+    for i in range(10000):
+        n = random.randint(1, 2 ** 32 - 2)
+        s = same_bits_successor(n, 32)
+
+        n_bits = list(map(int, bin(n)[2:]))
+        s_bits = list(map(int, bin(s)[2:]))
+
+        if sum(n_bits) != sum(s_bits):
+            print(bin(n))
+            print(bin(s))
+
+            print("bit counts are different")
+            break
+
+        if s <= n:
+            print(bin(n))
+            print(bin(s))
+
+            print("successor is <= n")
+            break
 
 
 class MyTest(unittest.TestCase):
