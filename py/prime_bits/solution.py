@@ -101,11 +101,11 @@ def n_bigger_with_more_bits(n, width):
     """
     total = 0
     next = add_bits(n, 1, width)
-    print("n = %s, width = %s" % (n, width))
     while next is not None:
-        i = n_bigger_with_same_bits(next, width)
+        # add 1 because n_bigger_with_same_bits returns a count for the number of numbers strictly
+        # greater than next.  but next is already bigger than n, so we have to count that too.
+        i = n_bigger_with_same_bits(next, width) + 1
         total += i
-        print("next = %s, i = %s, total = %s" % (next, i, total))
         next = add_bits(next, 1, width)
 
     return total
@@ -224,7 +224,7 @@ class MyTest(unittest.TestCase):
     def test_n_bigger_more_bits_1(self):
         n = 358
         result = n_bigger_with_more_bits(n, 12)
-        self.assertEqual(1439, result)
+        self.assertEqual(2460, result)
 
     def test_n_bigger_more_bits_2(self):
         width = 12
