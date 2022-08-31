@@ -311,6 +311,16 @@ def count_prime_bit_successors(n, width):
 
 
 def prime_bit_values_in_range(x, y, width):
+    # for sufficiently large widths, we will get RecursionErrors.  that's because the binary coefficients
+    # needed to compute the solutions for very large numbers require recursion that goes too deep.  the solution
+    # is to prime (heh) the set of precomputed binary coefficients.  basically we compute the coefficients
+    # straight down the middle of pascal's triangle.  if to do this, then for any arbitrarily chosen binary
+    # coefficient, we won't have to use recursion depth that is too great because of what has already been
+    # precomputed in priming.
+
+    for i in range(width):
+        _ = binary_coefficient(i, i // 2)
+
     a = min(x, y)
     b = max(x, y)
 
@@ -327,7 +337,8 @@ def prime_bit_values_in_range(x, y, width):
 
 
 if __name__ == '__main__':
-    width = 512
+    width = 1024
+
     n = random.randint(1, 2 ** width - 1)
 
     # successor_fiddling(n, width)
