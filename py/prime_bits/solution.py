@@ -187,7 +187,7 @@ def add_bits(n, b, width):
 
 def n_bigger_with_more_bits(n, width):
     """
-    given a number n with k bits set, find the number of numbers >= n,
+    given a number n with k bits set, find the number of numbers > n,
     expressible with <width> bits, that have more than k bits set.
 
     to do this, set to 1 the lowest x 0 bits, then run n_bigger_with_same bits on the result.
@@ -196,8 +196,6 @@ def n_bigger_with_more_bits(n, width):
     total = 0
     next = add_bits(n, 1, width)
     while next is not None:
-        # add 1 because n_bigger_with_same_bits returns a count for the number of numbers strictly
-        # greater than next.  but next is already bigger than n, so we have to count that too.
         i = n_bigger_with_same_bits(next, width)
         total += i
         next = add_bits(next, 1, width)
