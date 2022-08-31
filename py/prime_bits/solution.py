@@ -128,7 +128,7 @@ def add_bits(n, b, width):
 def n_bigger_with_more_bits(n, width):
     """
     given a number n with k bits set, find the number of numbers >= n,
-    expressible with <width> bits, that have more k bits set.
+    expressible with <width> bits, that have more than k bits set.
 
     to do this, set to 1 the lowest x 0 bits, then run n_bigger_with_same bits on the result.
     keep doing this until there are no more 0 bits left.
@@ -138,7 +138,7 @@ def n_bigger_with_more_bits(n, width):
     while next is not None:
         # add 1 because n_bigger_with_same_bits returns a count for the number of numbers strictly
         # greater than next.  but next is already bigger than n, so we have to count that too.
-        i = n_bigger_with_same_bits(next, width) + 1
+        i = n_bigger_with_same_bits(next, width)
         total += i
         next = add_bits(next, 1, width)
 
@@ -255,18 +255,24 @@ class MyTest(unittest.TestCase):
         self.assertIsNone(add_bits(2 ** 12 - 1, 1, 12))
         self.assertIsNone(add_bits(358, 12, 12))
 
+    def test_add_bits_3(self):
+        self.assertIsNone(add_bits(1, 1, 1))
+
     def test_n_bigger_more_bits_1(self):
         n = 358
         result = n_bigger_with_more_bits(n, 12)
-        self.assertEqual(2467, result)
+        self.assertEqual(2460, result)
 
     def test_n_bigger_more_bits_2(self):
         width = 12
         mask = 1
         allbits = 2 ** width - 1
         while mask < 2 ** width:
-            self.assertEqual(2, n_bigger_with_more_bits(allbits ^ mask, width))
+            self.assertEqual(1, n_bigger_with_more_bits(allbits ^ mask, width))
             mask <<= 1
+
+    def test_n_bigger_more_bits_3(self):
+        self.assertEqual(0, n_bigger_with_more_bits(1, 1))
 
     def test_n_bigger_same_bits_1(self):
         n = 358
@@ -298,6 +304,9 @@ class MyTest(unittest.TestCase):
             self.assertEqual(ngreater, n_bigger_with_same_bits(allbits ^ mask, width))
             ngreater += 1
             mask <<= 1
+
+    def test_n_bigger_same_bits_7(self):
+        self.assertEqual(1, n_bigger_with_same_bits(1, 1))
 
     def test_decorate_zeroes_1(self):
         n = 358
