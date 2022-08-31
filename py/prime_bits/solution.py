@@ -346,8 +346,17 @@ if __name__ == '__main__':
     print("answer = %s" % r)
 
 
-
 class MyTest(unittest.TestCase):
+    def test_solution_1(self):
+        width = 16
+        n = 23796  # has 9 bits set
+        self.assertEqual(0, prime_bit_values_in_range(n, n, width))
+
+    def test_solution_2(self):
+        width = 16
+        n = 23799  # has 11 bits set
+        self.assertEqual(1, prime_bit_values_in_range(n, n, width))
+
     def successor_check(self, m, n, k):
         bits_n = get_bits(n)
         bits_m = get_bits(m)
