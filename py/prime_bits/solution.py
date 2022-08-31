@@ -96,8 +96,66 @@ def decorate_zeroes(width, n):
 # for the 1 fewer case, find the first 0 following a 1.  set the 0 and clear the 1.  if there is a lower
 # 1 bit, clear it.  if there isn't, repeat.
 #
-# TODO: then we find all the numbers bigger than n with x more bits.  to do this,
-# set to 1 the lowest x 0 bits, then run n_bigger_with_same bits.
+
+def successor_with_one_fewer_bits(n, width):
+    """
+    find the smallest number m > n such that m 1 fewer bits.  return None if no number meets
+    this condition.
+
+    examples.  width is 16 in all cases.
+
+    1101 1110 0101 0010 = 56914
+    1101 1110 0110 0000 = 56928
+    1101 1110 1000 0000 = 56960
+    1111 1100 0000 0000 = 64512
+    None
+    """
+    if n == 0:
+        return None
+
+    # clear the lowest-order 1 bit.
+    m = n & (n - 1)
+
+    # in this case, n is a power of 2 and there is no successor with fewer bits.
+    if m == 0:
+        return None
+
+    # if m is all 1s to the left of all 0s, then there is no successor with fewer bits.
+    # we've already removed one bit and we can't make m bigger by moving bits around.
+    # i.e. 111....100000...000
+    bits = get_bits(m)
+    bits = [0] * (width - len(bits)) + bits
+
+    first_zero = None
+    last_one = None
+    i = 0
+    for b in bits:
+        if b == 1:
+            last_one = i
+        i += 1
+
+    # now find the first zero to the left of the last 1
+    i = last_one - 1
+    while i >= 0:
+        if bits[i] == 0:
+            first_zero = i
+            break
+        i -= 1
+
+    if first_zero is None:
+        return None
+
+    # now swap them
+    bits[last_one], bits[first_zero] = bits[first_zero], bits[last_one]
+
+    # change the bits into a number
+    result = 0
+    for b in bits:
+        result *= 2
+        if b:
+            result += 1
+
+    return result
 
 
 def add_bits(n, b, width):
@@ -232,6 +290,44 @@ def binary_coefficient(n, k):
 
 
 class MyTest(unittest.TestCase):
+    def successor_check(self, m, n):
+        bits_n = get_bits(n)
+        bits_m = get_bits(m)
+        self.assertEqual(sum(bits_m) + 1, sum(bits_n))
+
+    def test_successor_fewer_bits_1(self):
+        n = 56914
+        m = 56928
+        self.assertEqual(m, successor_with_one_fewer_bits(n, 12))
+        self.successor_check(m, n)
+
+        n = 56928
+        m = 56960
+        self.assertEqual(m, successor_with_one_fewer_bits(n, 12))
+        self.successor_check(m, n)
+
+        n = 56960
+        m = 64512
+        self.assertEqual(m, successor_with_one_fewer_bits(n, 12))
+        self.successor_check(m, n)
+
+        self.assertIsNone(successor_with_one_fewer_bits(64512, 12))
+
+    def test_successor_fewer_bits_2(self):
+        self.assertIsNone(successor_with_one_fewer_bits(1, 12))
+        self.assertIsNone(successor_with_one_fewer_bits(0, 12))
+        self.assertIsNone(successor_with_one_fewer_bits(2 ** 12 - 1, 12))
+        self.assertIsNone(successor_with_one_fewer_bits(2 ** 5, 12))
+
+    def test_successor_fewer_bits_3(self):
+        self.assertIsNone(successor_with_one_fewer_bits(7, 3))
+        self.assertIsNone(successor_with_one_fewer_bits(6, 3))
+        self.assertIsNone(successor_with_one_fewer_bits(4, 3))
+
+    def test_successor_fewer_bits_4(self):
+        self.assertEqual(4, successor_with_one_fewer_bits(3, 3))
+        self.assertEqual(12, successor_with_one_fewer_bits(7, 5))
+
     def test_add_1_bit(self):
         n = 358
         adding = [1, 8, 16, 128, 512, 1024, 2048]
