@@ -68,7 +68,7 @@ def decorate_zeroes(width, n):
     +---+---+---+---+---+---+---+---+---+---+---+---+
       5   5   5   0   4   0   0   2   2   0   0   0
 
-    TODO:  currently puts 0 in the location of each 1 bit.  not sure if we should bit-count those too.
+    Note:  currently puts 0 in the location of each 1 bit.  there isn't a need to bit-count those too.
     """
     bits = get_bits(n)
     nbits = len(bits)
@@ -91,11 +91,6 @@ def decorate_zeroes(width, n):
 
     return decoration
 
-
-# TODO: next we have to find all the numbers bigger than n with 1 fewer set bits than n.  then two fewer, etc.
-# for the 1 fewer case, find the first 0 following a 1.  set the 0 and clear the 1.  if there is a lower
-# 1 bit, clear it.  if there isn't, repeat.
-#
 
 def successor_with_fewer_bits(n, k, width):
     """
@@ -192,24 +187,6 @@ def successor_with_more_bits(n, k, width):
         return result
 
 
-def n_bigger_with_more_bits(n, width):
-    """
-    given a number n with k bits set, find the number of numbers > n,
-    expressible with <width> bits, that have more than k bits set.
-
-    to do this, set to 1 the lowest x 0 bits, then run n_bigger_with_same bits on the result.
-    keep doing this until there are no more 0 bits left.
-    """
-    total = 0
-    next = successor_with_more_bits(n, 1, width)
-    while next is not None:
-        i = n_bigger_with_same_bits(next, width)
-        total += i
-        next = successor_with_more_bits(next, 1, width)
-
-    return total
-
-
 def n_bigger_with_same_bits(n, width):
     """
     given a number n with k bits set, find the number of numbers >= n,
@@ -280,21 +257,6 @@ def successor_with_k_bits(n, k, width):
         return successor_with_fewer_bits(n, nbits - k, width)
 
     return n
-
-
-def count_bits_set(n):
-    """
-    return the number of bits set in the binary representation of n.
-    """
-    if n == 0:
-        return 0
-
-    counter = 1
-    while n & (n - 1):
-        n &= n - 1
-        counter += 1
-
-    return counter
 
 
 def binary_coefficient(n, k):
@@ -467,22 +429,6 @@ class MyTest(unittest.TestCase):
     def test_add_bits_3(self):
         self.assertIsNone(successor_with_more_bits(1, 1, 1))
 
-    def test_n_bigger_more_bits_1(self):
-        n = 358
-        result = n_bigger_with_more_bits(n, 12)
-        self.assertEqual(2460, result)
-
-    def test_n_bigger_more_bits_2(self):
-        width = 12
-        mask = 1
-        allbits = 2 ** width - 1
-        while mask < 2 ** width:
-            self.assertEqual(1, n_bigger_with_more_bits(allbits ^ mask, width))
-            mask <<= 1
-
-    def test_n_bigger_more_bits_3(self):
-        self.assertEqual(0, n_bigger_with_more_bits(1, 1))
-
     def test_n_bigger_same_bits_1(self):
         n = 358
         width = 12
@@ -549,25 +495,3 @@ class MyTest(unittest.TestCase):
     def test_binary_coeff_3_3(self):
         self.assertEqual(1, binary_coefficient(3, 3))
 
-    def test_count_bits_set_1(self):
-        self.assertEqual(0, count_bits_set(0))
-        self.assertEqual(1, count_bits_set(1))
-        self.assertEqual(1, count_bits_set(2 ** 1))
-        self.assertEqual(1, count_bits_set(2 ** 5))
-        self.assertEqual(1, count_bits_set(2 ** 32))
-        self.assertEqual(1, count_bits_set(2 ** 1 - 1))
-        self.assertEqual(2, count_bits_set(2 ** 2 - 1))
-        self.assertEqual(3, count_bits_set(2 ** 3 - 1))
-        self.assertEqual(4, count_bits_set(2 ** 4 - 1))
-        self.assertEqual(5, count_bits_set(2 ** 5 - 1))
-        self.assertEqual(6, count_bits_set(2 ** 6 - 1))
-
-    def test_count_bits_set_2(self):
-        n = random.randint(1, 2 ** 64)
-        binstr = bin(n)[2:]
-        binstr = list(binstr)
-        bits = list(map(int, binstr))
-        n_set_control = sum(bits)
-
-        n_set_test = count_bits_set(n)
-        self.assertEqual(n_set_control, n_set_test)
