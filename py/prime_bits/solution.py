@@ -97,9 +97,9 @@ def decorate_zeroes(width, n):
 # 1 bit, clear it.  if there isn't, repeat.
 #
 
-def successor_with_one_fewer_bits(n, width):
+def successor_with_fewer_bits(n, k, width):
     """
-    find the smallest number m > n such that m 1 fewer bits.  return None if no number meets
+    find the smallest number m > n such that m has k fewer 1 bits.  return None if no number meets
     this condition.
 
     examples.  width is 16 in all cases.
@@ -113,12 +113,14 @@ def successor_with_one_fewer_bits(n, width):
     if n == 0:
         return None
 
-    # clear the lowest-order 1 bit.
-    m = n & (n - 1)
+    # clear the k lowest-order 1 bits.
+    m = n
+    for x in range(k):
+        m = m & (m - 1)
 
-    # in this case, n is a power of 2 and there is no successor with fewer bits.
-    if m == 0:
-        return None
+        # in this case, n is a power of 2 and there is no successor with fewer bits.
+        if m == 0:
+            return None
 
     # if m is all 1s to the left of all 0s, then there is no successor with fewer bits.
     # we've already removed one bit and we can't make m bigger by moving bits around.
@@ -290,43 +292,60 @@ def binary_coefficient(n, k):
 
 
 class MyTest(unittest.TestCase):
-    def successor_check(self, m, n):
+    def successor_check(self, m, n, k):
         bits_n = get_bits(n)
         bits_m = get_bits(m)
-        self.assertEqual(sum(bits_m) + 1, sum(bits_n))
+        self.assertEqual(sum(bits_m) + k, sum(bits_n))
 
     def test_successor_fewer_bits_1(self):
         n = 56914
         m = 56928
-        self.assertEqual(m, successor_with_one_fewer_bits(n, 16))
-        self.successor_check(m, n)
+        self.assertEqual(m, successor_with_fewer_bits(n, 1, 16))
+        self.successor_check(m, n, 1)
 
         n = 56928
         m = 56960
-        self.assertEqual(m, successor_with_one_fewer_bits(n, 16))
-        self.successor_check(m, n)
+        self.assertEqual(m, successor_with_fewer_bits(n, 1, 16))
+        self.successor_check(m, n, 1)
 
         n = 56960
         m = 64512
-        self.assertEqual(m, successor_with_one_fewer_bits(n, 16))
-        self.successor_check(m, n)
+        self.assertEqual(m, successor_with_fewer_bits(n, 1, 16))
+        self.successor_check(m, n, 1)
 
-        self.assertIsNone(successor_with_one_fewer_bits(64512, 16))
+        self.assertIsNone(successor_with_fewer_bits(64512, 1, 16))
 
     def test_successor_fewer_bits_2(self):
-        self.assertIsNone(successor_with_one_fewer_bits(1, 12))
-        self.assertIsNone(successor_with_one_fewer_bits(0, 12))
-        self.assertIsNone(successor_with_one_fewer_bits(2 ** 12 - 1, 12))
-        self.assertIsNone(successor_with_one_fewer_bits(2 ** 5, 12))
+        self.assertIsNone(successor_with_fewer_bits(1, 1, 12))
+        self.assertIsNone(successor_with_fewer_bits(0, 1, 12))
+        self.assertIsNone(successor_with_fewer_bits(2 ** 12 - 1, 1, 12))
+        self.assertIsNone(successor_with_fewer_bits(2 ** 5, 1, 12))
 
     def test_successor_fewer_bits_3(self):
-        self.assertIsNone(successor_with_one_fewer_bits(7, 3))
-        self.assertIsNone(successor_with_one_fewer_bits(6, 3))
-        self.assertIsNone(successor_with_one_fewer_bits(4, 3))
+        self.assertIsNone(successor_with_fewer_bits(7, 1, 3))
+        self.assertIsNone(successor_with_fewer_bits(6, 1, 3))
+        self.assertIsNone(successor_with_fewer_bits(4, 1, 3))
 
     def test_successor_fewer_bits_4(self):
-        self.assertEqual(4, successor_with_one_fewer_bits(3, 3))
-        self.assertEqual(12, successor_with_one_fewer_bits(7, 5))
+        self.assertEqual(4, successor_with_fewer_bits(3, 1, 3))
+        self.assertEqual(12, successor_with_fewer_bits(7, 1, 5))
+
+    def test_successor_fewer_bits_5(self):
+        n = 56914
+        m = 56928
+        self.assertEqual(m, successor_with_fewer_bits(n, 1, 16))
+        self.successor_check(m, n, 1)
+
+        m = 56960
+        self.assertEqual(m, successor_with_fewer_bits(n, 2, 16))
+        self.successor_check(m, n, 2)
+
+        m = 64512
+        self.assertEqual(m, successor_with_fewer_bits(n, 3, 16))
+        self.successor_check(m, n, 3)
+
+    def test_successor_fewer_bits_6(self):
+        self.assertIsNone(successor_with_fewer_bits(64512, 4, 16))
 
     def test_add_1_bit(self):
         n = 358
