@@ -160,12 +160,19 @@ def successor_with_fewer_bits(n, k, width):
     return result
 
 
-def add_bits(n, b, width):
+def successor_with_more_bits(n, k, width):
     """
-    return a value m > n.  we do this by setting to 1 the least significant b 0 bits.
+    return the smallest value m >= n such that m has an additional b bits.
+    we do this by setting to 1 the least significant b 0 bits.
+
+    if b is 0, return n.
     if the lowest <width> bits are already set, return None.
     if we can only set fewer than b bits, return None.
     """
+
+    if k == 0:
+        return n
+
     if n == 2 ** width - 1:
         return None
 
@@ -176,12 +183,12 @@ def add_bits(n, b, width):
         if mask & n == 0:
             i += 1
             result |= mask
-        if i == b:
+        if i == k:
             break
 
         mask <<= 1
 
-    if i == b:
+    if i == k:
         return result
 
 
@@ -194,11 +201,11 @@ def n_bigger_with_more_bits(n, width):
     keep doing this until there are no more 0 bits left.
     """
     total = 0
-    next = add_bits(n, 1, width)
+    next = successor_with_more_bits(n, 1, width)
     while next is not None:
         i = n_bigger_with_same_bits(next, width)
         total += i
-        next = add_bits(next, 1, width)
+        next = successor_with_more_bits(next, 1, width)
 
     return total
 
@@ -255,6 +262,26 @@ def n_bigger_with_same_bits(n, width):
     return total
 
 
+def successor_with_k_bits(n, k, width):
+    """
+    find the smallest number m >= n such that m has exactly k bits set.  return None if no such number exists.
+    """
+
+    if k == 0:
+        return None
+
+    bits = get_bits(n)
+    nbits = sum(bits)
+
+    if k > nbits:
+        return successor_with_more_bits(n, k - nbits, width)
+
+    if k < nbits:
+        return successor_with_fewer_bits(n, nbits - k, width)
+
+    return n
+
+
 def count_bits_set(n):
     """
     return the number of bits set in the binary representation of n.
@@ -287,6 +314,75 @@ def binary_coefficient(n, k):
         binary_coeff_cache[(from_this, choose_this)] = result
 
     return binary_coeff_cache[(from_this, choose_this)]
+
+
+def successor_fiddling(n, width):
+    bits = get_bits(n)
+    nbits = sum(bits)
+    print("nbits = %s" % nbits)
+    for p in PRIMES:
+        if p > width:
+            break
+        n_str = bin(n)[2:]
+        n_str = '0' * (width - len(n_str)) + n_str
+        s = successor_with_k_bits(n, p, width)
+        if s:
+            s_str = bin(s)[2:]
+            s_str = '0' * (width - len(s_str)) + s_str
+
+            print("p = %s, n = %s (%s), s = %s (%s)" % (p, n_str, n, s_str, s))
+        else:
+            print("p = %s, n = %s (%s), no successor" % (p, n_str, n))
+
+
+def count_prime_bit_successors(n, width):
+    total = 0
+    for p in PRIMES:
+        if p > width:
+            break
+
+        s = successor_with_k_bits(n, p, width)
+        if s:
+            total += n_bigger_with_same_bits(s, width)
+
+    return total
+
+
+def prime_bit_values_in_range(x, y, width):
+    a = min(x, y)
+    b = max(x, y)
+
+    asc = count_prime_bit_successors(a, width)
+    bsc = count_prime_bit_successors(b, width)
+
+    result = asc - bsc
+
+    # if b has a prime number of bits, we have to add 1 to the answer.
+    b_count = sum(get_bits(b))
+    if b_count in PRIMES:
+        result += 1
+    return result
+
+
+if __name__ == '__main__':
+    width = 512
+    n = random.randint(1, 2 ** width - 1)
+
+    # successor_fiddling(n, width)
+    # s = count_prime_bit_successors(n, width)
+    # print(n, s)
+
+    x = random.randint(1, 2 ** width - 1)
+    y = random.randint(1, 2 ** width - 1)
+
+    a = min(x, y)
+    b = max(x, y)
+
+    r = prime_bit_values_in_range(a, b, width)
+    print("a = %s" % a)
+    print("b = %s" % b)
+    print("answer = %s" % r)
+
 
 
 class MyTest(unittest.TestCase):
@@ -349,7 +445,7 @@ class MyTest(unittest.TestCase):
         n = 358
         adding = [1, 8, 16, 128, 512, 1024, 2048]
         for b in adding:
-            result = add_bits(n, 1, 12)
+            result = successor_with_more_bits(n, 1, 12)
             self.assertEqual(n + b, result)
             n = result
 
@@ -359,17 +455,17 @@ class MyTest(unittest.TestCase):
         b = 1
         check = n
         for a in adding:
-            result = add_bits(n, b, 12)
+            result = successor_with_more_bits(n, b, 12)
             self.assertEqual(check + a, result)
             check += a
             b += 1
 
     def test_add_bits_2(self):
-        self.assertIsNone(add_bits(2 ** 12 - 1, 1, 12))
-        self.assertIsNone(add_bits(358, 12, 12))
+        self.assertIsNone(successor_with_more_bits(2 ** 12 - 1, 1, 12))
+        self.assertIsNone(successor_with_more_bits(358, 12, 12))
 
     def test_add_bits_3(self):
-        self.assertIsNone(add_bits(1, 1, 1))
+        self.assertIsNone(successor_with_more_bits(1, 1, 1))
 
     def test_n_bigger_more_bits_1(self):
         n = 358
