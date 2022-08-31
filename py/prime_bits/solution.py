@@ -298,20 +298,20 @@ class MyTest(unittest.TestCase):
     def test_successor_fewer_bits_1(self):
         n = 56914
         m = 56928
-        self.assertEqual(m, successor_with_one_fewer_bits(n, 12))
+        self.assertEqual(m, successor_with_one_fewer_bits(n, 16))
         self.successor_check(m, n)
 
         n = 56928
         m = 56960
-        self.assertEqual(m, successor_with_one_fewer_bits(n, 12))
+        self.assertEqual(m, successor_with_one_fewer_bits(n, 16))
         self.successor_check(m, n)
 
         n = 56960
         m = 64512
-        self.assertEqual(m, successor_with_one_fewer_bits(n, 12))
+        self.assertEqual(m, successor_with_one_fewer_bits(n, 16))
         self.successor_check(m, n)
 
-        self.assertIsNone(successor_with_one_fewer_bits(64512, 12))
+        self.assertIsNone(successor_with_one_fewer_bits(64512, 16))
 
     def test_successor_fewer_bits_2(self):
         self.assertIsNone(successor_with_one_fewer_bits(1, 12))
