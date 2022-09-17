@@ -84,13 +84,25 @@ def solution(arr, k):
 
 if __name__ == '__main__':
     arr = [random.randint(-10, 10) for _ in range(111)]
-    # arr = [0, 0, 5]
-    # arr = [3, 2, 1, 1, 1, 1, 1, 2, 3, 5, 5]
     print(arr)
     result = solution(arr, 5)
-    for r in result:
-        sub = arr[r[0]:r[1]]
-        print("arr[%s:%s] = %s, sum = %s" % (r[0], r[1], sub, sum(sub)))
+
+    if result:
+        shortest = min(result, key=lambda x: x[1] - x[0])
+        if shortest:
+            print("shortest subarrays:")
+            sub = arr[shortest[0]:shortest[1]]
+            print("arr[%s:%s] = %s, sum = %s, length = %s" % (shortest[0], shortest[1], sub, sum(sub), shortest[1] - shortest[0]))
+
+        longest = max(result, key=lambda x: x[1] - x[0])
+        if longest:
+            print("longest subarrays:")
+            sub = arr[longest[0]:longest[1]]
+            print("arr[%s:%s] = %s, sum = %s, length = %s" % (longest[0], longest[1], sub, sum(sub), longest[1] - longest[0]))
+
+    # for r in result:
+    #     sub = arr[r[0]:r[1]]
+    #     print("arr[%s:%s] = %s, sum = %s" % (r[0], r[1], sub, sum(sub)))
 
 
 class MyTest(unittest.TestCase):
@@ -124,7 +136,7 @@ class MyTest(unittest.TestCase):
         self.assertEqual(expected, solution(test_arr, 5))
 
     def test7(self):
-        test_arr = [6]
+        test_arr = []
         self.assertIsNone(solution(test_arr, 5))
 
     def test8(self):
