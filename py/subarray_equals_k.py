@@ -20,7 +20,7 @@ def running_sum(arr):
     return result
 
 
-def solution(arr, k):
+def subarrays_equal_to(arr, k):
     arr_running_sum = running_sum(arr)
 
     # maps each value in arr_running_sum to its position(s) in that list.
@@ -71,34 +71,31 @@ def solution(arr, k):
         subtrahends = running_sums_to_positions[running_sums_to_addends[minuend]]
         subtrahends = filter(lambda x: x < i, subtrahends)
 
-        if subtrahends:
-            for s in subtrahends:
-                t = (s + 1, i + 1)
-                result.add(t)
-                # print("range (%s, %s)" % t)
-                # print(arr[t[0]:t[1]])
+        for s in subtrahends:
+            t = (s + 1, i + 1)
+            result.add(t)
 
-    if result:
-        return result
+    return result
 
 
 if __name__ == '__main__':
-    arr = [random.randint(-10, 10) for _ in range(111)]
+    arr = [random.randint(-10000, 10000) for _ in range(1110)]
     print(arr)
-    result = solution(arr, 5)
+    result = subarrays_equal_to(arr, 42)
 
-    if result:
-        shortest = min(result, key=lambda x: x[1] - x[0])
-        if shortest:
-            print("shortest subarrays:")
-            sub = arr[shortest[0]:shortest[1]]
-            print("arr[%s:%s] = %s, sum = %s, length = %s" % (shortest[0], shortest[1], sub, sum(sub), shortest[1] - shortest[0]))
+    shortest = min(result, key=lambda x: x[1] - x[0])
+    if shortest:
+        print("shortest subarrays:")
+        sub = arr[shortest[0]:shortest[1]]
+        # print("arr[%s:%s] = %s, sum = %s, length = %s" % (shortest[0], shortest[1], sub, sum(sub), shortest[1] - shortest[0]))
+        print("arr[%s:%s], sum = %s, length = %s" % (shortest[0], shortest[1], sum(sub), shortest[1] - shortest[0]))
 
-        longest = max(result, key=lambda x: x[1] - x[0])
-        if longest:
-            print("longest subarrays:")
-            sub = arr[longest[0]:longest[1]]
-            print("arr[%s:%s] = %s, sum = %s, length = %s" % (longest[0], longest[1], sub, sum(sub), longest[1] - longest[0]))
+    longest = max(result, key=lambda x: x[1] - x[0])
+    if longest:
+        print("longest subarrays:")
+        sub = arr[longest[0]:longest[1]]
+        # print("arr[%s:%s] = %s, sum = %s, length = %s" % (longest[0], longest[1], sub, sum(sub), longest[1] - longest[0]))
+        print("arr[%s:%s], sum = %s, length = %s" % (longest[0], longest[1], sum(sub), longest[1] - longest[0]))
 
     # for r in result:
     #     sub = arr[r[0]:r[1]]
@@ -114,37 +111,37 @@ class MyTest(unittest.TestCase):
     def test2(self):
         test_arr = [5]
         expected = {(0, 1)}
-        self.assertEqual(expected, solution(test_arr, 5))
+        self.assertEqual(expected, subarrays_equal_to(test_arr, 5))
 
     def test3(self):
         test_arr = [1, 4]
         expected = {(0, 2)}
-        self.assertEqual(expected, solution(test_arr, 5))
+        self.assertEqual(expected, subarrays_equal_to(test_arr, 5))
 
     def test4(self):
         test_arr = [1, 4, 5]
         expected = {(0, 2), (2, 3)}
-        self.assertEqual(expected, solution(test_arr, 5))
+        self.assertEqual(expected, subarrays_equal_to(test_arr, 5))
 
     def test5(self):
         test_arr = [6]
-        self.assertIsNone(solution(test_arr, 5))
+        self.assertEqual(set(), subarrays_equal_to(test_arr, 5))
 
     def test6(self):
         test_arr = [3, 2, 1, 1, 1, 1, 1, 2, 3, 5, 5]
         expected = {(0, 2), (1, 5), (2, 7), (10, 11), (9, 10), (7, 9), (4, 8)}
-        self.assertEqual(expected, solution(test_arr, 5))
+        self.assertEqual(expected, subarrays_equal_to(test_arr, 5))
 
     def test7(self):
         test_arr = []
-        self.assertIsNone(solution(test_arr, 5))
+        self.assertEqual(set(), subarrays_equal_to(test_arr, 5))
 
     def test8(self):
         test_arr = [0, 0, 5]
         expected = {(0, 3), (1, 3), (2, 3)}
-        self.assertEqual(expected, solution(test_arr, 5))
+        self.assertEqual(expected, subarrays_equal_to(test_arr, 5))
 
     def test9(self):
         test_arr = [1] * 10
         expected = {(0, 5), (1, 6), (2, 7), (3, 8), (4, 9), (5, 10)}
-        self.assertEqual(expected, solution(test_arr, 5))
+        self.assertEqual(expected, subarrays_equal_to(test_arr, 5))
