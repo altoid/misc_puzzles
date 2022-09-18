@@ -52,7 +52,7 @@ def add_rows(r1, r2):
 
 def max_matrix_sum(matrix):
     """
-    return the largest submatrix sum in <matrix>
+    return two tuples:  the row range and tho column range.
     """
 
     # maps tuple (i, j) to the sums of rows [i..j] (i <= j)
@@ -65,7 +65,7 @@ def max_matrix_sum(matrix):
             total = add_rows(total, matrix[j])
             row_range_sums[(i, j + 1)] = total
 
-    pprint(row_range_sums)
+    # pprint(row_range_sums)
 
     max_row_range = (0, 1)
     max_row = row_range_sums[max_row_range]
@@ -80,10 +80,27 @@ def max_matrix_sum(matrix):
             max_indices = indices
             max_row_range = k
 
-    pprint(max_indices)
-    pprint(max_row_range)
+    # pprint(max_indices)
+    # pprint(max_row_range)
 
-    return max_sum
+    return max_row_range, max_indices
+
+
+if __name__ == '__main__':
+    matrix = []
+    for _ in range(7):
+        matrix.append([random.randint(-10, 10) for _ in range(7)])
+    pprint(matrix)
+
+    total = 0
+    row_range, column_range = max_matrix_sum(matrix)
+    print(row_range, column_range)
+    for i in range(row_range[0], row_range[1]):
+        for j in range(column_range[0], column_range[1]):
+            print(matrix[i][j], end=' ')
+        print()
+        total += sum(matrix[i][column_range[0]:column_range[1]])
+    print("sum = %s" % total)
 
 
 class MyTest(unittest.TestCase):
@@ -185,10 +202,10 @@ class MyTest(unittest.TestCase):
         ]
 
         expecting = sum([-3, 4, 2, 8, 10, 1, -1, 1, 7])
-        self.assertEqual(expecting, max_matrix_sum(matrix))
+        self.assertEqual(((1, 4), (1, 4)), max_matrix_sum(matrix))
 
     def test_submatrix_2(self):
         matrix = [[1]]
         expecting = 1
 
-        self.assertEqual(expecting, max_matrix_sum(matrix))
+        self.assertEqual(((0, 1), (0, 1)), max_matrix_sum(matrix))
