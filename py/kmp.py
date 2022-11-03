@@ -27,6 +27,7 @@ def preprocess(pattern):
             beginning = 0
         p += 1
 
+    result = [-1] + result
     return result
 
 
@@ -37,26 +38,24 @@ def match(text, pattern):
         return None
 
     pi_table = preprocess(pattern)
-    print(pi_table)
+    #print(pi_table)
 
     anchor = 0
     while anchor < stop:
-        print("--------------")
-        print(text)
-        print("%s%s" % (' ' * anchor, pattern))
+        # print("--------------")
+        # print(text)
+        # print("%s%s" % (' ' * anchor, pattern))
         p = 0
         while p < len(pattern) and pattern[p] == text[anchor + p]:
             p += 1
         if p == len(pattern):
             return anchor
 
-        print("anchor is %s, mismatch at %s" % (anchor, anchor + p))
-        # p is the number of letters we've matched in this round
-        if p == 0:
-            shiftby = 1
-        else:
-            shiftby = p - pi_table[p - 1]
-        print("shifting by %s" % shiftby)
+        # print("anchor is %s, mismatch at %s" % (anchor, anchor + p))
+        # p is the number of letters we've matched in this round.  if p is 0, then table[0] = -1, so
+        # we will still shift by at least 1.
+        shiftby = p - pi_table[p]
+        # print("shifting by %s" % shiftby)
         anchor += shiftby
 
 
@@ -81,20 +80,16 @@ class MatchTest(unittest.TestCase):
 class PreprocessTest(unittest.TestCase):
     def test_1(self):
         pattern = 'ababababca'
-        expecting = [0, 0, 1, 2, 3, 4, 5, 6, 0, 1]
+        expecting = [-1, 0, 0, 1, 2, 3, 4, 5, 6, 0, 1]
 
         pi_table = preprocess(pattern)
-        self.assertEqual(len(pattern), len(pi_table))
-
         self.assertEqual(expecting, pi_table)
 
     def test_2(self):
         pattern = 'a'
-        expecting = [0]
+        expecting = [-1, 0]
 
         pi_table = preprocess(pattern)
-        self.assertEqual(len(pattern), len(pi_table))
-
         self.assertEqual(expecting, pi_table)
 
     def test_3(self):
@@ -102,15 +97,11 @@ class PreprocessTest(unittest.TestCase):
         expecting = []
 
         pi_table = preprocess(pattern)
-        self.assertEqual(len(pattern), len(pi_table))
-
         self.assertEqual(expecting, pi_table)
 
     def test_4(self):
         pattern = 'abcdabd'
-        expecting = [0, 0, 0, 0, 1, 2, 0]
+        expecting = [-1, 0, 0, 0, 0, 1, 2, 0]
 
         pi_table = preprocess(pattern)
-        self.assertEqual(len(pattern), len(pi_table))
-
         self.assertEqual(expecting, pi_table)
