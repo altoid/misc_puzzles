@@ -38,7 +38,7 @@ def same_bits_successor(n, width):
     assert n < 2 ** width
 
     if n == 0:
-        return None
+        return
 
     # convert the number to a bit vector
 
@@ -69,7 +69,7 @@ def same_bits_successor(n, width):
         i += 1
 
     if i == width:
-        return None
+        return
 
     # swap the 1 and 0
     bits[i], bits[i - 1] = bits[i - 1], bits[i]
@@ -92,7 +92,13 @@ def same_bits_successor(n, width):
     return result
 
 
-if __name__ == '__main__':
+def successors(n, width):
+    s = n
+    while s is not None:
+        yield s
+        s = same_bits_successor(s, width)
+
+def test_random_number():
     for i in range(10000):
         n = random.randint(1, 2 ** 32 - 2)
         s = same_bits_successor(n, 32)
@@ -114,6 +120,17 @@ if __name__ == '__main__':
             print("successor is <= n")
             break
 
+
+if __name__ == '__main__':
+#    result = successors(11, 8)
+#    lst = list(result)
+#    for n in lst:
+#        print(n, bin(n))
+
+    for n in successors(127, 32):
+        print(n, bin(n))
+
+#    test_random_number()
 
 class MyTest(unittest.TestCase):
     def test_degenerate_cases(self):
