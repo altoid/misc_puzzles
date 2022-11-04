@@ -68,9 +68,9 @@ def max_matrix_sum(matrix):
     # pprint(row_range_sums)
 
     max_row_range = (0, 1)
-    max_row = row_range_sums[max_row_range]
-    max_indices = max_subarray_indices(max_row)
-    max_sum = sum(max_row[max_indices[0]:max_indices[1]])
+    row = row_range_sums[max_row_range]
+    max_indices = max_subarray_indices(row)
+    max_sum = sum(row[max_indices[0]:max_indices[1]])
 
     for k, v in row_range_sums.items():
         indices = max_subarray_indices(v)
