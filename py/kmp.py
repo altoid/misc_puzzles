@@ -14,24 +14,25 @@ def preprocess(pattern):
     if not pattern:
         return []
 
-    result = [0] * len(pattern)
+    result = [-1] * len(pattern)
+    result[0] = 0
     beginning = 0
     p = 1
-    prefixlen = 0
     while p < len(pattern):
-        if pattern[p] != pattern[beginning]:
-            prefixlen = 0
-            result[p] = prefixlen
-            beginning = 0
-            if pattern[p] != pattern[beginning]:
-                p += 1
-        else:
-            prefixlen += 1
-            result[p] = prefixlen
+        if pattern[p] == pattern[beginning]:
             beginning += 1
+            result[p] = beginning
+            p += 1
+        elif beginning > 0:
+            # this step winds beginning back without advancing p
+            beginning = result[beginning - 1]
+        else:
+            result[p] = 0
             p += 1
 
+    # adding -1 to the beginning to fake 1-based
     return [-1] + result
+
 
 def match(text, pattern):
     # return the first index in text where pattern is found, or else None
@@ -40,36 +41,37 @@ def match(text, pattern):
         return -1
 
     pi_table = preprocess(pattern)
-    print(pi_table)
+    #print(pi_table)
 
     anchor = 0
     while anchor < stop:
-        print("--------------")
-        print(text)
-        print("%s%s" % (' ' * anchor, pattern))
+        #print("--------------")
+        #print(text)
+        #print("%s%s" % (' ' * anchor, pattern))
         p = 0
         while p < len(pattern) and pattern[p] == text[anchor + p]:
             p += 1
         if p == len(pattern):
             return anchor
 
-        print("anchor is %s, p is %s, mismatch at %s" % (anchor, p, anchor + p))
+        #print("anchor is %s, p is %s, mismatch at %s" % (anchor, p, anchor + p))
         # p is the number of letters we've matched in this round.  if p is 0, then table[0] = -1, so
         # we will still shift by at least 1.
         shiftby = p - pi_table[p]
-        print("shifting by %s" % shiftby)
+        #print("shifting by %s" % shiftby)
         anchor += shiftby
 
     return -1
 
 
 if __name__ == '__main__':
-    #pattern = 'aabaaac'
-    #pattern = 'abcdabcdabde'
-    #pattern = 'abcdabd'
-    pattern = 'aaacecaa'
+    pattern = 'aabaaac'
+    # pattern = 'abcdabcdabde'
+    # pattern = 'abcdabd'
+    # pattern = 'aaacecaa'
     result = preprocess(pattern)
     print(result)
+
 
 class MatchTest(unittest.TestCase):
     def test_3(self):
@@ -128,7 +130,7 @@ class PreprocessTest(unittest.TestCase):
 
     def test_5(self):
         pattern = 'aabaaac'
-        expecting = [-1, 0, 1, 0, 1, 2, 1, 0]
+        expecting = [-1, 0, 1, 0, 1, 2, 2, 0]
 
         pi_table = preprocess(pattern)
         self.assertEqual(expecting, pi_table)
