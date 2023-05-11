@@ -66,6 +66,15 @@ class RLE(object):
     def __str__(self):
         return decode(self.encoding)
 
+    def __repr__(self):
+        return "%s('%s')" % (self.__class__.__name__, str(self))
+
+    def __eq__(self, other):
+        if not isinstance(other, RLE):
+            return NotImplemented
+
+        return other.encoding == self.encoding and self.length == other.length
+
 
 class RLETest(unittest.TestCase):
     def test_1(self):
@@ -87,6 +96,18 @@ class RLETest(unittest.TestCase):
         encode_me = ''
         rle = RLE(encode_me)
         self.assertEqual(encode_me, str(rle))
+
+    def test_eq(self):
+        encode_me = '88888!))*&&%%%%%%%%%%%'
+        rle1 = RLE(encode_me)
+        rle2 = RLE(encode_me)
+        self.assertTrue(rle1 == rle2)
+
+    def test_repr(self):
+        encode_me = '88888!))*&&%%%%%%%%%%%'
+        rle = RLE(encode_me)
+        rle2 = eval(repr(rle))
+        self.assertEqual(rle, rle2)
 
 
 class RLEIterator(object):
