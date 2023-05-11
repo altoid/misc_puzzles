@@ -1,4 +1,93 @@
 # starting with my solution to leetcode # 900, run-length iterator.  turn it into a real iterable / iterator.
+import unittest
+from functools import reduce
+
+
+#
+# todo:  make the encode and decode functions inaccessible to anyone who imports this.
+# todo:  implement iteration
+# todo:  implement indexing and slicing
+#
+
+def enc_helper(acc, value):
+    if acc[-1][0] == value:
+        acc[-1][1] += 1
+    else:
+        acc.append([value, 1])
+
+    return acc
+
+
+def encode(s):
+    """
+    produce a run-length encoding of s.
+
+    given:
+
+        88888!))*&&%%%%%%%%%%%
+
+    return:
+
+        [['8', 5], ['!', 1], [')', 2], ['*', 1], ['&', 2], ['%', 11]]
+    """
+    if not s:
+        return []
+
+    acc = [[s[0], 1]]
+    result = reduce(enc_helper, s[1:], acc)
+
+    return result
+
+
+def decode(enc):
+    """
+    given:
+
+        [['8', 5], ['!', 1], [')', 2], ['*', 1], ['&', 2], ['%', 11]]
+
+    return:
+
+        88888!))*&&%%%%%%%%%%%
+    """
+    return ''.join(list(map(lambda x: x[0] * x[1], enc)))
+
+
+class RLE(object):
+    """
+    maintain a run length encoding of the string passed to the constructor.
+    """
+    def __init__(self, encode_me):
+        self.length = len(encode_me)
+        self.encoding = encode(encode_me)
+
+    def __len__(self):
+        return self.length
+
+    def __str__(self):
+        return decode(self.encoding)
+
+
+class RLETest(unittest.TestCase):
+    def test_1(self):
+        encode_me = '88888!))*&&%%%%%%%%%%%'
+        rle = RLE(encode_me)
+        self.assertEqual(len(encode_me), len(rle))
+
+    def test_2(self):
+        encode_me = '88888!))*&&%%%%%%%%%%%'
+        rle = RLE(encode_me)
+        self.assertEqual(encode_me, str(rle))
+
+    def test_3(self):
+        encode_me = ''
+        rle = RLE(encode_me)
+        self.assertEqual(len(encode_me), len(rle))
+
+    def test_4(self):
+        encode_me = ''
+        rle = RLE(encode_me)
+        self.assertEqual(encode_me, str(rle))
+
 
 class RLEIterator(object):
     def __init__(self, encoding):
