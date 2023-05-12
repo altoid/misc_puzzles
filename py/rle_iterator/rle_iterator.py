@@ -5,9 +5,8 @@ from functools import reduce
 
 #
 # todo:  make the encode and decode functions inaccessible to anyone who imports this.
-# todo:  implement iteration
 # todo:  implement indexing and slicing
-#
+# todo:  test that the iterator always raises StopIteration after the first time it does this.
 
 def enc_helper(acc, value):
     if acc[-1][0] == value:
@@ -56,9 +55,10 @@ class RLE(object):
     """
     maintain a run length encoding of the string passed to the constructor.
     """
+
     def __init__(self, encode_me):
-        self.length = len(encode_me)
         self.encoding = encode(encode_me)
+        self.length = len(encode_me) if encode_me is not None else 0
 
     def __len__(self):
         return self.length
@@ -74,6 +74,13 @@ class RLE(object):
             return NotImplemented
 
         return other.encoding == self.encoding and self.length == other.length
+
+    def __iter__(self):
+        # has to return an iterator
+        return RLEIterator(self)
+
+    def __bool__(self):
+        return bool(self.encoding)
 
 
 class RLETest(unittest.TestCase):
@@ -109,68 +116,116 @@ class RLETest(unittest.TestCase):
         rle2 = eval(repr(rle))
         self.assertEqual(rle, rle2)
 
+    def test_iter(self):
+        encode_me = '88888!))*&&%%%%%%%%%%%'
+        rle = RLE(encode_me)
+        itr = iter(rle)
+        test_str = ''
+        while True:
+            try:
+                test_str += next(itr)
+            except StopIteration:
+                break
+        self.assertEqual(encode_me, test_str)
+        with self.assertRaises(StopIteration):
+            next(itr)
+
+    def test_none(self):
+        rle = RLE(None)
+        self.assertEqual(0, len(rle))
+        itr = iter(rle)
+
+        # yes, do it twice
+        with self.assertRaises(StopIteration):
+            next(itr)
+        with self.assertRaises(StopIteration):
+            next(itr)
+
+    def test_empty(self):
+        rle = RLE('')
+        self.assertEqual(0, len(rle))
+        itr = iter(rle)
+
+        # yes, do it twice
+        with self.assertRaises(StopIteration):
+            next(itr)
+        with self.assertRaises(StopIteration):
+            next(itr)
+
 
 class RLEIterator(object):
-    def __init__(self, encoding):
-        self.encoding = encoding
+    def __init__(self, rle):
+        self.rle = rle
+        self.still_mo = bool(self.rle)
         self.current_run = 0
         self.position_in_current_run = 0  # positions start from 1
-        self.still_mo = bool(self.encoding)
 
-    def point_to_next_run(self):
-        """
-        set the pointer to the beginning of the next nontrivial run.  sets still_mo to False if doing so runs off
-        the end of the encoding.  returns the number of places the pointer was moved, or -1 if we couldn't move it.
-        """
-        advance = self.encoding[self.current_run] - self.position_in_current_run + 1
-        self.current_run += 2
-        while self.current_run < len(self.encoding) and self.encoding[self.current_run] == 0:
-            self.current_run += 2
+    def __iter__(self):
+        return self
 
-        if self.current_run >= len(self.encoding):
-            self.still_mo = False
-            return -1
-
-        self.position_in_current_run = 1
-
-        return advance
-
-    def next(self, n):
-
+    def __next__(self):
         # cases:
         #
         # 1.  incrementing the pointer keeps us in the current run
         # 2.  or puts us into a new run
-        # 2a. possibly skipping 1 or more whole runs along the way
         # 3.  incrementing the pointer runs us off the end of the whole encoding
-        #     and we have to return -1 for this and future next() invocations.
+        #     and we have to raise StopIteration for this and future next() invocations.
 
         # degenerate cases:
         if not self.still_mo:
-            return -1
+            raise StopIteration()
 
         # case 1:
-        if self.position_in_current_run + n <= self.encoding[self.current_run]:
-            self.position_in_current_run += n
-            return self.encoding[self.current_run + 1]
+        if self.position_in_current_run + 1 <= self.rle.encoding[self.current_run][1]:
+            self.position_in_current_run += 1
+            return self.rle.encoding[self.current_run][0]
 
-        # case 2:
+        # case 2 and 3:
 
         # advance the pointer to the beginning of the next run.
-        advance = self.point_to_next_run()
-        if advance < 0:
-            return -1
+        self.current_run += 1
+        if self.current_run >= len(self.rle.encoding):
+            self.still_mo = False
+            raise StopIteration()
 
-        n -= advance
+        self.position_in_current_run = 1
+        return self.rle.encoding[self.current_run][0]
 
-        while self.still_mo and n - self.encoding[self.current_run] > 0:
-            n -= self.encoding[self.current_run]
-            self.current_run += 2
-            if self.current_run >= len(self.encoding):
-                self.still_mo = False
 
-        if not self.still_mo:
-            return -1
 
-        self.position_in_current_run += n
-        return self.encoding[self.current_run + 1]
+
+class RLEIteratorTest(unittest.TestCase):
+    def test_1(self):
+        encoding = [3, 'a', 3, 'b', 0, '#', 3, 'c']
+        obj = RLEIterator(encoding)
+        result = obj.next(2)
+        while result != -1:
+            print(result)
+            result = obj.next(2)
+
+        # a a a b b b c c c
+        #   ^   ^   ^   ^   ^
+
+    def test_2(self):
+        encoding = [1, 'a', 1, 'b', 1, 'c']
+        obj = RLEIterator(encoding)
+        result = obj.next(1)
+        while result != -1:
+            print(result)
+            result = obj.next(1)
+
+    def test_3(self):
+        encoding = [1, 'a', 5, 'b', 0, '#', 4, 'c']
+        obj = RLEIterator(encoding)
+        result = obj.next(10)
+        while result != -1:
+            print(result)
+            result = obj.next(10)
+
+    def test_4(self):
+        encoding = [1, 'a', 0, '!', 0, '@', 0, '+', 1, 'b']
+        obj = RLEIterator(encoding)
+        result = obj.next(1)
+        while result != -1:
+            print(result)
+            result = obj.next(1)
