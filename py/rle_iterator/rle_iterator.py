@@ -5,7 +5,7 @@ from functools import reduce
 
 #
 # todo:  make the encode and decode functions inaccessible to anyone who imports this.
-# todo:  implement indexing and slicing
+# todo:  implement slicing, including on degenerate object.
 
 def enc_helper(acc, value):
     if acc[-1][0] == value:
@@ -80,6 +80,66 @@ class RLE(object):
 
     def __bool__(self):
         return bool(self.encoding)
+
+    def get_char_at(self, i):
+        p = i if i >= 0 else len(self) + i
+
+        if not (0 <= p < len(self)):
+            raise IndexError()
+
+        current_run = 0
+        while p >= self.encoding[current_run][1]:
+            p -= self.encoding[current_run][1]
+            current_run += 1
+
+        return self.encoding[current_run][0]
+
+    def __getitem__(self, key):
+        if isinstance(key, slice):
+            start, stop, step = key.start, key.stop, key.step
+            return NotImplemented
+
+        if isinstance(key, int):
+            return self.get_char_at(key)
+
+
+class RLEIterator(object):
+    def __init__(self, rle):
+        self.rle = rle
+        self.still_mo = bool(self.rle)
+        self.current_run = 0
+        self.position_in_current_run = 0  # positions start from 1
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        # cases:
+        #
+        # 1.  incrementing the pointer keeps us in the current run
+        # 2.  or puts us into a new run
+        # 3.  incrementing the pointer runs us off the end of the whole encoding
+        #     and we have to raise StopIteration for this and future next() invocations.
+
+        # degenerate cases:
+        if not self.still_mo:
+            raise StopIteration()
+
+        # case 1:
+        if self.position_in_current_run + 1 <= self.rle.encoding[self.current_run][1]:
+            self.position_in_current_run += 1
+            return self.rle.encoding[self.current_run][0]
+
+        # case 2 and 3:
+
+        # advance the pointer to the beginning of the next run.
+        self.current_run += 1
+        if self.current_run >= len(self.rle.encoding):
+            self.still_mo = False
+            raise StopIteration()
+
+        self.position_in_current_run = 1
+        return self.rle.encoding[self.current_run][0]
 
 
 class RLETest(unittest.TestCase):
@@ -157,46 +217,44 @@ class RLETest(unittest.TestCase):
         with self.assertRaises(StopIteration):
             next(itr)
 
+    def test_index_1(self):
+        encode_me = 'aaabbbccc'
+        rle = RLE(encode_me)
+        self.assertEqual('a', rle[0])
+        self.assertEqual('a', rle[2])
+        self.assertEqual('b', rle[4])
+        self.assertEqual('c', rle[6])
+        self.assertEqual('c', rle[8])
 
-class RLEIterator(object):
-    def __init__(self, rle):
-        self.rle = rle
-        self.still_mo = bool(self.rle)
-        self.current_run = 0
-        self.position_in_current_run = 0  # positions start from 1
+        self.assertEqual('c', rle[-1])
+        self.assertEqual('c', rle[-3])
+        self.assertEqual('b', rle[-5])
+        self.assertEqual('a', rle[-7])
+        self.assertEqual('a', rle[-9])
 
-    def __iter__(self):
-        return self
+    def test_index_2(self):
+        encode_me = 'aaabbbccc'
+        rle = RLE(encode_me)
 
-    def __next__(self):
-        # cases:
-        #
-        # 1.  incrementing the pointer keeps us in the current run
-        # 2.  or puts us into a new run
-        # 3.  incrementing the pointer runs us off the end of the whole encoding
-        #     and we have to raise StopIteration for this and future next() invocations.
+        with self.assertRaises(IndexError):
+            _ = rle[100]
 
-        # degenerate cases:
-        if not self.still_mo:
-            raise StopIteration()
+    def test_index_3(self):
+        encode_me = 'aaabbbccc'
+        rle = RLE(encode_me)
 
-        # case 1:
-        if self.position_in_current_run + 1 <= self.rle.encoding[self.current_run][1]:
-            self.position_in_current_run += 1
-            return self.rle.encoding[self.current_run][0]
+        with self.assertRaises(IndexError):
+            _ = rle[-100]
 
-        # case 2 and 3:
+    def test_index_4(self):
+        rle = RLE(None)
+        with self.assertRaises(IndexError):
+            _ = rle[0]
 
-        # advance the pointer to the beginning of the next run.
-        self.current_run += 1
-        if self.current_run >= len(self.rle.encoding):
-            self.still_mo = False
-            raise StopIteration()
-
-        self.position_in_current_run = 1
-        return self.rle.encoding[self.current_run][0]
-
-
+    def test_index_5(self):
+        rle = RLE('')
+        with self.assertRaises(IndexError):
+            _ = rle[0]
 
 
 class RLEIteratorTest(unittest.TestCase):
