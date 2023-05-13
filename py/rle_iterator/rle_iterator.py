@@ -6,7 +6,6 @@ from functools import reduce
 #
 # todo:  make the encode and decode functions inaccessible to anyone who imports this.
 # todo:  implement indexing and slicing
-# todo:  test that the iterator always raises StopIteration after the first time it does this.
 
 def enc_helper(acc, value):
     if acc[-1][0] == value:
@@ -85,12 +84,12 @@ class RLE(object):
 
 class RLETest(unittest.TestCase):
     def test_1(self):
-        encode_me = '88888!))*&&%%%%%%%%%%%'
+        encode_me = '88888!))*&&%%%%%%%%%%%?'
         rle = RLE(encode_me)
         self.assertEqual(len(encode_me), len(rle))
 
     def test_2(self):
-        encode_me = '88888!))*&&%%%%%%%%%%%'
+        encode_me = '88888!))*&&%%%%%%%%%%%?'
         rle = RLE(encode_me)
         self.assertEqual(encode_me, str(rle))
 
@@ -105,19 +104,19 @@ class RLETest(unittest.TestCase):
         self.assertEqual(encode_me, str(rle))
 
     def test_eq(self):
-        encode_me = '88888!))*&&%%%%%%%%%%%'
+        encode_me = '88888!))*&&%%%%%%%%%%%?'
         rle1 = RLE(encode_me)
         rle2 = RLE(encode_me)
         self.assertTrue(rle1 == rle2)
 
     def test_repr(self):
-        encode_me = '88888!))*&&%%%%%%%%%%%'
+        encode_me = '88888!))*&&%%%%%%%%%%%?'
         rle = RLE(encode_me)
         rle2 = eval(repr(rle))
         self.assertEqual(rle, rle2)
 
     def test_iter(self):
-        encode_me = '88888!))*&&%%%%%%%%%%%'
+        encode_me = '88888!))*&&%%%%%%%%%%%?'
         rle = RLE(encode_me)
         itr = iter(rle)
         test_str = ''
@@ -129,6 +128,12 @@ class RLETest(unittest.TestCase):
         self.assertEqual(encode_me, test_str)
         with self.assertRaises(StopIteration):
             next(itr)
+
+    def test_iter_2(self):
+        encode_me = '88888!))*&&%%%%%%%%%%%?'
+        rle = RLE(encode_me)
+        decoded = ''.join([x for x in rle])
+        self.assertEqual(encode_me, decoded)
 
     def test_none(self):
         rle = RLE(None)
