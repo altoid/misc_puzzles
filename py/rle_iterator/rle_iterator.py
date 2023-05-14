@@ -256,6 +256,13 @@ class RLETest(unittest.TestCase):
         with self.assertRaises(IndexError):
             _ = rle[0]
 
+    def test_slice_1(self):
+        encode_me = "--H---e---l---l--- ---w---o---r---l---d"
+        result = 'Hell world'
+        rle = RLE(encode_me)
+        test = rle[2::4]
+        self.assertEqual(result, test)
+
 
 class RLEIteratorTest(unittest.TestCase):
     def test_1(self):
