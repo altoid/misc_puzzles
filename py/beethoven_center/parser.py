@@ -72,7 +72,7 @@ class CallNumber:
             while i < len(self.raw) and self.raw[i].isspace():
                 i += 1
 
-        # should be at cutter 1 now
+        # should be at cutter 1 now, pointing at the letter.
         if i < len(self.raw) and self.raw[i].isalpha():
             self.cutter1_letter = self.raw[i]
             i += 1
@@ -81,7 +81,7 @@ class CallNumber:
             while i < len(self.raw) and self.raw[i].isdigit():
                 self.cutter1_number += self.raw[i]
                 i += 1
-            while i < len(self.raw) and self.raw[i].isspace():
+            while i < len(self.raw) and (self.raw[i].isspace() or self.raw[i] == ','):
                 i += 1
 
         # cutter 2
@@ -93,7 +93,7 @@ class CallNumber:
             while i < len(self.raw) and self.raw[i].isdigit():
                 self.cutter2_number += self.raw[i]
                 i += 1
-            while i < len(self.raw) and self.raw[i].isspace():
+            while i < len(self.raw) and (self.raw[i].isspace() or self.raw[i] == ','):
                 i += 1
 
         # cutter 3
@@ -105,7 +105,13 @@ class CallNumber:
             while i < len(self.raw) and self.raw[i].isdigit():
                 self.cutter3_number += self.raw[i]
                 i += 1
-            while i < len(self.raw) and self.raw[i].isspace():
+            while i < len(self.raw) and (self.raw[i].isspace() or self.raw[i] == ','):
+                i += 1
+
+        # year
+        if i < len(self.raw) and self.raw[i].isdigit():
+            while i < len(self.raw) and self.raw[i].isalnum():
+                self.year += self.raw[i]
                 i += 1
 
     def dump(self):
@@ -118,6 +124,8 @@ class CallNumber:
             print("cutter2:  |%s%s|" % (self.cutter2_letter, self.cutter2_number))
         if self.cutter3_letter:
             print("cutter3:  |%s%s|" % (self.cutter3_letter, self.cutter3_number))
+        if self.year:
+            print("year:  |%s|" % self.year)
 
 
 if __name__ == '__main__':
@@ -127,6 +135,14 @@ if __name__ == '__main__':
     cn = CallNumber('ML410.5 .B1 A33 S66')
     cn.dump()
 
+    cn = CallNumber('ML410.5 .B1 A33 S66')
+    cn.dump()
+
+    cn = CallNumber('ML410.B2,1925')
+    cn.dump()
+
+    cn = CallNumber('ML410.B2 M53, K32,1925')
+    cn.dump()
 
 class CNTest(unittest.TestCase):
     def test_1(self):
