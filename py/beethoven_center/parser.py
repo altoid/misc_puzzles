@@ -5,11 +5,6 @@ import sys
 
 # call number parser
 
-# TODO:  first cutter number might have more than one letter
-# TODO:  opus number follows first cutter
-# TODO:  consecutive cutter numbers may have no spaces between them
-
-
 class CallNumber:
     """
     when  a parse_<whatever> method returns, the pointer will be on the first char after the token.
@@ -19,7 +14,7 @@ class CallNumber:
         print("choking on char |%s|" % self.raw[self.pointer])
         print("raw:  |%s|" % self.raw)
         print("pointer:  %d" % self.pointer)
-        sys.exit()
+        raise RuntimeError
 
     def skip_white_space(self):
         while self.pointer < len(self.raw) and (self.raw[self.pointer].isspace() or self.raw[self.pointer] == ','):
@@ -68,14 +63,16 @@ class CallNumber:
 
     def parse_cutter2(self):
         self.skip_white_space()
+        marker = self.pointer
         if self.pointer < len(self.raw) and not self.raw[self.pointer].isalpha():
-            self.die()
+            return
 
         self.cutter2_letter += self.raw[self.pointer]
         self.pointer += 1
 
         if self.pointer < len(self.raw) and not self.raw[self.pointer].isdigit():
-            self.die()
+            self.pointer = marker
+            self.cutter2_letter = ''
 
         while self.pointer < len(self.raw) and self.raw[self.pointer].isdigit():
             self.cutter2_number += self.raw[self.pointer]
@@ -83,14 +80,16 @@ class CallNumber:
 
     def parse_cutter3(self):
         self.skip_white_space()
+        marker = self.pointer
         if self.pointer < len(self.raw) and not self.raw[self.pointer].isalpha():
-            self.die()
+            return
 
         self.cutter3_letter += self.raw[self.pointer]
         self.pointer += 1
 
         if self.pointer < len(self.raw) and not self.raw[self.pointer].isdigit():
-            self.die()
+            self.pointer = marker
+            self.cutter3_letter = ''
 
         while self.pointer < len(self.raw) and self.raw[self.pointer].isdigit():
             self.cutter3_number += self.raw[self.pointer]
@@ -122,7 +121,7 @@ class CallNumber:
 
         self.skip_white_space()
 
-        if self.raw[self.pointer:].tolower().startswith('no.'):
+        if self.raw[self.pointer:].lower().startswith('no.'):
             self.pointer += len('no.')
 
             self.skip_white_space()
@@ -190,9 +189,9 @@ class CallNumber:
     def parse_rest(self):
         self.parse_cutter1()
         self.skip_white_space()
-        if self.raw[self.pointer:].tolower().startswith('op.'):
+        if self.raw[self.pointer:].lower().startswith('op.'):
             self.parse_opus_number()
-        elif self.raw[self.pointer:].tolower().startswith('woo'):
+        elif self.raw[self.pointer:].lower().startswith('woo'):
             self.parse_woo()
 
         self.parse_cutter2()
@@ -243,12 +242,18 @@ class CallNumber:
         print("subject_number:  |%s|" % self.subject_number)
         if self.cutter1_letters:
             print("cutter1:  |%s%s|" % (self.cutter1_letters, self.cutter1_number))
+        if self.opus and self.number:
+            print("opus:  %s %s no. %s" % (self.opus_type, self.opus, self.number))
+        elif self.opus:
+            print("opus:  %s %s" % (self.opus_type, self.opus))
         if self.cutter2_letter:
             print("cutter2:  |%s%s|" % (self.cutter2_letter, self.cutter2_number))
         if self.cutter3_letter:
             print("cutter3:  |%s%s|" % (self.cutter3_letter, self.cutter3_number))
         if self.year:
             print("year:  |%s|" % self.year)
+        if self.extra:
+            print("extra:  |%s|" % self.extra)
 
 
 if __name__ == '__main__':
@@ -266,6 +271,22 @@ if __name__ == '__main__':
 
     cn = CallNumber('ML410.B2 M53, K32,1925a')
     cn.dump()
+
+    cn = CallNumber('ML457 .Ex77 v.1')
+    cn.dump()
+
+    cn = CallNumber('ML672.8.V53K8 2003')
+    cn.dump()
+
+    cn = CallNumber('ML410.B421 op.60, C58, 1977a')
+    cn.dump()
+
+    cn = CallNumber('ML410.B421 op.60 no. 4, C58, 1977a')
+    cn.dump()
+
+    cn = CallNumber('ML410.B421 WoO60, C58, 1977a')
+    cn.dump()
+
 
 class CNTest(unittest.TestCase):
     def test_1(self):
