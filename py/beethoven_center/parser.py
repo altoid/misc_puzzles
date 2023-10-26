@@ -237,9 +237,7 @@ class CallNumber:
 
         self.skip_white_space()
 
-        if self.raw[self.pointer] != '.':
-            self.die()
-        else:
+        if self.raw[self.pointer] == '.':
             self.pointer += 1
 
         self.parse_rest()
@@ -466,7 +464,10 @@ if __name__ == '__main__':
     with open('inventory.csv') as csvfile:
         reader = csv.DictReader(csvfile)
         for row in reader:
-            raw = row['Permanent Call Number']
+            raw = row['Permanent Call Number'].strip()
+            if not raw:
+                continue
+
             cn = CallNumber(raw)
             cn.dump()
 
@@ -758,6 +759,11 @@ class CNTestParser(unittest.TestCase):
         self.assertEqual('', cn1.year)
         self.assertEqual('', cn1.year_tag)
         self.assertEqual('', cn1.extra)
+
+    def test_real(self):
+        # call numbers that choked the parser
+        cn1 = CallNumber('ML33.B42 E34 2008')
+        cn1 = CallNumber('ML200.4 H67 2012')
 
 
 class CNTestComparators(unittest.TestCase):
