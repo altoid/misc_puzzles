@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 
 import unittest
+import csv
+from pprint import pprint
 import sys
 
 # call number parser
@@ -118,9 +120,13 @@ class CallNumber:
         if self.pointer < len(self.raw) and not self.raw[self.pointer].isdigit():
             self.die()
 
+        opus_str = ''
         while self.pointer < len(self.raw) and self.raw[self.pointer].isdigit():
-            self.opus += self.raw[self.pointer]
+            opus_str += self.raw[self.pointer]
             self.pointer += 1
+
+        if opus_str:
+            self.opus = int(opus_str)
 
         self.opus_type = 'WoO'
 
@@ -420,40 +426,49 @@ class CallNumber:
             print("cutter3:  |%s%s|" % (self.cutter3_letter, self.cutter3_number_str))
         if self.year:
             print("year:  |%s|" % self.year)
+        if self.year_tag:
+            print("year_tag:  |%s|" % self.year_tag)
         if self.extra:
             print("extra:  |%s|" % self.extra)
 
 
 if __name__ == '__main__':
-    cn = CallNumber('ML410.B1 A33 S66')
-    cn.dump()
+    # cn = CallNumber('ML410.B1 A33 S66')
+    # cn.dump()
+    #
+    # cn = CallNumber('ML410.5 .B1 A33 S66')
+    # cn.dump()
+    #
+    # cn = CallNumber('ML410.5 .B1 A33 S66')
+    # cn.dump()
+    #
+    # cn = CallNumber('ML410.B2,1925')
+    # cn.dump()
+    #
+    # cn = CallNumber('ML410.B2 M53, K32,1925a')
+    # cn.dump()
+    #
+    # cn = CallNumber('ML457 .Ex77 v.1')
+    # cn.dump()
+    #
+    # cn = CallNumber('ML672.8.V53K8 2003')
+    # cn.dump()
+    #
+    # cn = CallNumber('ML410.B421 op.60, C58, 1977a')
+    # cn.dump()
+    #
+    # cn = CallNumber('ML410.B421 op.60 no. 4, C58, 1977a')
+    # cn.dump()
+    #
+    # cn = CallNumber('ML410.B421 WoO60, C58, 1977a')
+    # cn.dump()
 
-    cn = CallNumber('ML410.5 .B1 A33 S66')
-    cn.dump()
-
-    cn = CallNumber('ML410.5 .B1 A33 S66')
-    cn.dump()
-
-    cn = CallNumber('ML410.B2,1925')
-    cn.dump()
-
-    cn = CallNumber('ML410.B2 M53, K32,1925a')
-    cn.dump()
-
-    cn = CallNumber('ML457 .Ex77 v.1')
-    cn.dump()
-
-    cn = CallNumber('ML672.8.V53K8 2003')
-    cn.dump()
-
-    cn = CallNumber('ML410.B421 op.60, C58, 1977a')
-    cn.dump()
-
-    cn = CallNumber('ML410.B421 op.60 no. 4, C58, 1977a')
-    cn.dump()
-
-    cn = CallNumber('ML410.B421 WoO60, C58, 1977a')
-    cn.dump()
+    with open('inventory.csv') as csvfile:
+        reader = csv.DictReader(csvfile)
+        for row in reader:
+            raw = row['Permanent Call Number']
+            cn = CallNumber(raw)
+            cn.dump()
 
 
 class CNTestParser(unittest.TestCase):
@@ -745,7 +760,7 @@ class CNTestParser(unittest.TestCase):
         self.assertEqual('', cn1.extra)
 
 
-class CNTestLT(unittest.TestCase):
+class CNTestComparators(unittest.TestCase):
     def test_1(self):
         cn1 = CallNumber('A1.B2')
         cn2 = CallNumber('B1.B2')
@@ -820,5 +835,10 @@ class CNTestLT(unittest.TestCase):
         cn1 = CallNumber('A1.A2 op. 59 no. 2')
         cn2 = CallNumber('A1.A2 op. 59 no. 3')
         self.assertTrue(cn1 < cn2)
+
+    def test_16(self):
+        cn1 = CallNumber('A1.A2 op. 59 no. 2')
+        cn2 = CallNumber('A1.A2 op. 59 no. 2')
+        self.assertEqual(cn1, cn2)
 
 
