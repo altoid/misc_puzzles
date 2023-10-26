@@ -344,6 +344,12 @@ class CallNumber:
         if self.cutter2_number > other.cutter2_number:
             return False
 
+        if self.cutter3_letter < other.cutter3_letter:
+            return True
+
+        if self.cutter3_letter > other.cutter3_letter:
+            return False
+
         if self.cutter3_number < other.cutter3_number:
             return True
 
@@ -712,9 +718,107 @@ class CNTestParser(unittest.TestCase):
         self.assertEqual('', cn1.year_tag)
         self.assertEqual('v. 3', cn1.extra)
 
+    def test_op_1(self):
+        cn1 = CallNumber('A1.B2 op. 127')
+
+        self.assertEqual('A', cn1.subject_letters)
+        self.assertEqual('1', cn1.subject_number)
+
+        self.assertEqual('B', cn1.cutter1_letters)
+        self.assertEqual('2', cn1.cutter1_number_str)
+        self.assertEqual(0.2, cn1.cutter1_number)
+
+        self.assertEqual('', cn1.cutter2_letter)
+        self.assertEqual('', cn1.cutter2_number_str)
+        self.assertEqual(0.0, cn1.cutter2_number)
+
+        self.assertEqual('', cn1.cutter3_letter)
+        self.assertEqual('', cn1.cutter3_number_str)
+        self.assertEqual(0.0, cn1.cutter3_number)
+
+        self.assertEqual('op.', cn1.opus_type)
+        self.assertEqual(127, cn1.opus)
+        self.assertEqual(0, cn1.number)
+
+        self.assertEqual('', cn1.year)
+        self.assertEqual('', cn1.year_tag)
+        self.assertEqual('', cn1.extra)
+
 
 class CNTestLT(unittest.TestCase):
     def test_1(self):
         cn1 = CallNumber('A1.B2')
         cn2 = CallNumber('B1.B2')
         self.assertTrue(cn1 < cn2)
+
+    def test_2(self):
+        cn1 = CallNumber('A1.B2')
+        cn2 = CallNumber('A2.B2')
+        self.assertTrue(cn1 < cn2)
+
+    def test_3(self):
+        cn1 = CallNumber('A1.B2')
+        cn2 = CallNumber('B1.B2')
+        self.assertTrue(cn1 < cn2)
+
+    def test_4(self):
+        cn1 = CallNumber('A1.A2')
+        cn2 = CallNumber('A1.B2')
+        self.assertTrue(cn1 < cn2)
+
+    def test_5(self):
+        cn1 = CallNumber('A1.A2')
+        cn2 = CallNumber('A1.A3')
+        self.assertTrue(cn1 < cn2)
+
+    def test_6(self):
+        cn1 = CallNumber('A1.B2 C1')
+        cn2 = CallNumber('A1.B2 D1')
+        self.assertTrue(cn1 < cn2)
+
+    def test_7(self):
+        cn1 = CallNumber('A1.B2 C1')
+        cn2 = CallNumber('B1.B2 C2')
+        self.assertTrue(cn1 < cn2)
+
+    def test_8(self):
+        cn1 = CallNumber('A1.B2 C1 D1')
+        cn2 = CallNumber('A1.B2 C1 E1')
+        self.assertTrue(cn1 < cn2)
+
+    def test_9(self):
+        cn1 = CallNumber('A1.B2 C1 D1')
+        cn2 = CallNumber('B1.B2 C1 D2')
+        self.assertTrue(cn1 < cn2)
+
+    def test_10(self):
+        cn1 = CallNumber('A1.B2 C1 D1 1770')
+        cn2 = CallNumber('B1.B2 C1 D1 1771')
+        self.assertTrue(cn1 < cn2)
+
+    def test_11(self):
+        cn1 = CallNumber('A1.B2 C1 D1 1770')
+        cn2 = CallNumber('B1.B2 C1 D1 1770a')
+        self.assertTrue(cn1 < cn2)
+
+    def test_12(self):
+        cn1 = CallNumber('A1.B2 C1 D1 1770')
+        cn2 = CallNumber('B1.B2 C1 D1 1770 c. 2')
+        self.assertTrue(cn1 < cn2)
+
+    def test_13(self):
+        cn1 = CallNumber('A1.A2')
+        cn2 = CallNumber('A1.A2 op. 127')
+        self.assertTrue(cn1 < cn2)
+
+    def test_14(self):
+        cn1 = CallNumber('A1.A2 op. 125')
+        cn2 = CallNumber('A1.A2 op. 127')
+        self.assertTrue(cn1 < cn2)
+
+    def test_15(self):
+        cn1 = CallNumber('A1.A2 op. 59 no. 2')
+        cn2 = CallNumber('A1.A2 op. 59 no. 3')
+        self.assertTrue(cn1 < cn2)
+
+
