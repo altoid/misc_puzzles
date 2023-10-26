@@ -5,6 +5,7 @@ import csv
 from pprint import pprint
 import sys
 
+
 # call number parser
 
 
@@ -30,12 +31,12 @@ class CallNumber:
             self.pointer += 1
 
         self.skip_white_space()
-        
+
         while self.pointer < len(self.raw) and not self.raw[self.pointer].isdigit():
             self.die()
 
         while self.pointer < len(self.raw) and self.raw[self.pointer].isdigit():
-            self.subject_number += self.raw[self.pointer]
+            self.subject_number_str += self.raw[self.pointer]
             self.pointer += 1
 
         # did we stop at a dot?
@@ -43,12 +44,14 @@ class CallNumber:
             dot_position = self.pointer
             self.pointer += 1
             if self.pointer < len(self.raw) and self.raw[self.pointer].isdigit():
-                self.subject_number += '.'
+                self.subject_number_str += '.'
                 while self.pointer < len(self.raw) and self.raw[self.pointer].isdigit():
-                    self.subject_number += self.raw[self.pointer]
+                    self.subject_number_str += self.raw[self.pointer]
                     self.pointer += 1
             else:
                 self.pointer = dot_position
+
+        self.subject_number = float(self.subject_number_str)
 
     def parse_cutter1(self):
         self.skip_white_space()
@@ -250,48 +253,48 @@ class CallNumber:
 
         if self.subject_letters != other.subject_letters:
             return False
-        
-        if self.subject_number != other.subject_number:
+
+        if self.subject_number_str != other.subject_number_str:
             return False
-        
+
         if self.cutter1_letters != other.cutter1_letters:
             return False
-        
+
         if self.cutter1_number != other.cutter1_number:
             return False
-        
+
         if self.cutter2_letter != other.cutter2_letter:
             return False
-        
+
         if self.cutter2_number != other.cutter2_number:
             return False
-        
+
         if self.cutter3_letter != other.cutter3_letter:
             return False
-        
+
         if self.cutter3_number != other.cutter3_number:
             return False
-        
+
         if self.opus_type != other.opus_type:
             return False
-        
+
         if self.opus != other.opus:
             return False
-        
+
         if self.number != other.number:
             return False
-        
+
         if self.year != other.year:
             return False
-        
+
         if self.year_tag != other.year_tag:
             return False
-        
+
         if self.extra != other.extra:
             return False
-        
+
         return True
-    
+
     def __lt__(self, other):
         if not isinstance(other, CallNumber):
             return NotImplemented
@@ -389,7 +392,8 @@ class CallNumber:
         self.raw = raw
         self.pointer = 0
         self.subject_letters = ''
-        self.subject_number = ''
+        self.subject_number_str = ''
+        self.subject_number = 0.0
         self.cutter1_letters = ''
         self.cutter1_number_str = ''
         self.cutter1_number = 0.0  # float representation of number_str
@@ -410,10 +414,16 @@ class CallNumber:
 
         self.parse_call_number()
 
+    def __str__(self):
+        return self.raw
+
+    def __repr__(self):
+        return self.raw
+
     def dump(self):
         print("raw:  |%s| ###########################################" % self.raw)
         print("subject_letters:  |%s|" % self.subject_letters)
-        print("subject_number:  |%s|" % self.subject_number)
+        print("subject_number_str:  |%s|" % self.subject_number_str)
         if self.cutter1_letters:
             print("cutter1:  |%s%s|" % (self.cutter1_letters, self.cutter1_number_str))
         if self.opus and self.number:
@@ -465,13 +475,30 @@ if __name__ == '__main__':
 
     with open('inventory.csv') as csvfile:
         reader = csv.DictReader(csvfile)
+        inventory = []
         for row in reader:
             raw = row['Permanent Call Number'].strip()
             if not raw:
                 continue
 
-            cn = CallNumber(raw)
-            cn.dump()
+            row['Permanent Call Number'] = CallNumber(raw)
+            inventory.append(row)
+
+    inventory = sorted(inventory, key=lambda x: x['Permanent Call Number'])
+
+    with open('inventory.out.csv', 'w') as csvfile:
+        field_names = ["Normalized Call Number", "Sort Key", "Permanent Call Number", "On shelf Y/N", "Barcode",
+                       "Added to Inventory", "Inventory Note", "Title", "Author", "Publication Date", "Publisher",
+                       "MMS Id", "Bib Material Type", "Resource Type", "Item Material Type", "Lifecycle",
+                       "Library Code", "Location Name", "Location Code", "852 MARC"]
+
+        writer = csv.DictWriter(csvfile, fieldnames=field_names)
+        writer.writeheader()
+        sort_key = 0
+        for row in inventory:
+            row['Sort Key'] = sort_key
+            sort_key += 10
+            writer.writerow(row)
 
 
 class CNTestParser(unittest.TestCase):
@@ -479,7 +506,7 @@ class CNTestParser(unittest.TestCase):
         state before parsing
 
         self.assertEqual('', cn1.subject_letters)
-        self.assertEqual('', cn1.subject_number)
+        self.assertEqual('', cn1.subject_number_str)
 
         self.assertEqual('', cn1.cutter1_letters)
         self.assertEqual('', cn1.cutter1_number_str)
@@ -502,11 +529,12 @@ class CNTestParser(unittest.TestCase):
         self.assertEqual('', cn1.extra)
 
     """
+
     def test_1(self):
         cn1 = CallNumber('A1.B2')
 
         self.assertEqual('A', cn1.subject_letters)
-        self.assertEqual('1', cn1.subject_number)
+        self.assertEqual('1', cn1.subject_number_str)
 
         self.assertEqual('B', cn1.cutter1_letters)
         self.assertEqual('2', cn1.cutter1_number_str)
@@ -532,7 +560,7 @@ class CNTestParser(unittest.TestCase):
         cn1 = CallNumber('A1.B2 C3')
 
         self.assertEqual('A', cn1.subject_letters)
-        self.assertEqual('1', cn1.subject_number)
+        self.assertEqual('1', cn1.subject_number_str)
 
         self.assertEqual('B', cn1.cutter1_letters)
         self.assertEqual('2', cn1.cutter1_number_str)
@@ -558,7 +586,7 @@ class CNTestParser(unittest.TestCase):
         cn1 = CallNumber('A1.B2 C3 D4')
 
         self.assertEqual('A', cn1.subject_letters)
-        self.assertEqual('1', cn1.subject_number)
+        self.assertEqual('1', cn1.subject_number_str)
 
         self.assertEqual('B', cn1.cutter1_letters)
         self.assertEqual('2', cn1.cutter1_number_str)
@@ -584,7 +612,7 @@ class CNTestParser(unittest.TestCase):
         cn1 = CallNumber('A1.B2 C3 D4 1770')
 
         self.assertEqual('A', cn1.subject_letters)
-        self.assertEqual('1', cn1.subject_number)
+        self.assertEqual('1', cn1.subject_number_str)
 
         self.assertEqual('B', cn1.cutter1_letters)
         self.assertEqual('2', cn1.cutter1_number_str)
@@ -610,7 +638,7 @@ class CNTestParser(unittest.TestCase):
         cn1 = CallNumber('A1.B2 C3 D4 1770x')
 
         self.assertEqual('A', cn1.subject_letters)
-        self.assertEqual('1', cn1.subject_number)
+        self.assertEqual('1', cn1.subject_number_str)
 
         self.assertEqual('B', cn1.cutter1_letters)
         self.assertEqual('2', cn1.cutter1_number_str)
@@ -636,7 +664,7 @@ class CNTestParser(unittest.TestCase):
         cn1 = CallNumber('A1.B2 C3 D4 1770 v. 2')
 
         self.assertEqual('A', cn1.subject_letters)
-        self.assertEqual('1', cn1.subject_number)
+        self.assertEqual('1', cn1.subject_number_str)
 
         self.assertEqual('B', cn1.cutter1_letters)
         self.assertEqual('2', cn1.cutter1_number_str)
@@ -662,7 +690,7 @@ class CNTestParser(unittest.TestCase):
         cn1 = CallNumber('A1.B2 1770')
 
         self.assertEqual('A', cn1.subject_letters)
-        self.assertEqual('1', cn1.subject_number)
+        self.assertEqual('1', cn1.subject_number_str)
 
         self.assertEqual('B', cn1.cutter1_letters)
         self.assertEqual('2', cn1.cutter1_number_str)
@@ -688,7 +716,7 @@ class CNTestParser(unittest.TestCase):
         cn1 = CallNumber('A1.B2 v. 3')
 
         self.assertEqual('A', cn1.subject_letters)
-        self.assertEqual('1', cn1.subject_number)
+        self.assertEqual('1', cn1.subject_number_str)
 
         self.assertEqual('B', cn1.cutter1_letters)
         self.assertEqual('2', cn1.cutter1_number_str)
@@ -714,7 +742,7 @@ class CNTestParser(unittest.TestCase):
         cn1 = CallNumber('A1.B2 C3 D4 v. 3')
 
         self.assertEqual('A', cn1.subject_letters)
-        self.assertEqual('1', cn1.subject_number)
+        self.assertEqual('1', cn1.subject_number_str)
 
         self.assertEqual('B', cn1.cutter1_letters)
         self.assertEqual('2', cn1.cutter1_number_str)
@@ -740,7 +768,7 @@ class CNTestParser(unittest.TestCase):
         cn1 = CallNumber('A1.B2 op. 127')
 
         self.assertEqual('A', cn1.subject_letters)
-        self.assertEqual('1', cn1.subject_number)
+        self.assertEqual('1', cn1.subject_number_str)
 
         self.assertEqual('B', cn1.cutter1_letters)
         self.assertEqual('2', cn1.cutter1_number_str)
@@ -848,5 +876,3 @@ class CNTestComparators(unittest.TestCase):
         cn1 = CallNumber('A1.A2 op. 59 no. 2')
         cn2 = CallNumber('A1.A2 op. 59 no. 2')
         self.assertEqual(cn1, cn2)
-
-
