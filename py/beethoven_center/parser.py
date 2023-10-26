@@ -118,6 +118,29 @@ class CallNumber:
         if self.cutter3_number_str:
             self.cutter3_number = float('.' + self.cutter3_number_str)
 
+    def parse_cutter4(self):
+        self.skip_white_space()
+        marker = self.pointer
+        if self.pointer < len(self.raw):
+            if not self.raw[self.pointer].isalpha():
+                return
+        else:
+            return
+
+        self.cutter4_letter += self.raw[self.pointer]
+        self.pointer += 1
+
+        if self.pointer < len(self.raw) and not self.raw[self.pointer].isdigit():
+            self.pointer = marker
+            self.cutter4_letter = ''
+
+        while self.pointer < len(self.raw) and self.raw[self.pointer].isdigit():
+            self.cutter4_number_str += self.raw[self.pointer]
+            self.pointer += 1
+
+        if self.cutter4_number_str:
+            self.cutter4_number = float('.' + self.cutter4_number_str)
+
     def parse_woo(self):
         self.pointer += len('woo')
         self.skip_white_space()
@@ -234,6 +257,9 @@ class CallNumber:
         if self.cutter2_letter:
             self.parse_cutter3()
 
+        if self.cutter3_letter:
+            self.parse_cutter4()
+
         self.parse_year()
         self.parse_extra()
 
@@ -273,6 +299,12 @@ class CallNumber:
             return False
 
         if self.cutter3_number != other.cutter3_number:
+            return False
+
+        if self.cutter4_letter != other.cutter4_letter:
+            return False
+
+        if self.cutter4_number != other.cutter4_number:
             return False
 
         if self.opus_type != other.opus_type:
@@ -365,6 +397,12 @@ class CallNumber:
         if self.cutter3_number > other.cutter3_number:
             return False
 
+        if self.cutter4_number < other.cutter4_number:
+            return True
+
+        if self.cutter4_number > other.cutter4_number:
+            return False
+
         if self.year < other.year:
             return True
 
@@ -394,15 +432,23 @@ class CallNumber:
         self.subject_letters = ''
         self.subject_number_str = ''
         self.subject_number = 0.0
+
         self.cutter1_letters = ''
         self.cutter1_number_str = ''
         self.cutter1_number = 0.0  # float representation of number_str
+
         self.cutter2_letter = ''
         self.cutter2_number_str = ''
         self.cutter2_number = 0.0
+
         self.cutter3_letter = ''
         self.cutter3_number_str = ''
         self.cutter3_number = 0.0
+
+        self.cutter4_letter = ''
+        self.cutter4_number_str = ''
+        self.cutter4_number = 0.0
+
         self.opus_type = ''  # op, WoO, etc.
         self.opus = 0
         self.number = 0  # e.g. op. 18 no. 4
@@ -434,6 +480,8 @@ class CallNumber:
             print("cutter2:  |%s%s|" % (self.cutter2_letter, self.cutter2_number_str))
         if self.cutter3_letter:
             print("cutter3:  |%s%s|" % (self.cutter3_letter, self.cutter3_number_str))
+        if self.cutter4_letter:
+            print("cutter4:  |%s%s|" % (self.cutter4_letter, self.cutter4_number_str))
         if self.year:
             print("year:  |%s|" % self.year)
         if self.year_tag:
@@ -520,6 +568,10 @@ class CNTestParser(unittest.TestCase):
         self.assertEqual('', cn1.cutter3_number_str)
         self.assertEqual(0.0, cn1.cutter3_number)
 
+        self.assertEqual('', cn1.cutter4_letter)
+        self.assertEqual('', cn1.cutter4_number_str)
+        self.assertEqual(0.0, cn1.cutter4_number)
+
         self.assertEqual('', cn1.opus_type)
         self.assertEqual(0, cn1.opus)
         self.assertEqual(0, cn1.number)
@@ -548,6 +600,10 @@ class CNTestParser(unittest.TestCase):
         self.assertEqual('', cn1.cutter3_number_str)
         self.assertEqual(0.0, cn1.cutter3_number)
 
+        self.assertEqual('', cn1.cutter4_letter)
+        self.assertEqual('', cn1.cutter4_number_str)
+        self.assertEqual(0.0, cn1.cutter4_number)
+
         self.assertEqual('', cn1.opus_type)
         self.assertEqual(0, cn1.opus)
         self.assertEqual(0, cn1.number)
@@ -573,6 +629,10 @@ class CNTestParser(unittest.TestCase):
         self.assertEqual('', cn1.cutter3_letter)
         self.assertEqual('', cn1.cutter3_number_str)
         self.assertEqual(0.0, cn1.cutter3_number)
+
+        self.assertEqual('', cn1.cutter4_letter)
+        self.assertEqual('', cn1.cutter4_number_str)
+        self.assertEqual(0.0, cn1.cutter4_number)
 
         self.assertEqual('', cn1.opus_type)
         self.assertEqual(0, cn1.opus)
@@ -600,6 +660,10 @@ class CNTestParser(unittest.TestCase):
         self.assertEqual('4', cn1.cutter3_number_str)
         self.assertEqual(0.4, cn1.cutter3_number)
 
+        self.assertEqual('', cn1.cutter4_letter)
+        self.assertEqual('', cn1.cutter4_number_str)
+        self.assertEqual(0.0, cn1.cutter4_number)
+
         self.assertEqual('', cn1.opus_type)
         self.assertEqual(0, cn1.opus)
         self.assertEqual(0, cn1.number)
@@ -625,6 +689,10 @@ class CNTestParser(unittest.TestCase):
         self.assertEqual('D', cn1.cutter3_letter)
         self.assertEqual('4', cn1.cutter3_number_str)
         self.assertEqual(0.4, cn1.cutter3_number)
+
+        self.assertEqual('', cn1.cutter4_letter)
+        self.assertEqual('', cn1.cutter4_number_str)
+        self.assertEqual(0.0, cn1.cutter4_number)
 
         self.assertEqual('', cn1.opus_type)
         self.assertEqual(0, cn1.opus)
@@ -652,6 +720,10 @@ class CNTestParser(unittest.TestCase):
         self.assertEqual('4', cn1.cutter3_number_str)
         self.assertEqual(0.4, cn1.cutter3_number)
 
+        self.assertEqual('', cn1.cutter4_letter)
+        self.assertEqual('', cn1.cutter4_number_str)
+        self.assertEqual(0.0, cn1.cutter4_number)
+
         self.assertEqual('', cn1.opus_type)
         self.assertEqual(0, cn1.opus)
         self.assertEqual(0, cn1.number)
@@ -677,6 +749,10 @@ class CNTestParser(unittest.TestCase):
         self.assertEqual('D', cn1.cutter3_letter)
         self.assertEqual('4', cn1.cutter3_number_str)
         self.assertEqual(0.4, cn1.cutter3_number)
+
+        self.assertEqual('', cn1.cutter4_letter)
+        self.assertEqual('', cn1.cutter4_number_str)
+        self.assertEqual(0.0, cn1.cutter4_number)
 
         self.assertEqual('', cn1.opus_type)
         self.assertEqual(0, cn1.opus)
@@ -704,6 +780,10 @@ class CNTestParser(unittest.TestCase):
         self.assertEqual('', cn1.cutter3_number_str)
         self.assertEqual(0.0, cn1.cutter3_number)
 
+        self.assertEqual('', cn1.cutter4_letter)
+        self.assertEqual('', cn1.cutter4_number_str)
+        self.assertEqual(0.0, cn1.cutter4_number)
+
         self.assertEqual('', cn1.opus_type)
         self.assertEqual(0, cn1.opus)
         self.assertEqual(0, cn1.number)
@@ -729,6 +809,10 @@ class CNTestParser(unittest.TestCase):
         self.assertEqual('', cn1.cutter3_letter)
         self.assertEqual('', cn1.cutter3_number_str)
         self.assertEqual(0.0, cn1.cutter3_number)
+
+        self.assertEqual('', cn1.cutter4_letter)
+        self.assertEqual('', cn1.cutter4_number_str)
+        self.assertEqual(0.0, cn1.cutter4_number)
 
         self.assertEqual('', cn1.opus_type)
         self.assertEqual(0, cn1.opus)
@@ -756,6 +840,10 @@ class CNTestParser(unittest.TestCase):
         self.assertEqual('4', cn1.cutter3_number_str)
         self.assertEqual(0.4, cn1.cutter3_number)
 
+        self.assertEqual('', cn1.cutter4_letter)
+        self.assertEqual('', cn1.cutter4_number_str)
+        self.assertEqual(0.0, cn1.cutter4_number)
+
         self.assertEqual('', cn1.opus_type)
         self.assertEqual(0, cn1.opus)
         self.assertEqual(0, cn1.number)
@@ -782,11 +870,45 @@ class CNTestParser(unittest.TestCase):
         self.assertEqual('', cn1.cutter3_number_str)
         self.assertEqual(0.0, cn1.cutter3_number)
 
+        self.assertEqual('', cn1.cutter4_letter)
+        self.assertEqual('', cn1.cutter4_number_str)
+        self.assertEqual(0.0, cn1.cutter4_number)
+
         self.assertEqual('op.', cn1.opus_type)
         self.assertEqual(127, cn1.opus)
         self.assertEqual(0, cn1.number)
 
         self.assertEqual('', cn1.year)
+        self.assertEqual('', cn1.year_tag)
+        self.assertEqual('', cn1.extra)
+
+    def test_cutter_4(self):
+        cn1 = CallNumber('ML410.B1 A7 T4213, F6, 1967')
+
+        self.assertEqual('ML', cn1.subject_letters)
+        self.assertEqual('410', cn1.subject_number_str)
+
+        self.assertEqual('B', cn1.cutter1_letters)
+        self.assertEqual('1', cn1.cutter1_number_str)
+        self.assertEqual(0.1, cn1.cutter1_number)
+
+        self.assertEqual('A', cn1.cutter2_letter)
+        self.assertEqual('7', cn1.cutter2_number_str)
+        self.assertEqual(0.7, cn1.cutter2_number)
+
+        self.assertEqual('T', cn1.cutter3_letter)
+        self.assertEqual('4213', cn1.cutter3_number_str)
+        self.assertEqual(0.4213, cn1.cutter3_number)
+
+        self.assertEqual('F', cn1.cutter4_letter)
+        self.assertEqual('6', cn1.cutter4_number_str)
+        self.assertEqual(0.6, cn1.cutter4_number)
+
+        self.assertEqual('', cn1.opus_type)
+        self.assertEqual(0, cn1.opus)
+        self.assertEqual(0, cn1.number)
+
+        self.assertEqual('1967', cn1.year)
         self.assertEqual('', cn1.year_tag)
         self.assertEqual('', cn1.extra)
 
