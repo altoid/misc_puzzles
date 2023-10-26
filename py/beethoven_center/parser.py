@@ -29,6 +29,8 @@ class CallNumber:
             self.subject_letters += self.raw[self.pointer]
             self.pointer += 1
 
+        self.skip_white_space()
+        
         while self.pointer < len(self.raw) and not self.raw[self.pointer].isdigit():
             self.die()
 
