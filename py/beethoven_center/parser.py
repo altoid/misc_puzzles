@@ -156,7 +156,7 @@ class CallNumber:
         if opus_str:
             self.opus = int(opus_str)
 
-        self.opus_type = 'WoO'
+        self.opus_type = 'woo'
 
     def parse_opus_number(self):
         self.pointer += len('op.')
@@ -535,10 +535,29 @@ if __name__ == '__main__':
     inventory = sorted(inventory, key=lambda x: x['Permanent Call Number'])
 
     with open('inventory.out.csv', 'w') as csvfile:
-        field_names = ["Normalized Call Number", "Sort Key", "Permanent Call Number", "On shelf Y/N", "Barcode",
-                       "Added to Inventory", "Inventory Note", "Title", "Author", "Publication Date", "Publisher",
-                       "MMS Id", "Bib Material Type", "Resource Type", "Item Material Type", "Lifecycle",
-                       "Library Code", "Location Name", "Location Code", "852 MARC"]
+        field_names = [
+            "Normalized Call Number",
+            "Sort Key",
+            "Permanent Call Number",
+            "On shelf Y/N",
+            "Title",
+            "Author",
+            "Barcode",
+            "Barcode added to sheet",
+            "Added to Inventory",
+            "Inventory Note",
+            "Publication Date",
+            "Publisher",
+            "MMS Id",
+            "Bib Material Type",
+            "Resource Type",
+            "Item Material Type",
+            "Lifecycle",
+            "Library Code",
+            "Location Name",
+            "Location Code",
+            "852 MARC"
+        ]
 
         writer = csv.DictWriter(csvfile, fieldnames=field_names)
         writer.writeheader()
