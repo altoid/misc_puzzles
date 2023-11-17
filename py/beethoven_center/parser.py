@@ -246,12 +246,14 @@ class CallNumber:
             self.pointer += 1
 
     def parse_volume(self):
-        m = self.copy_regex.match(self.extra)
+        m = self.volume_regex.match(self.extra)
         if m:
-            self.volume = int(m.group(1))
+            self.volume = int(m.group(2))
 
     def parse_copy(self):
-        pass
+        m = self.copy_regex.match(self.extra)
+        if m:
+            self.copy = int(m.group(2))
 
     def parse_extra(self):
         self.skip_white_space()
@@ -336,6 +338,12 @@ class CallNumber:
             return False
 
         if self.year_tag != other.year_tag:
+            return False
+
+        if self.copy != other.copy:
+            return False
+
+        if self.volume != other.volume:
             return False
 
         if self.extra != other.extra:
@@ -488,7 +496,8 @@ class CallNumber:
         self.copy = 0    # these will only be nonzero if v/c are in the call number.
         self.volume = 0
 
-        self.copy_regex = re.compile(r"""\bv\b\. (\d+)""")
+        self.volume_regex = re.compile(r""".*\bv(ol)?\b\s*\.?\s*(\d+)""")
+        self.copy_regex = re.compile(r""".*\bc(op)?\b\s*\.?\s*(\d+)""")
 
         self.parse_call_number()
 
@@ -1069,6 +1078,26 @@ class CNTestParser(unittest.TestCase):
         self.assertEqual(0, cn1.volume)
         self.assertEqual(0, cn1.copy)
 
+    def test_volume_1(self):
+        cn1 = CallNumber('A1.B2 C3 D4 1770 v. 2')
+        self.assertEqual(2, cn1.volume)
+
+    def test_volume_2(self):
+        cn1 = CallNumber('A1.B2 C3 D4 1770 v.2')
+        self.assertEqual(2, cn1.volume)
+
+    def test_volume_3(self):
+        cn1 = CallNumber('A1.B2 C3 D4 1770 vol. 2')
+        self.assertEqual(2, cn1.volume)
+
+    def test_volume_4(self):
+        cn1 = CallNumber('ML410.B1A5 1972-, v.10')
+        self.assertEqual(10, cn1.volume)
+
+    def test_copy_1(self):
+        cn1 = CallNumber('ML410.B1 A61 G74 2008 c. 2')
+        self.assertEqual(2, cn1.copy)
+
     def test_real(self):
         # call numbers that choked the parser
         cn1 = CallNumber('ML33.B42 E34 2008')
@@ -1161,3 +1190,14 @@ class CNTestComparators(unittest.TestCase):
         cn2 = CallNumber('ML423.R44 F3 1929')
         self.assertTrue(cn2 < cn1)
 
+    def test_18(self):
+        cn1 = CallNumber('ML410.B1 A61 G74 2008 v.2')
+        cn2 = CallNumber('ML410.B1 A61 G74 2008 v.10')
+        self.assertTrue(cn1 < cn2)
+
+    def test_19(self):
+        cn1 = CallNumber('ML410.B1 A61 G74 2008 v.2 c. 1')
+        cn2 = CallNumber('ML410.B1 A61 G74 2008 v.1 c. 2')
+        cn1.dump()
+        cn2.dump()
+        self.assertTrue(cn1 < cn2)
