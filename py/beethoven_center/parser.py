@@ -2,6 +2,7 @@
 
 import unittest
 import csv
+import re
 from pprint import pprint
 import sys
 
@@ -245,7 +246,9 @@ class CallNumber:
             self.pointer += 1
 
     def parse_volume(self):
-        pass
+        m = self.copy_regex.match(self.extra)
+        if m:
+            self.volume = int(m.group(1))
 
     def parse_copy(self):
         pass
@@ -484,6 +487,8 @@ class CallNumber:
 
         self.copy = 0    # these will only be nonzero if v/c are in the call number.
         self.volume = 0
+
+        self.copy_regex = re.compile(r"""\bv\b\. (\d+)""")
 
         self.parse_call_number()
 
