@@ -244,10 +244,19 @@ class CallNumber:
             self.year_tag += self.raw[self.pointer]
             self.pointer += 1
 
+    def parse_volume(self):
+        pass
+
+    def parse_copy(self):
+        pass
+
     def parse_extra(self):
         self.skip_white_space()
         if self.pointer < len(self.raw):
             self.extra = self.raw[self.pointer:]
+
+        self.parse_volume()
+        self.parse_copy()
 
     def parse_rest(self):
         self.parse_cutter1()
@@ -419,6 +428,19 @@ class CallNumber:
         if self.year_tag > other.year_tag:
             return False
 
+        # copy sorts before volume.
+        if self.copy < other.copy:
+            return True
+
+        if self.copy > other.copy:
+            return False
+
+        if self.volume < other.volume:
+            return True
+
+        if self.volume > other.volume:
+            return False
+
         if self.extra < other.extra:
             return True
 
@@ -431,7 +453,7 @@ class CallNumber:
     def __init__(self, raw):
         # all fields are strings
 
-        self.raw = raw
+        self.raw = raw.strip()
         self.pointer = 0
         self.subject_letters = ''
         self.subject_number_str = ''
@@ -460,7 +482,8 @@ class CallNumber:
         self.year_tag = ''  # whatever comes after the year, e.g. 'a' in 1921a
         self.extra = ''  # used to indicate volume number, copy number, etc.
 
-        self.raw = self.raw.strip()
+        self.copy = 0    # these will only be nonzero if v/c are in the call number.
+        self.volume = 0
 
         self.parse_call_number()
 
@@ -492,6 +515,10 @@ class CallNumber:
             print("year_tag:  |%s|" % self.year_tag)
         if self.extra:
             print("extra:  |%s|" % self.extra)
+        if self.volume:
+            print("volume:  |%s|" % self.volume)
+        if self.copy:
+            print("copy:  |%s|" % self.copy)
 
 
 if __name__ == '__main__':
@@ -603,6 +630,9 @@ class CNTestParser(unittest.TestCase):
         self.assertEqual('', cn1.year_tag)
         self.assertEqual('', cn1.extra)
 
+        self.assertEqual(0, cn1.volume)
+        self.assertEqual(0, cn1.copy)
+
     """
 
     def test_1(self):
@@ -635,6 +665,9 @@ class CNTestParser(unittest.TestCase):
         self.assertEqual('', cn1.year_tag)
         self.assertEqual('', cn1.extra)
 
+        self.assertEqual(0, cn1.volume)
+        self.assertEqual(0, cn1.copy)
+
     def test_2(self):
         cn1 = CallNumber('A1.B2 C3')
 
@@ -664,6 +697,9 @@ class CNTestParser(unittest.TestCase):
         self.assertEqual('', cn1.year)
         self.assertEqual('', cn1.year_tag)
         self.assertEqual('', cn1.extra)
+
+        self.assertEqual(0, cn1.volume)
+        self.assertEqual(0, cn1.copy)
 
     def test_3(self):
         cn1 = CallNumber('A1.B2 C3 D4')
@@ -695,6 +731,9 @@ class CNTestParser(unittest.TestCase):
         self.assertEqual('', cn1.year_tag)
         self.assertEqual('', cn1.extra)
 
+        self.assertEqual(0, cn1.volume)
+        self.assertEqual(0, cn1.copy)
+
     def test_4(self):
         cn1 = CallNumber('A1.B2 C3 D4 1770')
 
@@ -724,6 +763,9 @@ class CNTestParser(unittest.TestCase):
         self.assertEqual('1770', cn1.year)
         self.assertEqual('', cn1.year_tag)
         self.assertEqual('', cn1.extra)
+
+        self.assertEqual(0, cn1.volume)
+        self.assertEqual(0, cn1.copy)
 
     def test_5(self):
         cn1 = CallNumber('A1.B2 C3 D4 1770x')
@@ -755,6 +797,9 @@ class CNTestParser(unittest.TestCase):
         self.assertEqual('x', cn1.year_tag)
         self.assertEqual('', cn1.extra)
 
+        self.assertEqual(0, cn1.volume)
+        self.assertEqual(0, cn1.copy)
+
     def test_6(self):
         cn1 = CallNumber('A1.B2 C3 D4 1770 v. 2')
 
@@ -784,6 +829,9 @@ class CNTestParser(unittest.TestCase):
         self.assertEqual('1770', cn1.year)
         self.assertEqual('', cn1.year_tag)
         self.assertEqual('v. 2', cn1.extra)
+
+        self.assertEqual(2, cn1.volume)
+        self.assertEqual(0, cn1.copy)
 
     def test_no_cutter2(self):
         cn1 = CallNumber('A1.B2 1770')
@@ -815,6 +863,9 @@ class CNTestParser(unittest.TestCase):
         self.assertEqual('', cn1.year_tag)
         self.assertEqual('', cn1.extra)
 
+        self.assertEqual(0, cn1.volume)
+        self.assertEqual(0, cn1.copy)
+
     def test_just_extra(self):
         cn1 = CallNumber('A1.B2 v. 3')
 
@@ -844,6 +895,9 @@ class CNTestParser(unittest.TestCase):
         self.assertEqual('', cn1.year)
         self.assertEqual('', cn1.year_tag)
         self.assertEqual('v. 3', cn1.extra)
+
+        self.assertEqual(3, cn1.volume)
+        self.assertEqual(0, cn1.copy)
 
     def test_no_year(self):
         cn1 = CallNumber('A1.B2 C3 D4 v. 3')
@@ -875,6 +929,9 @@ class CNTestParser(unittest.TestCase):
         self.assertEqual('', cn1.year_tag)
         self.assertEqual('v. 3', cn1.extra)
 
+        self.assertEqual(3, cn1.volume)
+        self.assertEqual(0, cn1.copy)
+
     def test_op_1(self):
         cn1 = CallNumber('A1.B2 op. 127')
 
@@ -904,6 +961,9 @@ class CNTestParser(unittest.TestCase):
         self.assertEqual('', cn1.year)
         self.assertEqual('', cn1.year_tag)
         self.assertEqual('', cn1.extra)
+
+        self.assertEqual(0, cn1.volume)
+        self.assertEqual(0, cn1.copy)
 
     def test_cutter_4(self):
         cn1 = CallNumber('ML410.B1 A7 T4213, F6, 1967')
@@ -935,6 +995,9 @@ class CNTestParser(unittest.TestCase):
         self.assertEqual('', cn1.year_tag)
         self.assertEqual('', cn1.extra)
 
+        self.assertEqual(0, cn1.volume)
+        self.assertEqual(0, cn1.copy)
+
     def test_cutter_with_dot(self):
         cn1 = CallNumber('ML423.R44 .G68 1915')
 
@@ -964,6 +1027,9 @@ class CNTestParser(unittest.TestCase):
         self.assertEqual('1915', cn1.year)
         self.assertEqual('', cn1.year_tag)
         self.assertEqual('', cn1.extra)
+
+        self.assertEqual(0, cn1.volume)
+        self.assertEqual(0, cn1.copy)
 
     def test_cutter_with_dot_2(self):
         cn1 = CallNumber('ML423.A12.B34.C56.D78 1915 riplvb')
@@ -995,6 +1061,8 @@ class CNTestParser(unittest.TestCase):
         self.assertEqual('', cn1.year_tag)
         self.assertEqual('riplvb', cn1.extra)
 
+        self.assertEqual(0, cn1.volume)
+        self.assertEqual(0, cn1.copy)
 
     def test_real(self):
         # call numbers that choked the parser
