@@ -24,6 +24,10 @@ class CallNumber:
         while self.pointer < len(self.raw) and (self.raw[self.pointer].isspace() or self.raw[self.pointer] == ','):
             self.pointer += 1
 
+    def skip_cutter_separator(self):
+        while self.pointer < len(self.raw) and (self.raw[self.pointer].isspace() or self.raw[self.pointer] == ',' or self.raw[self.pointer] == '.'):
+            self.pointer += 1
+
     def parse_subject_number(self):
         self.skip_white_space()
         while self.pointer < len(self.raw) and self.raw[self.pointer].isalpha():
@@ -73,7 +77,7 @@ class CallNumber:
             self.cutter1_number = float('.' + self.cutter1_number_str)
 
     def parse_cutter2(self):
-        self.skip_white_space()
+        self.skip_cutter_separator()
         marker = self.pointer
         if self.pointer < len(self.raw):
             if not self.raw[self.pointer].isalpha():
@@ -96,7 +100,7 @@ class CallNumber:
             self.cutter2_number = float('.' + self.cutter2_number_str)
 
     def parse_cutter3(self):
-        self.skip_white_space()
+        self.skip_cutter_separator()
         marker = self.pointer
         if self.pointer < len(self.raw):
             if not self.raw[self.pointer].isalpha():
@@ -119,7 +123,7 @@ class CallNumber:
             self.cutter3_number = float('.' + self.cutter3_number_str)
 
     def parse_cutter4(self):
-        self.skip_white_space()
+        self.skip_cutter_separator()
         marker = self.pointer
         if self.pointer < len(self.raw):
             if not self.raw[self.pointer].isalpha():
@@ -931,6 +935,67 @@ class CNTestParser(unittest.TestCase):
         self.assertEqual('', cn1.year_tag)
         self.assertEqual('', cn1.extra)
 
+    def test_cutter_with_dot(self):
+        cn1 = CallNumber('ML423.R44 .G68 1915')
+
+        self.assertEqual('ML', cn1.subject_letters)
+        self.assertEqual('423', cn1.subject_number_str)
+
+        self.assertEqual('R', cn1.cutter1_letters)
+        self.assertEqual('44', cn1.cutter1_number_str)
+        self.assertEqual(0.44, cn1.cutter1_number)
+
+        self.assertEqual('G', cn1.cutter2_letter)
+        self.assertEqual('68', cn1.cutter2_number_str)
+        self.assertEqual(0.68, cn1.cutter2_number)
+
+        self.assertEqual('', cn1.cutter3_letter)
+        self.assertEqual('', cn1.cutter3_number_str)
+        self.assertEqual(0.0, cn1.cutter3_number)
+
+        self.assertEqual('', cn1.cutter4_letter)
+        self.assertEqual('', cn1.cutter4_number_str)
+        self.assertEqual(0.0, cn1.cutter4_number)
+
+        self.assertEqual('', cn1.opus_type)
+        self.assertEqual(0, cn1.opus)
+        self.assertEqual(0, cn1.number)
+
+        self.assertEqual('1915', cn1.year)
+        self.assertEqual('', cn1.year_tag)
+        self.assertEqual('', cn1.extra)
+
+    def test_cutter_with_dot_2(self):
+        cn1 = CallNumber('ML423.A12.B34.C56.D78 1915 riplvb')
+
+        self.assertEqual('ML', cn1.subject_letters)
+        self.assertEqual('423', cn1.subject_number_str)
+
+        self.assertEqual('A', cn1.cutter1_letters)
+        self.assertEqual('12', cn1.cutter1_number_str)
+        self.assertEqual(0.12, cn1.cutter1_number)
+
+        self.assertEqual('B', cn1.cutter2_letter)
+        self.assertEqual('34', cn1.cutter2_number_str)
+        self.assertEqual(0.34, cn1.cutter2_number)
+
+        self.assertEqual('C', cn1.cutter3_letter)
+        self.assertEqual('56', cn1.cutter3_number_str)
+        self.assertEqual(0.56, cn1.cutter3_number)
+
+        self.assertEqual('D', cn1.cutter4_letter)
+        self.assertEqual('78', cn1.cutter4_number_str)
+        self.assertEqual(0.78, cn1.cutter4_number)
+
+        self.assertEqual('', cn1.opus_type)
+        self.assertEqual(0, cn1.opus)
+        self.assertEqual(0, cn1.number)
+
+        self.assertEqual('1915', cn1.year)
+        self.assertEqual('', cn1.year_tag)
+        self.assertEqual('riplvb', cn1.extra)
+
+
     def test_real(self):
         # call numbers that choked the parser
         cn1 = CallNumber('ML33.B42 E34 2008')
@@ -1017,3 +1082,9 @@ class CNTestComparators(unittest.TestCase):
         cn1 = CallNumber('A1.A2 op. 59 no. 2')
         cn2 = CallNumber('A1.A2 op. 59 no. 2')
         self.assertEqual(cn1, cn2)
+
+    def test_17(self):
+        cn1 = CallNumber('ML423.R44 .G68 1915')
+        cn2 = CallNumber('ML423.R44 F3 1929')
+        self.assertTrue(cn2 < cn1)
+
