@@ -201,45 +201,13 @@ class CallNumber:
 
     def parse_year(self):
         self.skip_white_space()
-        marker = self.pointer
 
-        if self.pointer < len(self.raw) and self.raw[self.pointer].isdigit():
-            self.year += self.raw[self.pointer]
-            self.pointer += 1
-        else:
-            self.pointer = marker
-            self.year = ''
+        m = self.year_regex.match(self.raw[self.pointer:])
+        if not m:
             return
 
-        if self.pointer < len(self.raw) and self.raw[self.pointer].isdigit():
-            self.year += self.raw[self.pointer]
-            self.pointer += 1
-        else:
-            self.pointer = marker
-            self.year = ''
-            return
-
-        if self.pointer < len(self.raw) and self.raw[self.pointer].isdigit():
-            self.year += self.raw[self.pointer]
-            self.pointer += 1
-        else:
-            self.pointer = marker
-            self.year = ''
-            return
-
-        if self.pointer < len(self.raw) and self.raw[self.pointer].isdigit():
-            self.year += self.raw[self.pointer]
-            self.pointer += 1
-        else:
-            self.pointer = marker
-            self.year = ''
-            return
-
-        # if we have more than 4 digits in a row, consider it extra text.
-        if self.pointer < len(self.raw) and self.raw[self.pointer].isdigit():
-            self.pointer = marker
-            self.year = ''
-            return
+        self.year = m.group(1)
+        self.pointer += len(self.year)
 
         while self.pointer < len(self.raw) and not self.raw[self.pointer].isspace():
             self.year_tag += self.raw[self.pointer]
@@ -498,6 +466,7 @@ class CallNumber:
 
         self.volume_regex = re.compile(r""".*\bv(ol)?\b\s*\.?\s*(\d+)""")
         self.copy_regex = re.compile(r""".*\bc(op)?\b\s*\.?\s*(\d+)""")
+        self.year_regex = re.compile(r"""[^\d]*([\d]{4})[^\d]*""")
 
         self.parse_call_number()
 
